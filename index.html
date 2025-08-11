@@ -293,20 +293,20 @@
           const item = document.createElement('div');
           if (isHistory) {
             item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center justify-between group`;
+            item.addEventListener('click', () => {
+                if (container === overlaySuggestions) {
+                  overlayInput.value = s;
+                  toggleClearButton(overlayInput.value, overlayClearButton);
+                }
+                else {
+                  mainInput.value = s;
+                  toggleClearButton(mainInput.value, mainClearButton);
+                }
+                doSearch(s);
+            });
             const searchIcon = document.createElement('div');
             searchIcon.className = 'flex items-center flex-grow';
             searchIcon.innerHTML = `<i class="fas fa-history text-gray-400 mr-2"></i><span>${s}</span>`;
-            searchIcon.addEventListener('click', () => {
-              if (container === overlaySuggestions) {
-                overlayInput.value = s;
-                toggleClearButton(overlayInput.value, overlayClearButton);
-              }
-              else {
-                mainInput.value = s;
-                toggleClearButton(mainInput.value, mainClearButton);
-              }
-              doSearch(s);
-            });
             item.appendChild(searchIcon);
 
             const deleteButton = document.createElement('i');
