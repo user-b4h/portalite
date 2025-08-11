@@ -375,7 +375,7 @@
       function doSearch(q) {
         if (!q) return;
         saveSearchHistory(q);
-        window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+        window.open(`https://search.yahoo.co.jp/search?p=${encodeURIComponent(q)}`, '_blank');
         closeOverlay();
         mainSuggestions.classList.add('hidden');
       }
@@ -395,9 +395,7 @@
       }, 180);
 
       function toggleClearButton(query, clearButton) {
-        if (window.innerWidth <= 768) {
-          clearButton.classList.add('hidden');
-        } else if (query.length > 0) {
+        if (query.length > 0) {
           clearButton.classList.remove('hidden');
         } else {
           clearButton.classList.add('hidden');
