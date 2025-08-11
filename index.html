@@ -161,6 +161,11 @@
         <div class="text-center">ニュースを取得中...</div>
       </div>
     </section>
+    
+    <footer class="text-center text-gray-500 dark:text-gray-400 text-sm mt-8">
+      <span id="copyright-text"></span>
+    </footer>
+
   </div>
 
   <div id="search-overlay" class="hidden">
@@ -204,6 +209,11 @@
       const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
       const HISTORY_KEY = 'search-history';
       const HISTORY_LIMIT = 10;
+      
+      const copyrightText = document.getElementById('copyright-text');
+      const currentYear = new Date().getFullYear();
+      copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
+
       async function fetchWeather() {
         try {
           weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
