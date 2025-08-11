@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>マイポータル（PC候補＋モバイルオーバーレイ＋ダークモード改善）</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font AwesomeのCSSを追加 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body { font-family: Inter, sans-serif; background:#f3f4f6; color:#1f2937; }
     .card { background:#fff; }
@@ -24,6 +26,51 @@
     @media (prefers-color-scheme: dark) {
       #search-overlay { background: #1f2937; }
     }
+    /* ニュースの区切り線とホバー効果を改善 */
+    .news-item {
+      padding: 1rem;
+      transition-property: background-color, transform;
+      transition-duration: 300ms;
+    }
+    .news-item:not(:last-child) {
+      border-bottom: 2px solid #e2e8f0; /* 見やすい区切り線 */
+    }
+    .news-item:hover {
+      background-color: #f1f5f9; /* ホバー時の背景色 */
+      transform: translateY(-2px); /* 少し上に移動する効果 */
+    }
+    @media (prefers-color-scheme: dark) {
+      .news-item:not(:last-child) {
+        border-bottom: 2px solid #4a5568; /* ダークモードの区切り線 */
+      }
+      .news-item:hover {
+        background-color: #2d3748; /* ダークモードのホバー時の背景色 */
+      }
+    }
+    /* クリアボタンのスタイル */
+    .clear-button {
+      position: absolute;
+      right: 0.75rem; /* 検索ボタンとの間隔を調整 */
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 1.25rem;
+      z-index: 20;
+    }
+    .clear-button:hover {
+      color: #6b7280;
+    }
+    /* 履歴削除ボタンのスタイル */
+    .history-delete-button {
+        color: #9ca3af;
+        margin-left: auto; /* 右端に寄せる */
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+    .history-delete-button:hover {
+        color: #ef4444; /* ホバーで赤色にする */
+    }
   </style>
 </head>
 <body class="p-4 sm:p-8 flex flex-col items-center min-h-screen">
@@ -36,19 +83,25 @@
     <!-- 検索セクション -->
     <section class="card p-6 rounded-2xl shadow-lg relative">
       <h2 class="text-2xl font-semibold mb-4">ウェブ検索</h2>
-      <div class="input-group flex space-x-2">
-        <input id="search-input-main" type="text" placeholder="検索キーワードを入力..."
-               class="flex-grow min-w-0 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500
-                      dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
-               autocomplete="off">
+      <!-- 検索入力とボタンのレイアウトを修正 -->
+      <div class="input-group flex space-x-2 items-center">
+        <!-- 検索入力と候補リストを新しいコンテナでラップ -->
+        <div class="relative flex-grow min-w-0">
+          <input id="search-input-main" type="text" placeholder="検索キーワードを入力..."
+                 class="w-full p-3 pr-12 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500
+                        dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
+                 autocomplete="off">
+          <!-- PC用クリアボタン -->
+          <i id="clear-button-main" class="fas fa-times-circle clear-button hidden"></i>
+          <!-- PC用検索候補コンテナ -->
+          <div id="suggestions-container-main"
+               class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 hidden">
+          </div>
+        </div>
         <button id="search-button-main"
-                class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md">
+                class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md flex-shrink-0">
           検索
         </button>
-      </div>
-      <!-- PC用検索候補コンテナ -->
-      <div id="suggestions-container-main"
-           class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 hidden">
       </div>
     </section>
 
@@ -72,10 +125,14 @@
   <!-- 検索オーバーレイ -->
   <div id="search-overlay" class="hidden">
     <div class="p-4 flex items-center space-x-2 border-b border-gray-200 dark:border-gray-600">
-      <input id="search-input-overlay" type="text"
-             class="flex-grow min-w-0 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500
-                    dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
-             placeholder="検索キーワード..." autocomplete="off">
+      <div class="relative flex-grow min-w-0">
+        <input id="search-input-overlay" type="text"
+               class="w-full p-3 pr-12 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500
+                      dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
+               placeholder="検索キーワード..." autocomplete="off">
+        <!-- オーバーレイ用クリアボタン -->
+        <i id="clear-button-overlay" class="fas fa-times-circle clear-button hidden"></i>
+      </div>
       <button id="overlay-search-button"
               class="flex-shrink-0 bg-blue-600 text-white px-3 py-2 rounded-xl hover:bg-blue-700 transition duration-300 text-sm">
         検索
@@ -96,17 +153,20 @@
       const mainInput = document.getElementById('search-input-main');
       const mainButton = document.getElementById('search-button-main');
       const mainSuggestions = document.getElementById('suggestions-container-main');
+      const mainClearButton = document.getElementById('clear-button-main');
 
       const overlay = document.getElementById('search-overlay');
       const overlayInput = document.getElementById('search-input-overlay');
       const overlaySearchButton = document.getElementById('overlay-search-button');
       const cancelButton = document.getElementById('cancel-button');
       const overlaySuggestions = document.getElementById('suggestions-container-overlay');
+      const overlayClearButton = document.getElementById('clear-button-overlay');
 
       const weatherApiUrl = 'https://weather.tsukumijima.net/api/forecast?city=016010';
       const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
-
-      const localSuggestions = ['今日の天気', '最新ニュース', 'Google', 'YouTube', 'Gmail', 'Google Maps', '今日のランチ', 'おすすめの映画', '最新技術', 'プログラミング'];
+      
+      const HISTORY_KEY = 'search-history';
+      const HISTORY_LIMIT = 10;
 
       async function fetchWeather() {
         try {
@@ -115,10 +175,12 @@
           const data = await r.json();
           weatherContainer.innerHTML = '';
           data.forecasts.slice(0, 3).forEach(forecast => {
+            const iconUrl = forecast.image.url;
             const el = document.createElement('div');
             el.className = 'p-4 rounded-xl shadow-inner card';
             el.innerHTML = `
               <p class="text-lg font-bold">${forecast.dateLabel}</p>
+              <img src="${iconUrl}" alt="${forecast.telop}" class="w-12 h-12 mx-auto my-2" onerror="this.src='https://placehold.co/48x48/CCCCCC/FFFFFF?text=No+Icon';">
               <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">${forecast.telop}</p>
               <div class="flex justify-center items-center space-x-2 text-sm">
                 <span class="text-blue-500">最低: ${forecast.temperature.min?.celsius || '--'}°C</span>
@@ -140,14 +202,18 @@
           newsContainer.innerHTML = '';
           items.forEach(item => {
             const title = item.querySelector('title')?.textContent;
+            const description = item.querySelector('description')?.textContent;
             const link = item.querySelector('link')?.textContent;
             if (title && link) {
               const a = document.createElement('a');
               a.href = link;
               a.target = '_blank';
               a.rel = 'noopener noreferrer';
-              a.className = 'block p-3 rounded-xl shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-300';
-              a.textContent = title;
+              a.className = 'news-item block transition-colors duration-300';
+              a.innerHTML = `
+                <p class="font-semibold">${title}</p>
+                ${description ? `<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${description}</p>` : ''}
+              `;
               newsContainer.appendChild(a);
             }
           });
@@ -186,25 +252,105 @@
         } catch { return []; }
       }
 
-      function renderSuggestions(list, container) {
+      // isHistoryパラメータを追加
+      function renderSuggestions(list, container, isHistory = false) {
         container.innerHTML = '';
         if (!list || list.length === 0) { container.classList.add('hidden'); return; }
         container.classList.remove('hidden');
-        list.forEach(s => {
+        list.forEach((s, index) => {
           const item = document.createElement('div');
-          item.textContent = s;
-          item.className = 'p-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 rounded-lg';
-          item.addEventListener('click', () => {
-            if (container === overlaySuggestions) overlayInput.value = s;
-            else mainInput.value = s;
-            doSearch(s);
-          });
+          // 履歴の場合は履歴アイコンと削除ボタン、それ以外は検索アイコン
+          if (isHistory) {
+            item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center justify-between group`;
+            const searchIcon = document.createElement('div');
+            searchIcon.className = 'flex items-center flex-grow';
+            searchIcon.innerHTML = `<i class="fas fa-history text-gray-400 mr-2"></i><span>${s}</span>`;
+            searchIcon.addEventListener('click', () => {
+              if (container === overlaySuggestions) {
+                overlayInput.value = s;
+                toggleClearButton(overlayInput.value, overlayClearButton);
+              }
+              else {
+                mainInput.value = s;
+                toggleClearButton(mainInput.value, mainClearButton);
+              }
+              doSearch(s);
+            });
+            item.appendChild(searchIcon);
+
+            // 削除ボタン
+            const deleteButton = document.createElement('i');
+            deleteButton.className = 'fas fa-times history-delete-button';
+            deleteButton.addEventListener('click', (e) => {
+              e.stopPropagation(); // 親要素のクリックイベントが発火するのを防ぐ
+              deleteSearchHistory(s);
+              renderSearchHistory(container);
+            });
+            item.appendChild(deleteButton);
+          } else {
+            item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center`;
+            item.innerHTML = `<i class="fas fa-search text-gray-400 mr-2"></i><span>${s}</span>`;
+            item.addEventListener('click', () => {
+              if (container === overlaySuggestions) {
+                overlayInput.value = s;
+                toggleClearButton(overlayInput.value, overlayClearButton);
+              }
+              else {
+                mainInput.value = s;
+                toggleClearButton(mainInput.value, mainClearButton);
+              }
+              doSearch(s);
+            });
+          }
+          
+          // 最後の項目以外に区切り線を追加
+          if (index < list.length - 1) {
+            item.classList.add('border-b', 'border-gray-200', 'dark:border-gray-600');
+          }
+
           container.appendChild(item);
         });
+      }
+      
+      // 検索履歴を取得する関数
+      function getSearchHistory() {
+        try {
+          const history = localStorage.getItem(HISTORY_KEY);
+          return history ? JSON.parse(history) : [];
+        } catch {
+          return [];
+        }
+      }
+
+      // 検索履歴を保存する関数
+      function saveSearchHistory(query) {
+        if (!query) return;
+        let history = getSearchHistory();
+        history = history.filter(item => item !== query); // 重複を削除
+        history.unshift(query); // 先頭に追加
+        // 履歴の件数が上限を超えたら、古いものから削除
+        if (history.length > HISTORY_LIMIT) {
+          history = history.slice(0, HISTORY_LIMIT);
+        }
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      }
+
+      // 検索履歴から項目を削除する関数
+      function deleteSearchHistory(queryToDelete) {
+          let history = getSearchHistory();
+          history = history.filter(item => item !== queryToDelete);
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      }
+
+      // 検索履歴を表示する関数
+      function renderSearchHistory(container) {
+        const history = getSearchHistory();
+        renderSuggestions(history, container, true); // isHistoryをtrueで呼び出す
       }
 
       function doSearch(q) {
         if (!q) return;
+        saveSearchHistory(q); // 検索履歴を保存
         window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
         closeOverlay();
         mainSuggestions.classList.add('hidden');
@@ -216,17 +362,49 @@
 
       const onInput = debounce(async (evt, container) => {
         const q = evt.target.value.trim();
-        if (!q) { container.innerHTML = ''; container.classList.add('hidden'); return; }
+        if (!q) { 
+          // 入力が空になったら履歴を表示
+          renderSearchHistory(container); 
+          return;
+        }
         const suggestions = await fetchGoogleSuggestionsJSONP(q);
-        renderSuggestions(
-          suggestions.length > 0 ? suggestions : localSuggestions.filter(x => x.toLowerCase().includes(q.toLowerCase())),
-          container
-        );
+        renderSuggestions(suggestions, container); // isHistoryはデフォルトのfalse
       }, 180);
 
+      // クリアボタンの表示/非表示を切り替える関数
+      function toggleClearButton(query, clearButton) {
+        if (query.length > 0) {
+          clearButton.classList.remove('hidden');
+        } else {
+          clearButton.classList.add('hidden');
+        }
+      }
+      
       // PC入力
-      mainInput.addEventListener('input', (e) => onInput(e, mainSuggestions));
+      mainInput.addEventListener('focus', () => {
+        if (mainInput.value.trim() === '') {
+          renderSearchHistory(mainSuggestions);
+        }
+        toggleClearButton(mainInput.value, mainClearButton);
+      });
+      mainInput.addEventListener('blur', () => {
+        setTimeout(() => {
+          mainSuggestions.classList.add('hidden');
+          mainClearButton.classList.add('hidden');
+        }, 100);
+      });
+      mainInput.addEventListener('input', (e) => {
+        onInput(e, mainSuggestions);
+        toggleClearButton(mainInput.value, mainClearButton);
+      });
       mainButton.addEventListener('click', () => doSearch(mainInput.value.trim()));
+      mainClearButton.addEventListener('click', () => {
+        mainInput.value = '';
+        mainInput.focus();
+        mainSuggestions.classList.add('hidden');
+        mainClearButton.classList.add('hidden');
+        renderSearchHistory(mainSuggestions); // クリア後、履歴を表示
+      });
 
       // スマホでオーバーレイ起動
       mainInput.addEventListener('focus', () => {
@@ -235,17 +413,38 @@
           overlay.classList.remove('hidden');
           overlayInput.value = '';
           overlaySuggestions.innerHTML = '';
+          renderSearchHistory(overlaySuggestions);
           setTimeout(() => overlayInput.focus(), 100);
         }
       });
 
       // オーバーレイ入力
-      overlayInput.addEventListener('input', (e) => onInput(e, overlaySuggestions));
+      overlayInput.addEventListener('focus', () => {
+        if (overlayInput.value.trim() === '') {
+          renderSearchHistory(overlaySuggestions);
+        }
+        toggleClearButton(overlayInput.value, overlayClearButton);
+      });
+      overlayInput.addEventListener('input', (e) => {
+        onInput(e, overlaySuggestions);
+        toggleClearButton(overlayInput.value, overlayClearButton);
+      });
       overlayInput.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') doSearch(overlayInput.value.trim()); });
       overlaySearchButton.addEventListener('click', () => doSearch(overlayInput.value.trim()));
       cancelButton.addEventListener('click', closeOverlay);
+      overlayClearButton.addEventListener('click', () => {
+        overlayInput.value = '';
+        overlayInput.focus();
+        renderSearchHistory(overlaySuggestions);
+        overlayClearButton.classList.add('hidden');
+      });
 
-      function closeOverlay() { overlay.style.display = 'none'; }
+      function closeOverlay() { 
+        overlay.style.display = 'none';
+        mainInput.value = '';
+        mainSuggestions.innerHTML = '';
+        mainClearButton.classList.add('hidden');
+      }
 
       fetchWeather();
       fetchNews();
