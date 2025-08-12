@@ -281,24 +281,40 @@
           const r = await fetch(newsRssUrl);
           const txt = await r.text();
           const xml = new DOMParser().parseFromString(txt, 'text/xml');
-          const items = xml.querySelectorAll('item');
-          newsContainer.innerHTML = '';
-          items.forEach(item => {
+          const items = Array.from(xml.querySelectorAll('item')).map(item => {
             const title = item.querySelector('title')?.textContent;
             const description = item.querySelector('description')?.textContent;
             const link = item.querySelector('link')?.textContent;
-            if (title && link) {
-              const a = document.createElement('a');
-              a.href = link;
-              a.target = '_blank';
-              a.rel = 'noopener noreferrer';
-              a.className = 'news-item block transition-colors duration-300';
-              a.innerHTML = `
-                <p class="font-semibold">${title}</p>
-                ${description ? `<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${description}</p>` : ''}
-              `;
-              newsContainer.appendChild(a);
+            const pubDate = item.querySelector('pubDate')?.textContent;
+            return { title, description, link, pubDate };
+          }).filter(item => item.title && item.link && item.pubDate);
+
+          items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+          newsContainer.innerHTML = '';
+          items.forEach(item => {
+            let formattedDate = '';
+            if (item.pubDate) {
+              const d = new Date(item.pubDate);
+              const year = d.getFullYear();
+              const month = d.getMonth() + 1;
+              const day = d.getDate();
+              const hours = String(d.getHours()).padStart(2, '0');
+              const minutes = String(d.getMinutes()).padStart(2, '0');
+              formattedDate = `${year}年${month}月${day}日 ${hours}:${minutes}`;
             }
+
+            const a = document.createElement('a');
+            a.href = item.link;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.className = 'news-item block transition-colors duration-300';
+            a.innerHTML = `
+              <p class="font-semibold">${item.title}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${formattedDate}</p>
+              ${item.description ? `<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${item.description}</p>` : ''}
+            `;
+            newsContainer.appendChild(a);
           });
         } catch {}
       }
