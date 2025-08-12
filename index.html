@@ -314,7 +314,8 @@
       const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
       const HISTORY_KEY = 'search-history';
       const HISTORY_LIMIT = 10;
-      
+      let lastScrollPosition = 0;
+
       const copyrightText = document.getElementById('copyright-text');
       const currentYear = new Date().getFullYear();
       copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
@@ -534,6 +535,7 @@
       }
 
       function openMobileSearchOverlay(query = '') {
+        lastScrollPosition = window.scrollY;
         overlay.style.display = 'flex';
         overlay.classList.remove('hidden');
         overlayInput.value = query;
@@ -607,6 +609,7 @@
         mainInput.value = '';
         mainSuggestions.innerHTML = '';
         mainClearButton.classList.add('hidden');
+        window.scrollTo(0, lastScrollPosition);
       }
 
       window.addEventListener('resize', () => {
