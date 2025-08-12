@@ -481,14 +481,25 @@
         }
       }
       mainInput.addEventListener('focus', () => {
-        if (window.innerWidth > 768 && mainInput.value.trim() === '') {
-          renderSearchHistory(mainSuggestions);
+        if (window.innerWidth <= 768) {
+          overlay.style.display = 'flex';
+          overlay.classList.remove('hidden');
+          overlayInput.value = '';
+          overlaySuggestions.innerHTML = '';
+          renderSearchHistory(overlaySuggestions);
+          overlayInput.focus();
+        } else {
+          if (mainInput.value.trim() === '') {
+            renderSearchHistory(mainSuggestions);
+          }
         }
         toggleClearButton(mainInput.value, mainClearButton);
       });
       mainInput.addEventListener('blur', () => {
-        mainSuggestions.classList.add('hidden');
-        toggleClearButton(mainInput.value, mainClearButton);
+        if (window.innerWidth > 768) {
+          mainSuggestions.classList.add('hidden');
+          toggleClearButton(mainInput.value, mainClearButton);
+        }
       });
       mainInput.addEventListener('input', (e) => {
         onInput(e, mainSuggestions);
@@ -500,21 +511,14 @@
       mainButton.addEventListener('click', () => doSearch(mainInput.value.trim()));
       mainClearButton.addEventListener('click', () => {
         mainInput.value = '';
-        mainInput.focus();
-        mainSuggestions.classList.add('hidden');
+        if (window.innerWidth > 768) {
+          mainInput.focus();
+          mainSuggestions.classList.add('hidden');
+        }
         toggleClearButton(mainInput.value, mainClearButton);
         renderSearchHistory(mainSuggestions);
       });
-      mainInput.addEventListener('focus', () => {
-        if (window.innerWidth <= 768) {
-          overlay.style.display = 'flex';
-          overlay.classList.remove('hidden');
-          overlayInput.value = '';
-          overlaySuggestions.innerHTML = '';
-          renderSearchHistory(overlaySuggestions);
-          setTimeout(() => overlayInput.focus(), 100);
-        }
-      });
+      
       overlayInput.addEventListener('focus', () => {
         if (overlayInput.value.trim() === '') {
           renderSearchHistory(overlaySuggestions);
