@@ -147,6 +147,15 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
         }
     }
+    
+    @keyframes slideInFromTop {
+      0% {
+        transform: translateY(-100%);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
 
     .fixed-search {
         position: fixed;
@@ -157,7 +166,15 @@
         background-color: #f3f4f6;
         padding: 1rem;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease-in-out;
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        pointer-events: none;
+    }
+    .fixed-search.is-visible {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
     }
     @media (prefers-color-scheme: dark) {
         .fixed-search {
@@ -167,14 +184,33 @@
     }
     @media (min-width: 640px) {
         .fixed-search {
-            position: static;
-            padding: 0;
-            box-shadow: none;
+            display: none;
         }
     }
   </style>
 </head>
 <body class="p-4 sm:p-8 flex flex-col items-center min-h-screen text-base sm:text-lg">
+
+  <div id="fixed-search-wrapper" class="fixed-search w-full">
+    <div class="w-full max-w-4xl mx-auto">
+        <form action="#" id="search-form-fixed" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-fixed').value.trim());">
+            <div class="input-group flex space-x-2 items-center">
+                <div class="relative flex-grow min-w-0">
+                    <input id="search-input-fixed" type="search" placeholder="検索キーワードを入力..."
+                           class="w-full p-3 pr-12 rounded-xl border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500
+                                  dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
+                           autocomplete="off">
+                    <i id="clear-button-fixed" class="fas fa-times-circle clear-button hidden"></i>
+                </div>
+                <button id="search-button-fixed" type="submit"
+                        class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md flex-shrink-0 text-base">
+                    検索
+                </button>
+            </div>
+        </form>
+    </div>
+  </div>
+
   <div class="w-full max-w-4xl space-y-8">
     <header class="text-center">
       <h1 class="text-5xl sm:text-6xl font-bold mb-2">Portalite</h1>
@@ -570,26 +606,38 @@
         toggleClearButton(overlayInput.value, overlayClearButton);
       });
       
-      const searchContainerWrapper = document.getElementById('search-container-wrapper');
-      let lastScrollY = window.scrollY;
+      const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
+      const mainSearchContainer = document.getElementById('search-container-wrapper');
+      
+      const fixedInput = document.getElementById('search-input-fixed');
+      const fixedClearButton = document.getElementById('clear-button-fixed');
+      const fixedButton = document.getElementById('search-button-fixed');
       
       function handleScroll() {
         if (window.innerWidth <= 768) {
-          const currentScrollY = window.scrollY;
-          const containerTop = searchContainerWrapper.getBoundingClientRect().top;
+          const containerTop = mainSearchContainer.getBoundingClientRect().top;
           
-          if (currentScrollY > lastScrollY && containerTop <= 0) {
-            searchContainerWrapper.classList.add('fixed-search');
-          } else if (currentScrollY < lastScrollY && currentScrollY <= searchContainerWrapper.offsetHeight) {
-            searchContainerWrapper.classList.remove('fixed-search');
+          if (containerTop <= 0) {
+            fixedSearchWrapper.classList.add('is-visible');
+          } else {
+            fixedSearchWrapper.classList.remove('is-visible');
           }
-          lastScrollY = currentScrollY;
         } else {
-          searchContainerWrapper.classList.remove('fixed-search');
+          fixedSearchWrapper.classList.remove('is-visible');
         }
       }
       window.addEventListener('scroll', handleScroll);
       window.addEventListener('resize', handleScroll);
+
+      fixedInput.addEventListener('input', (e) => {
+        toggleClearButton(fixedInput.value, fixedClearButton);
+      });
+      fixedClearButton.addEventListener('click', () => {
+        fixedInput.value = '';
+        fixedInput.focus();
+        toggleClearButton(fixedInput.value, fixedClearButton);
+      });
+      fixedButton.addEventListener('click', () => doSearch(fixedInput.value.trim()));
 
       toggleClearButton(mainInput.value, mainClearButton);
       fetchWeather();
