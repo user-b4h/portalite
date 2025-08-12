@@ -533,14 +533,22 @@
         }
       }
 
+      function openMobileSearchOverlay(query = '') {
+        overlay.style.display = 'flex';
+        overlay.classList.remove('hidden');
+        overlayInput.value = query;
+        if (query) {
+          onInput({ target: { value: query } }, overlaySuggestions);
+        } else {
+          renderSearchHistory(overlaySuggestions);
+        }
+        toggleClearButton(overlayInput.value, overlayClearButton);
+        overlayInput.focus();
+      }
+
       mainInput.addEventListener('focus', () => {
         if (window.innerWidth <= 768) {
-          overlay.style.display = 'flex';
-          overlay.classList.remove('hidden');
-          overlayInput.value = '';
-          overlaySuggestions.innerHTML = '';
-          renderSearchHistory(overlaySuggestions);
-          overlayInput.focus();
+          openMobileSearchOverlay(mainInput.value);
         } else {
           if (mainInput.value.trim() === '') {
             renderSearchHistory(mainSuggestions);
@@ -629,6 +637,9 @@
       window.addEventListener('scroll', handleScroll);
       window.addEventListener('resize', handleScroll);
 
+      fixedInput.addEventListener('focus', () => {
+        openMobileSearchOverlay(fixedInput.value);
+      });
       fixedInput.addEventListener('input', (e) => {
         toggleClearButton(fixedInput.value, fixedClearButton);
       });
