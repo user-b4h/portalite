@@ -204,7 +204,7 @@
     <p class="text-3xl font-bold">Portalite</p>
   </div>
 
-  <main id="main-content" class="hidden w-full max-w-4xl space-y-8">
+  <main id="main-content" class="hidden w-full max-w-4xl space-y-8 pointer-events-none">
     <header class="text-center">
       <h1 class="text-5xl sm:text-6xl font-bold mb-2">Portalite</h1>
       <p class="text-xl">シンプルなポータルアプリ</p>
@@ -328,7 +328,6 @@
       const HISTORY_KEY = 'search-history';
       const HISTORY_LIMIT = 10;
       let lastScrollPosition = 0;
-
       const copyrightText = document.getElementById('copyright-text');
       const currentYear = new Date().getFullYear();
       copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
@@ -370,9 +369,7 @@
             const pubDate = item.querySelector('pubDate')?.textContent;
             return { title, description, link, pubDate };
           }).filter(item => item.title && item.link && item.pubDate);
-
           items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
           newsContainer.innerHTML = '';
           items.forEach(item => {
             let formattedDate = '';
@@ -385,7 +382,6 @@
               const minutes = String(d.getMinutes()).padStart(2, '0');
               formattedDate = `${year}年${month}月${day}日 ${hours}:${minutes}`;
             }
-
             const a = document.createElement('a');
             a.href = item.link;
             a.target = '_blank';
@@ -616,7 +612,6 @@
         renderSearchHistory(overlaySuggestions);
         overlayClearButton.classList.add('hidden');
       });
-
       function closeOverlay() { 
         overlay.style.display = 'none';
         mainInput.value = '';
@@ -624,7 +619,6 @@
         mainClearButton.classList.add('hidden');
         window.scrollTo(0, lastScrollPosition);
       }
-
       window.addEventListener('resize', () => {
         toggleClearButton(mainInput.value, mainClearButton);
         toggleClearButton(overlayInput.value, overlayClearButton);
@@ -652,7 +646,6 @@
       }
       window.addEventListener('scroll', handleScroll);
       window.addEventListener('resize', handleScroll);
-
       fixedInput.addEventListener('focus', () => {
         openMobileSearchOverlay(fixedInput.value);
       });
@@ -665,27 +658,23 @@
         toggleClearButton(fixedInput.value, fixedClearButton);
       });
       fixedButton.addEventListener('click', () => doSearch(fixedInput.value.trim()));
-
       toggleClearButton(mainInput.value, mainClearButton);
       fetchWeather();
       fetchNews();
     }
-
     document.addEventListener('DOMContentLoaded', () => {
       initApp();
       const preloader = document.getElementById('preloader');
       const mainContent = document.getElementById('main-content');
-      
       setTimeout(() => {
         preloader.style.opacity = '0';
-        
         preloader.addEventListener('transitionend', () => {
           preloader.style.display = 'none';
           mainContent.classList.remove('hidden');
+          mainContent.style.pointerEvents = 'auto';
         }, { once: true });
-      }, 1000);
+      }, 500);
     });
-    
   </script>
 </body>
 </html>
