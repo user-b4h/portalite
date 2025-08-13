@@ -181,17 +181,12 @@
         opacity: 1;
         pointer-events: auto;
     }
-    @media (prefers-color-scheme: dark) {
-        .fixed-search {
-            background-color: #1f2937;
-            box-shadow: 0 2px 5px rgba(255,255,255,0.1);
-        }
-    }
     @media (min-width: 640px) {
         .fixed-search {
             display: none;
         }
     }
+    
     #preloader {
       transition: opacity 0.5s ease-out;
     }
@@ -199,8 +194,9 @@
 </head>
 <body class="p-4 sm:p-8 flex flex-col items-center min-h-screen text-base sm:text-lg">
 
-  <div id="preloader" class="fixed inset-0 z-[9999] flex items-center justify-center">
-    <img src="https://portalite.f5.si/icon/icon.svg" alt="Portalite Logo" class="w-24 h-24 animate-pulse">
+  <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center">
+    <img src="https://portalite.f5.si/icon/icon.svg" alt="Portalite Logo" class="w-32 h-32 mb-4">
+    <p class="text-3xl font-bold">Portalite</p>
   </div>
 
   <main id="main-content" class="hidden w-full max-w-4xl space-y-8">
