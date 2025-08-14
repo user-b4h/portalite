@@ -93,16 +93,31 @@
     .news-item:not(:last-child) {
       border-bottom: 2px solid #e2e8f0;
     }
-    .news-item:hover {
-      background-color: #f1f5f9;
-      transform: translateY(-2px);
+    @media (hover: hover) {
+        .news-item:hover {
+          background-color: #f1f5f9;
+          transform: translateY(-2px);
+        }
+    }
+    @media (hover: none) {
+        .news-item:active {
+          background-color: #f1f5f9;
+          transform: translateY(-2px);
+        }
     }
     @media (prefers-color-scheme: dark) {
       .news-item:not(:last-child) {
         border-bottom: 2px solid #4a5568;
       }
-      .news-item:hover {
-        background-color: #2d3748;
+      @media (hover: hover) {
+          .news-item:hover {
+            background-color: #2d3748;
+          }
+      }
+      @media (hover: none) {
+          .news-item:active {
+            background-color: #2d3748;
+          }
       }
     }
 
@@ -116,8 +131,15 @@
       font-size: 1.5rem;
       z-index: 20;
     }
-    .clear-button:hover {
-      color: #6b7280;
+    @media (hover: hover) {
+        .clear-button:hover {
+          color: #6b7280;
+        }
+    }
+    @media (hover: none) {
+        .clear-button:active {
+          color: #6b7280;
+        }
     }
 
     .history-delete-button {
@@ -126,8 +148,15 @@
         padding: 0.5rem;
         cursor: pointer;
     }
-    .history-delete-button:hover {
-        color: #ef4444;
+    @media (hover: hover) {
+        .history-delete-button:hover {
+          color: #ef4444;
+        }
+    }
+    @media (hover: none) {
+        .history-delete-button:active {
+          color: #ef4444;
+        }
     }
 
     .link-item {
@@ -141,19 +170,36 @@
         transition-duration: 300ms;
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .link-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        background-color: #e2e8f0;
+    @media (hover: hover) {
+        .link-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: #e2e8f0;
+        }
+    }
+    @media (hover: none) {
+        .link-item:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: #e2e8f0;
+        }
     }
     @media (prefers-color-scheme: dark) {
         .link-item {
             background-color: #2d3748;
             box-shadow: none;
         }
-        .link-item:hover {
-            background-color: #4a5568;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+        @media (hover: hover) {
+            .link-item:hover {
+                background-color: #4a5568;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+            }
+        }
+        @media (hover: none) {
+            .link-item:active {
+                background-color: #4a5568;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+            }
         }
     }
     
