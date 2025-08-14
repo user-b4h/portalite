@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>404 Not Found | Portalite</title>
+  <meta name="robots" content="noindex, nofollow">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body { 
+      font-family: Inter, sans-serif; 
+      background:#f3f4f6; 
+      color:#1f2937;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .card { background:#fff; }
+    
+    @media (prefers-color-scheme: dark) {
+      body { background:#1f2937; color:#e5e7eb; }
+      .card { background:#374151; }
+    }
+
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #9ca3af;
+      border-radius: 10px;
+      border: 3px solid #e2e8f0;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #6b7280;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      ::-webkit-scrollbar-track {
+        background: #1f2937;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: #4b5563;
+        border: 3px solid #1f2937;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: #6b7280;
+      }
+    }
+    
+    body {
+      scrollbar-width: thin;
+      scrollbar-color: #9ca3af #e2e8f0;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        scrollbar-color: #4b5563 #1f2937;
+      }
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-8">
+
+  <main class="w-full max-w-xl space-y-8">
+    <header>
+      <h1 class="text-9xl sm:text-[10rem] font-bold text-gray-800 dark:text-gray-200">404</h1>
+      <p class="text-2xl sm:text-3xl font-semibold mt-4 text-gray-700 dark:text-gray-300">お探しのページは見つかりませんでした</p>
+    </header>
+
+    <section class="card p-6 rounded-2xl shadow-lg">
+      <p class="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-6">
+        申し訳ありません。ご指定のURLにページが存在しないか、すでに削除された可能性があります。
+      </p>
+      <a href="https://portalite.f5.si/" target="_self" class="inline-block bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md">
+        <i class="fas fa-home mr-2"></i>ホームに戻る
+      </a>
+    </section>
+  </main>
+  
+  <footer class="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm sm:text-base">
+    <span id="copyright-text"></span>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const copyrightText = document.getElementById('copyright-text');
+      const currentYear = new Date().getFullYear();
+      copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
+    });
+  </script>
+
+</body>
+</html>
