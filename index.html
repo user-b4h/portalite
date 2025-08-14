@@ -373,7 +373,6 @@
       const cancelButton = document.getElementById('cancel-button');
       const overlaySuggestions = document.getElementById('suggestions-container-overlay');
       const overlayClearButton = document.getElementById('clear-button-overlay');
-      const weatherApiUrl = 'https://weather.tsukumijima.net/api/forecast?city=016010';
       const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
       const HISTORY_KEY = 'search-history';
       const HISTORY_LIMIT = 10;
@@ -383,12 +382,60 @@
       copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
 
       async function fetchWeather() {
+        weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
+
         try {
-          weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            });
+          });
+          const userLat = position.coords.latitude;
+          const userLon = position.coords.longitude;
+
+          const cityCoordsResponse = await fetch('https://portalite.f5.si/city_coords.json');
+          const cityCoords = await cityCoordsResponse.json();
+
+          let closestCity = null;
+          let minDistance = Infinity;
+
+          function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a =
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+          }
+
+          for (const cityId in cityCoords) {
+            const city = cityCoords[cityId];
+            const distance = haversineDistance(userLat, userLon, city.lat, city.lon);
+            if (distance < minDistance) {
+              minDistance = distance;
+              closestCity = { id: cityId, name: city.title, lat: city.lat, lon: city.lon };
+            }
+          }
+
+          if (!closestCity) {
+            throw new Error('最寄りの地点が見つかりませんでした。');
+          }
+
+          const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${closestCity.id}`;
+          
           const r = await fetch(weatherApiUrl);
           const data = await r.json();
+          
           weatherContainer.innerHTML = '';
           const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+          
+          document.querySelector('#weather-container').previousElementSibling.textContent = `${closestCity.name}の天気`;
+
           data.forecasts.slice(0, 3).forEach(forecast => {
             const iconUrl = forecast.image.url;
             const forecastDate = new Date(forecast.date);
@@ -409,7 +456,43 @@
             `;
             weatherContainer.appendChild(el);
           });
-        } catch {}
+        } catch (error) {
+          console.error('天気情報の取得に失敗しました:', error);
+          const sapporoCityId = '016010';
+          const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${sapporoCityId}`;
+          try {
+            const r = await fetch(weatherApiUrl);
+            const data = await r.json();
+
+            weatherContainer.innerHTML = '';
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            document.querySelector('#weather-container').previousElementSibling.textContent = `札幌の天気`;
+
+            data.forecasts.slice(0, 3).forEach(forecast => {
+              const iconUrl = forecast.image.url;
+              const forecastDate = new Date(forecast.date);
+              const month = forecastDate.getMonth() + 1;
+              const day = forecastDate.getDate();
+              const weekday = weekdays[forecastDate.getDay()];
+              const dateLabel = `${month}月${day}日(${weekday})`;
+              const el = document.createElement('div');
+              el.className = 'p-4 rounded-xl shadow-inner card';
+              el.innerHTML = `
+                <p class="text-lg sm:text-xl font-bold">${dateLabel}</p>
+                <img src="${iconUrl}" alt="${forecast.telop}" class="w-16 h-16 mx-auto my-2" onerror="this.src='https://placehold.co/64x64/CCCCCC/FFFFFF?text=No+Icon';">
+                <p class="text-base text-gray-500 dark:text-gray-400 mb-2">${forecast.telop}</p>
+                <div class="flex justify-center items-center space-x-2 text-base">
+                  <span class="text-blue-500">最低: ${forecast.temperature.min?.celsius || '--'}°C</span>
+                  <span class="text-red-500">最高: ${forecast.temperature.max?.celsius || '--'}°C</span>
+                </div>
+              `;
+              weatherContainer.appendChild(el);
+            });
+          } catch (sapporoError) {
+            console.error('札幌の天気情報の取得にも失敗しました:', sapporoError);
+            weatherContainer.innerHTML = '<div class="text-center col-span-3 text-red-500">天気情報の取得に失敗しました。</div>';
+          }
+        }
       }
 
       async function fetchNews() {
