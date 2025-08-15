@@ -400,6 +400,7 @@
 
           let closestCity = null;
           let minDistance = Infinity;
+          const DISTANCE_THRESHOLD_KM = 200;
 
           function haversineDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
@@ -422,8 +423,9 @@
             }
           }
 
-          if (!closestCity) {
-            throw new Error('最寄りの地点が見つかりませんでした。');
+          if (!closestCity || minDistance > DISTANCE_THRESHOLD_KM) {
+            console.warn('最寄りの地点が見つからないか、距離が遠すぎます。札幌の天気情報を取得します。');
+            throw new Error('Distance too far or no closest city found, falling back to Sapporo.');
           }
 
           const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${closestCity.id}`;
