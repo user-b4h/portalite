@@ -11,13 +11,14 @@ function initApp() {
   const cancelButton = document.getElementById('cancel-button');
   const overlaySuggestions = document.getElementById('suggestions-container-overlay');
   const overlayClearButton = document.getElementById('clear-button-overlay');
+  const anniversaryContainer = document.getElementById('anniversary-container');
   const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 10;
   let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
-  copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
+  copyrightText.innerHTML = `Copyright © ${currentYear} Portalite. All Rights Reserved.<br>本サイトのコンテンツの無断複製、転載を禁じます。`;
 
   async function fetchWeather() {
     weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
@@ -33,7 +34,7 @@ function initApp() {
       const userLat = position.coords.latitude;
       const userLon = position.coords.longitude;
 
-      const cityCoordsResponse = await fetch('https://portalite.f5.si/city_coords.json');
+      const cityCoordsResponse = await fetch('city_coords.json');
       const cityCoords = await cityCoordsResponse.json();
 
       let closestCity = null;
@@ -62,7 +63,6 @@ function initApp() {
       }
 
       if (!closestCity || minDistance > DISTANCE_THRESHOLD_KM) {
-        console.warn('最寄りの地点が見つからないか、距離が遠すぎます。札幌の天気情報を取得します。');
         throw new Error('Distance too far or no closest city found, falling back to Sapporo.');
       }
 
@@ -97,7 +97,6 @@ function initApp() {
         weatherContainer.appendChild(el);
       });
     } catch (error) {
-      console.error('天気情報の取得に失敗しました:', error);
       const sapporoCityId = '016010';
       const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${sapporoCityId}`;
       try {
@@ -129,9 +128,48 @@ function initApp() {
           weatherContainer.appendChild(el);
         });
       } catch (sapporoError) {
-        console.error('札幌の天気情報の取得にも失敗しました:', sapporoError);
         weatherContainer.innerHTML = '<div class="text-center col-span-3 text-red-500">天気情報の取得に失敗しました。</div>';
       }
+    }
+  }
+
+  async function fetchAnniversary() {
+    try {
+      anniversaryContainer.innerHTML = '<div class="text-center">情報を取得中...</div>';
+      const today = new Date();
+      const mmdd = String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
+      const api_url = `https://api.whatistoday.cyou/index.cgi/v3/anniv/${mmdd}`;
+      const proxy_url = `https://api.allorigins.win/raw?url=${encodeURIComponent(api_url)}`;
+      
+      const r = await fetch(proxy_url);
+      if (!r.ok) {
+        throw new Error(`HTTP error! status: ${r.status}`);
+      }
+      const data = await r.json();
+
+      anniversaryContainer.innerHTML = '';
+      let hasAnniversary = false;
+      const list = document.createElement('ul');
+      list.className = 'list-disc list-inside space-y-1';
+      
+      for (let i = 1; i <= 5; i++) {
+        const annivKey = `anniv${i}`;
+        if (data[annivKey]) {
+          const listItem = document.createElement('li');
+          listItem.textContent = data[annivKey];
+          list.appendChild(listItem);
+          hasAnniversary = true;
+        }
+      }
+
+      if (hasAnniversary) {
+        anniversaryContainer.appendChild(list);
+      } else {
+        anniversaryContainer.innerHTML = '<div class="text-center">本日の記念日はありません。</div>';
+      }
+
+    } catch (error) {
+      anniversaryContainer.innerHTML = '<div class="text-center text-red-500">情報の取得に失敗しました。</div>';
     }
   }
 
@@ -438,6 +476,7 @@ function initApp() {
   });
   fixedButton.addEventListener('click', () => doSearch(fixedInput.value.trim()));
   toggleClearButton(mainInput.value, mainClearButton);
+  fetchAnniversary();
   fetchWeather();
   fetchNews();
 }
