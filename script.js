@@ -11,18 +11,15 @@ function initApp() {
   const cancelButton = document.getElementById('cancel-button');
   const overlaySuggestions = document.getElementById('suggestions-container-overlay');
   const overlayClearButton = document.getElementById('clear-button-overlay');
-  const anniversaryContainer = document.getElementById('anniversary-container');
   const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 10;
   let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
-  copyrightText.innerHTML = `Copyright © ${currentYear} Portalite. All Rights Reserved.<br>本サイトのコンテンツの無断複製、転載を禁じます。`;
-
+  copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
   async function fetchWeather() {
     weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
-
     try {
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -33,14 +30,11 @@ function initApp() {
       });
       const userLat = position.coords.latitude;
       const userLon = position.coords.longitude;
-
       const cityCoordsResponse = await fetch('city_coords.json');
       const cityCoords = await cityCoordsResponse.json();
-
       let closestCity = null;
       let minDistance = Infinity;
       const DISTANCE_THRESHOLD_KM = 200;
-
       function haversineDistance(lat1, lon1, lat2, lon2) {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -52,7 +46,6 @@ function initApp() {
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
       }
-
       for (const cityId in cityCoords) {
         const city = cityCoords[cityId];
         const distance = haversineDistance(userLat, userLon, city.lat, city.lon);
@@ -61,21 +54,16 @@ function initApp() {
           closestCity = { id: cityId, name: city.title, lat: city.lat, lon: city.lon };
         }
       }
-
       if (!closestCity || minDistance > DISTANCE_THRESHOLD_KM) {
+        console.warn('最寄りの地点が見つからないか、距離が遠すぎます。札幌の天気情報を取得します。');
         throw new Error('Distance too far or no closest city found, falling back to Sapporo.');
       }
-
       const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${closestCity.id}`;
-      
       const r = await fetch(weatherApiUrl);
       const data = await r.json();
-      
       weatherContainer.innerHTML = '';
       const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-      
       document.querySelector('#weather-container').previousElementSibling.textContent = `${closestCity.name}の天気`;
-
       data.forecasts.slice(0, 3).forEach(forecast => {
         const iconUrl = forecast.image.url;
         const forecastDate = new Date(forecast.date);
@@ -97,16 +85,15 @@ function initApp() {
         weatherContainer.appendChild(el);
       });
     } catch (error) {
+      console.error('天気情報の取得に失敗しました:', error);
       const sapporoCityId = '016010';
       const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${sapporoCityId}`;
       try {
         const r = await fetch(weatherApiUrl);
         const data = await r.json();
-
         weatherContainer.innerHTML = '';
         const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
         document.querySelector('#weather-container').previousElementSibling.textContent = `札幌の天気`;
-
         data.forecasts.slice(0, 3).forEach(forecast => {
           const iconUrl = forecast.image.url;
           const forecastDate = new Date(forecast.date);
@@ -128,51 +115,11 @@ function initApp() {
           weatherContainer.appendChild(el);
         });
       } catch (sapporoError) {
+        console.error('札幌の天気情報の取得にも失敗しました:', sapporoError);
         weatherContainer.innerHTML = '<div class="text-center col-span-3 text-red-500">天気情報の取得に失敗しました。</div>';
       }
     }
   }
-
-  async function fetchAnniversary() {
-    try {
-      anniversaryContainer.innerHTML = '<div class="text-center">情報を取得中...</div>';
-      const today = new Date();
-      const mmdd = String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
-      const api_url = `https://api.whatistoday.cyou/index.cgi/v3/anniv/${mmdd}`;
-      const proxy_url = `https://api.allorigins.win/raw?url=${encodeURIComponent(api_url)}`;
-      
-      const r = await fetch(proxy_url);
-      if (!r.ok) {
-        throw new Error(`HTTP error! status: ${r.status}`);
-      }
-      const data = await r.json();
-
-      anniversaryContainer.innerHTML = '';
-      let hasAnniversary = false;
-      const list = document.createElement('ul');
-      list.className = 'list-disc list-inside space-y-1';
-      
-      for (let i = 1; i <= 5; i++) {
-        const annivKey = `anniv${i}`;
-        if (data[annivKey]) {
-          const listItem = document.createElement('li');
-          listItem.textContent = data[annivKey];
-          list.appendChild(listItem);
-          hasAnniversary = true;
-        }
-      }
-
-      if (hasAnniversary) {
-        anniversaryContainer.appendChild(list);
-      } else {
-        anniversaryContainer.innerHTML = '<div class="text-center">本日の記念日はありません。</div>';
-      }
-
-    } catch (error) {
-      anniversaryContainer.innerHTML = '<div class="text-center text-red-500">情報の取得に失敗しました。</div>';
-    }
-  }
-
   async function fetchNews() {
     try {
       newsContainer.innerHTML = '<div class="text-center">ニュースを取得中...</div>';
@@ -213,7 +160,6 @@ function initApp() {
       });
     } catch {}
   }
-
   function jsonp(url, params = {}, timeout = 5000) {
     return new Promise((resolve, reject) => {
       const callbackName = 'jsonp_cb_' + Date.now();
@@ -233,7 +179,6 @@ function initApp() {
       document.body.appendChild(script);
     });
   }
-
   async function fetchGoogleSuggestionsJSONP(query) {
     if (!query) return [];
     const url = 'https://suggestqueries.google.com/complete/search';
@@ -245,7 +190,6 @@ function initApp() {
       return [];
     } catch { return []; }
   }
-
   function renderSuggestions(list, container, isHistory = false) {
     container.innerHTML = '';
     if (!list || list.length === 0) { container.classList.add('hidden'); return; }
@@ -298,7 +242,6 @@ function initApp() {
       container.appendChild(item);
     });
   }
-
   function getSearchHistory() {
     try {
       const history = localStorage.getItem(HISTORY_KEY);
@@ -307,7 +250,6 @@ function initApp() {
       return [];
     }
   }
-
   function saveSearchHistory(query) {
     if (!query) return;
     let history = getSearchHistory();
@@ -318,18 +260,15 @@ function initApp() {
     }
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }
-
   function deleteSearchHistory(queryToDelete) {
       let history = getSearchHistory();
       history = history.filter(item => item !== queryToDelete);
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }
-
   function renderSearchHistory(container) {
     const history = getSearchHistory();
     renderSuggestions(history, container, true);
   }
-
   function doSearch(q) {
     if (!q) return;
     saveSearchHistory(q);
@@ -337,11 +276,9 @@ function initApp() {
     closeOverlay();
     mainSuggestions.classList.add('hidden');
   }
-
   function debounce(fn, wait=200) {
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
   }
-
   const onInput = debounce(async (evt, container) => {
     const q = evt.target.value.trim();
     if (!q) { 
@@ -351,7 +288,6 @@ function initApp() {
     const suggestions = await fetchGoogleSuggestionsJSONP(q);
     renderSuggestions(suggestions, container);
   }, 180);
-
   function toggleClearButton(query, clearButton) {
     if (query.length > 0) {
       clearButton.classList.remove('hidden');
@@ -359,7 +295,6 @@ function initApp() {
       clearButton.classList.add('hidden');
     }
   }
-
   function openMobileSearchOverlay(query = '') {
     lastScrollPosition = window.scrollY;
     overlay.style.display = 'flex';
@@ -373,7 +308,6 @@ function initApp() {
     toggleClearButton(overlayInput.value, overlayClearButton);
     overlayInput.focus();
   }
-
   mainInput.addEventListener('focus', () => {
     if (window.innerWidth <= 768) {
       openMobileSearchOverlay(mainInput.value);
@@ -391,8 +325,8 @@ function initApp() {
     }
   });
   mainInput.addEventListener('input', (e) => {
-      onInput(e, mainSuggestions);
-      toggleClearButton(mainInput.value, mainClearButton);
+    onInput(e, mainSuggestions);
+    toggleClearButton(mainInput.value, mainClearButton);
   });
   mainSuggestions.addEventListener('mousedown', (e) => {
     e.preventDefault();
@@ -407,7 +341,6 @@ function initApp() {
     toggleClearButton(mainInput.value, mainClearButton);
     renderSearchHistory(mainSuggestions);
   });
-  
   overlayInput.addEventListener('focus', () => {
     if (overlayInput.value.trim() === '') {
       renderSearchHistory(overlaySuggestions);
@@ -440,18 +373,14 @@ function initApp() {
     toggleClearButton(mainInput.value, mainClearButton);
     toggleClearButton(overlayInput.value, overlayClearButton);
   });
-  
   const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
   const mainSearchContainer = document.getElementById('search-container-wrapper');
-  
   const fixedInput = document.getElementById('search-input-fixed');
   const fixedClearButton = document.getElementById('clear-button-fixed');
   const fixedButton = document.getElementById('search-button-fixed');
-  
   function handleScroll() {
     if (window.innerWidth <= 768) {
       const containerTop = mainSearchContainer.getBoundingClientRect().top;
-      
       if (containerTop <= 0) {
         fixedSearchWrapper.classList.add('is-visible');
       } else {
@@ -476,7 +405,6 @@ function initApp() {
   });
   fixedButton.addEventListener('click', () => doSearch(fixedInput.value.trim()));
   toggleClearButton(mainInput.value, mainClearButton);
-  fetchAnniversary();
   fetchWeather();
   fetchNews();
 }
