@@ -1,18 +1,14 @@
 @charset "UTF-8";
-
 * { font-family: "Noto Sans JP", "HiraginoSans-W2", "Hiragino Kaku Gothic ProN", Meiryo, "メイリオ", sans-serif; }
 body { background:#f3f4f6; color:#1f2937; }
 .card { background:#fff; }
-
 @media (prefers-color-scheme: dark) {
   body { background:#1f2937; color:#e5e7eb; }
   .card { background:#374151; }
 }
-
 input[type="search"]::-webkit-search-cancel-button {
     -webkit-appearance: none;
 }
-
 ::-webkit-scrollbar {
   width: 12px;
 }
@@ -28,7 +24,6 @@ input[type="search"]::-webkit-search-cancel-button {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #6b7280;
 }
-
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-track {
     background: #1f2937;
@@ -41,7 +36,6 @@ input[type="search"]::-webkit-search-cancel-button {
     background-color: #6b7280;
   }
 }
-
 body {
   scrollbar-width: thin;
   scrollbar-color: #9ca3af #e2e8f0;
@@ -51,7 +45,6 @@ body {
     scrollbar-color: #4b5563 #1f2937;
   }
 }
-
 #search-overlay {
   position: fixed;
   top:0; left:0; width:100%; height:100%;
@@ -63,7 +56,6 @@ body {
 @media (prefers-color-scheme: dark) {
   #search-overlay { background: #1f2937; }
 }
-
 .news-item {
   padding: 1rem;
   transition-property: background-color, transform;
@@ -99,7 +91,6 @@ body {
       }
   }
 }
-
 .clear-button {
   position: absolute;
   right: 0.75rem;
@@ -111,16 +102,15 @@ body {
   z-index: 20;
 }
 @media (hover: hover) {
-    .clear-button:hover {
-      color: #6b7280;
+        .clear-button:hover {
+          color: #6b7280;
+        }
     }
-}
-@media (hover: none) {
-    .clear-button:active {
-      color: #6b7280;
+    @media (hover: none) {
+        .clear-button:active {
+          color: #6b7280;
+        }
     }
-}
-
 .history-delete-button {
     color: #9ca3af;
     margin-left: auto;
@@ -128,16 +118,15 @@ body {
     cursor: pointer;
 }
 @media (hover: hover) {
-    .history-delete-button:hover {
-      color: #ef4444;
+        .history-delete-button:hover {
+          color: #ef4444;
+        }
     }
-}
-@media (hover: none) {
-    .history-delete-button:active {
-      color: #ef4444;
+    @media (hover: none) {
+        .history-delete-button:active {
+          color: #ef4444;
+        }
     }
-}
-
 .link-item {
     display: flex;
     align-items: center;
@@ -150,38 +139,37 @@ body {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 @media (hover: hover) {
-    .link-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        background-color: #e2e8f0;
-    }
-}
-@media (hover: none) {
-    .link-item:active {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        background-color: #e2e8f0;
-    }
-}
-@media (prefers-color-scheme: dark) {
-    .link-item {
-        background-color: #2d3748;
-        box-shadow: none;
-    }
-    @media (hover: hover) {
         .link-item:hover {
-            background-color: #4a5568;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: #e2e8f0;
         }
     }
     @media (hover: none) {
         .link-item:active {
-            background-color: #4a5568;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: #e2e8f0;
         }
     }
-}
-
+@media (prefers-color-scheme: dark) {
+        .link-item {
+            background-color: #2d3748;
+            box-shadow: none;
+        }
+        @media (hover: hover) {
+            .link-item:hover {
+                background-color: #4a5568;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+            }
+        }
+        @media (hover: none) {
+            .link-item:active {
+                background-color: #4a5568;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+            }
+        }
+    }
 @keyframes slideInFromTop {
   0% {
     transform: translateY(-100%);
@@ -190,7 +178,6 @@ body {
     transform: translateY(0);
   }
 }
-
 .fixed-search {
     position: fixed;
     top: 0;
@@ -220,7 +207,6 @@ body {
         background-color: #1f2937;
     }
 }
-
 #preloader {
   transition: opacity 0.5s ease-out;
 }
