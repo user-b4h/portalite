@@ -18,6 +18,7 @@ function initApp() {
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
   copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
+
   async function fetchWeather() {
     weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
     try {
@@ -51,7 +52,12 @@ function initApp() {
         const distance = haversineDistance(userLat, userLon, city.lat, city.lon);
         if (distance < minDistance) {
           minDistance = distance;
-          closestCity = { id: cityId, name: city.title, lat: city.lat, lon: city.lon };
+          closestCity = {
+            id: cityId,
+            name: city.title,
+            lat: city.lat,
+            lon: city.lon
+          };
         }
       }
       if (!closestCity || minDistance > DISTANCE_THRESHOLD_KM) {
@@ -120,6 +126,31 @@ function initApp() {
       }
     }
   }
+
+  async function fetchAnniversaries() {
+    const anniversaryContainer = document.getElementById('anniversary-container');
+    anniversaryContainer.innerHTML = '<div class="text-center">情報を取得中...</div>';
+    try {
+      const response = await fetch('https://anniversary.f5.si/api/today');
+      if (!response.ok) throw new Error('API request failed');
+      const anniversaries = await response.json();
+      anniversaryContainer.innerHTML = '';
+      if (anniversaries.length === 0) {
+        anniversaryContainer.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400">今日は特にありません。</div>';
+        return;
+      }
+      anniversaries.forEach(anniversary => {
+        const item = document.createElement('p');
+        item.className = 'text-gray-800 dark:text-gray-200';
+        item.textContent = anniversary.anniversary;
+        anniversaryContainer.appendChild(item);
+      });
+    } catch (error) {
+      console.error('今日は何の日情報の取得に失敗しました:', error);
+      anniversaryContainer.innerHTML = '<div class="text-center text-red-500">情報の取得に失敗しました。</div>';
+    }
+  }
+
   async function fetchNews() {
     try {
       newsContainer.innerHTML = '<div class="text-center">ニュースを取得中...</div>';
@@ -131,7 +162,12 @@ function initApp() {
         const description = item.querySelector('description')?.textContent;
         const link = item.querySelector('link')?.textContent;
         const pubDate = item.querySelector('pubDate')?.textContent;
-        return { title, description, link, pubDate };
+        return {
+          title,
+          description,
+          link,
+          pubDate
+        };
       }).filter(item => item.title && item.link && item.pubDate);
       items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
       newsContainer.innerHTML = '';
@@ -160,6 +196,7 @@ function initApp() {
       });
     } catch {}
   }
+
   function jsonp(url, params = {}, timeout = 5000) {
     return new Promise((resolve, reject) => {
       const callbackName = 'jsonp_cb_' + Date.now();
@@ -168,46 +205,70 @@ function initApp() {
       const fullUrl = url + (url.includes('?') ? '&' : '?') + query;
       const script = document.createElement('script');
       script.src = fullUrl;
-      let timer = setTimeout(() => { cleanup(); reject(new Error('JSONP timeout')); }, timeout);
+      let timer = setTimeout(() => {
+        cleanup();
+        reject(new Error('JSONP timeout'));
+      }, timeout);
+
       function cleanup() {
         clearTimeout(timer);
-        try { delete window[callbackName]; } catch { window[callbackName] = undefined; }
+        try {
+          delete window[callbackName];
+        } catch {
+          window[callbackName] = undefined;
+        }
         if (script.parentNode) script.parentNode.removeChild(script);
       }
-      window[callbackName] = (data) => { cleanup(); resolve(data); };
-      script.onerror = () => { cleanup(); reject(new Error('JSONP script error')); };
+      window[callbackName] = (data) => {
+        cleanup();
+        resolve(data);
+      };
+      script.onerror = () => {
+        cleanup();
+        reject(new Error('JSONP script error'));
+      };
       document.body.appendChild(script);
     });
   }
+
   async function fetchGoogleSuggestionsJSONP(query) {
     if (!query) return [];
     const url = 'https://suggestqueries.google.com/complete/search';
     try {
-      const data = await jsonp(url, { client: 'firefox', hl: 'ja', q: query }, 4000);
+      const data = await jsonp(url, {
+        client: 'firefox',
+        hl: 'ja',
+        q: query
+      }, 4000);
       if (Array.isArray(data) && Array.isArray(data[1])) {
         return data[1].map(item => typeof item === 'string' ? item : (Array.isArray(item) ? item[0] : String(item)));
       }
       return [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   }
+
   function renderSuggestions(list, container, isHistory = false) {
     container.innerHTML = '';
-    if (!list || list.length === 0) { container.classList.add('hidden'); return; }
+    if (!list || list.length === 0) {
+      container.classList.add('hidden');
+      return;
+    }
     container.classList.remove('hidden');
     list.forEach((s, index) => {
       const item = document.createElement('div');
       if (isHistory) {
         item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center justify-between group`;
         item.addEventListener('click', () => {
-            if (container === overlaySuggestions) {
-              overlayInput.value = s;
-              toggleClearButton(overlayInput.value, overlayClearButton);
-            }
-            else {
-              mainInput.value = s;
-              toggleClearButton(mainInput.value, mainClearButton);
-            }
-            doSearch(s);
+          if (container === overlaySuggestions) {
+            overlayInput.value = s;
+            toggleClearButton(overlayInput.value, overlayClearButton);
+          } else {
+            mainInput.value = s;
+            toggleClearButton(mainInput.value, mainClearButton);
+          }
+          doSearch(s);
         });
         const searchIcon = document.createElement('div');
         searchIcon.className = 'flex items-center flex-grow';
@@ -228,8 +289,7 @@ function initApp() {
           if (container === overlaySuggestions) {
             overlayInput.value = s;
             toggleClearButton(overlayInput.value, overlayClearButton);
-          }
-          else {
+          } else {
             mainInput.value = s;
             toggleClearButton(mainInput.value, mainClearButton);
           }
@@ -242,6 +302,7 @@ function initApp() {
       container.appendChild(item);
     });
   }
+
   function getSearchHistory() {
     try {
       const history = localStorage.getItem(HISTORY_KEY);
@@ -250,6 +311,7 @@ function initApp() {
       return [];
     }
   }
+
   function saveSearchHistory(query) {
     if (!query) return;
     let history = getSearchHistory();
@@ -260,15 +322,18 @@ function initApp() {
     }
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }
+
   function deleteSearchHistory(queryToDelete) {
-      let history = getSearchHistory();
-      history = history.filter(item => item !== queryToDelete);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    let history = getSearchHistory();
+    history = history.filter(item => item !== queryToDelete);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }
+
   function renderSearchHistory(container) {
     const history = getSearchHistory();
     renderSuggestions(history, container, true);
   }
+
   function doSearch(q) {
     if (!q) return;
     saveSearchHistory(q);
@@ -276,18 +341,25 @@ function initApp() {
     closeOverlay();
     mainSuggestions.classList.add('hidden');
   }
-  function debounce(fn, wait=200) {
-    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+
+  function debounce(fn, wait = 200) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), wait);
+    };
   }
+
   const onInput = debounce(async (evt, container) => {
     const q = evt.target.value.trim();
-    if (!q) { 
-      renderSearchHistory(container); 
+    if (!q) {
+      renderSearchHistory(container);
       return;
     }
     const suggestions = await fetchGoogleSuggestionsJSONP(q);
     renderSuggestions(suggestions, container);
   }, 180);
+
   function toggleClearButton(query, clearButton) {
     if (query.length > 0) {
       clearButton.classList.remove('hidden');
@@ -295,19 +367,25 @@ function initApp() {
       clearButton.classList.add('hidden');
     }
   }
+
   function openMobileSearchOverlay(query = '') {
     lastScrollPosition = window.scrollY;
     overlay.style.display = 'flex';
     overlay.classList.remove('hidden');
     overlayInput.value = query;
     if (query) {
-      onInput({ target: { value: query } }, overlaySuggestions);
+      onInput({
+        target: {
+          value: query
+        }
+      }, overlaySuggestions);
     } else {
       renderSearchHistory(overlaySuggestions);
     }
     toggleClearButton(overlayInput.value, overlayClearButton);
     overlayInput.focus();
   }
+
   mainInput.addEventListener('focus', () => {
     if (window.innerWidth <= 768) {
       openMobileSearchOverlay(mainInput.value);
@@ -341,6 +419,7 @@ function initApp() {
     toggleClearButton(mainInput.value, mainClearButton);
     renderSearchHistory(mainSuggestions);
   });
+
   overlayInput.addEventListener('focus', () => {
     if (overlayInput.value.trim() === '') {
       renderSearchHistory(overlaySuggestions);
@@ -362,7 +441,8 @@ function initApp() {
     renderSearchHistory(overlaySuggestions);
     overlayClearButton.classList.add('hidden');
   });
-  function closeOverlay() { 
+
+  function closeOverlay() {
     overlay.style.display = 'none';
     mainInput.value = '';
     mainSuggestions.innerHTML = '';
@@ -373,11 +453,13 @@ function initApp() {
     toggleClearButton(mainInput.value, mainClearButton);
     toggleClearButton(overlayInput.value, overlayClearButton);
   });
+
   const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
   const mainSearchContainer = document.getElementById('search-container-wrapper');
   const fixedInput = document.getElementById('search-input-fixed');
   const fixedClearButton = document.getElementById('clear-button-fixed');
   const fixedButton = document.getElementById('search-button-fixed');
+
   function handleScroll() {
     if (window.innerWidth <= 768) {
       const containerTop = mainSearchContainer.getBoundingClientRect().top;
@@ -406,8 +488,10 @@ function initApp() {
   fixedButton.addEventListener('click', () => doSearch(fixedInput.value.trim()));
   toggleClearButton(mainInput.value, mainClearButton);
   fetchWeather();
+  fetchAnniversaries();
   fetchNews();
 }
+
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
   const preloader = document.getElementById('preloader');
@@ -418,6 +502,8 @@ document.addEventListener('DOMContentLoaded', () => {
       preloader.style.display = 'none';
       mainContent.classList.remove('hidden');
       mainContent.style.pointerEvents = 'auto';
-    }, { once: true });
+    }, {
+      once: true
+    });
   }, 500);
 });
