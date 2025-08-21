@@ -88,21 +88,21 @@
   </main>
   <div id="fixed-search-wrapper" class="fixed-search w-full">
     <div class="w-full max-w-4xl mx-auto">
-        <form action="#" id="search-form-fixed" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-fixed').value.trim());">
-            <div class="input-group flex space-x-2 items-center">
-                <div class="relative flex-grow min-w-0">
-                    <input id="search-input-fixed" type="search" placeholder="検索キーワードを入力..."
-                           class="w-full p-3 pr-12 rounded-xl border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500
-                                  dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
-                           autocomplete="off">
-                    <i id="clear-button-fixed" class="fas fa-times-circle clear-button hidden"></i>
-                </div>
-                <button id="search-button-fixed" type="submit"
-                        class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md flex-shrink-0 text-base">
-                    検索
-                </button>
-            </div>
-        </form>
+      <form action="#" id="search-form-fixed" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-fixed').value.trim());">
+        <div class="input-group flex space-x-2 items-center">
+          <div class="relative flex-grow min-w-0">
+            <input id="search-input-fixed" type="search" placeholder="検索キーワードを入力..."
+                   class="w-full p-3 pr-12 rounded-xl border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500
+                          dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
+                   autocomplete="off">
+            <i id="clear-button-fixed" class="fas fa-times-circle clear-button hidden"></i>
+          </div>
+          <button id="search-button-fixed" type="submit"
+                  class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md flex-shrink-0 text-base">
+            検索
+          </button>
+        </div>
+      </form>
     </div>
   </div>
   <div id="search-overlay" class="hidden">
