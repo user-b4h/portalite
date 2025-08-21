@@ -133,7 +133,7 @@ function initApp() {
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const day = String(today.getDate()).padStart(2, '0');
       const apiUrl = `https://api.whatistoday.cyou/index.cgi/v3/anniv/${month}${day}`;
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+      const proxyUrl = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(apiUrl)}`;
       const response = await fetch(proxyUrl);
       if (!response.ok) throw new Error('API request failed');
       const data = await response.json();
@@ -143,12 +143,15 @@ function initApp() {
         anniversaryContainer.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400">今日は特にありません。</div>';
         return;
       }
+      const ul = document.createElement('ul');
+      ul.className = 'list-disc list-inside space-y-1';
       anniversaries.forEach(anniversary => {
-        const item = document.createElement('p');
-        item.className = 'text-gray-800 dark:text-gray-200';
+        const item = document.createElement('li');
+        item.className = 'text-lg text-gray-800 dark:text-gray-200';
         item.textContent = anniversary;
-        anniversaryContainer.appendChild(item);
+        ul.appendChild(item);
       });
+      anniversaryContainer.appendChild(ul);
     } catch (error) {
       console.error('今日は何の日情報の取得に失敗しました:', error);
       anniversaryContainer.innerHTML = '<div class="text-center text-red-500">情報の取得に失敗しました。</div>';
@@ -409,17 +412,17 @@ function initApp() {
     renderSearchHistory(mainSuggestions);
   });
   overlayInput.addEventListener('focus', () => {
-    if (overlayInput.value.trim() === '') {
-      renderSearchHistory(overlaySuggestions);
-    }
-    toggleClearButton(overlayInput.value, overlayClearButton);
+      if (overlayInput.value.trim() === '') {
+          renderSearchHistory(overlaySuggestions);
+      }
+      toggleClearButton(overlayInput.value, overlayClearButton);
   });
   overlayInput.addEventListener('input', (e) => {
-    onInput(e, overlaySuggestions);
-    toggleClearButton(overlayInput.value, overlayClearButton);
+      onInput(e, overlaySuggestions);
+      toggleClearButton(overlayInput.value, overlayClearButton);
   });
   overlaySuggestions.addEventListener('mousedown', (e) => {
-    e.preventDefault();
+      e.preventDefault();
   });
   overlaySearchButton.addEventListener('click', () => doSearch(overlayInput.value.trim()));
   cancelButton.addEventListener('click', closeOverlay);
