@@ -18,7 +18,6 @@ function initApp() {
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
   copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
-
   async function fetchWeather() {
     weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
     try {
@@ -126,15 +125,20 @@ function initApp() {
       }
     }
   }
-
   async function fetchAnniversaries() {
     const anniversaryContainer = document.getElementById('anniversary-container');
     anniversaryContainer.innerHTML = '<div class="text-center">情報を取得中...</div>';
     try {
-      const response = await fetch('https://anniversary.f5.si/api/today');
+      const today = new Date();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const apiUrl = `https://api.whatistoday.cyou/index.cgi/v3/anniv/${month}${day}`;
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+      const response = await fetch(proxyUrl);
       if (!response.ok) throw new Error('API request failed');
-      const anniversaries = await response.json();
+      const data = await response.json();
       anniversaryContainer.innerHTML = '';
+      const anniversaries = Object.values(data).filter(anniv => typeof anniv === 'string' && anniv.trim() !== '' && anniv !== `${month}${day}`);
       if (anniversaries.length === 0) {
         anniversaryContainer.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400">今日は特にありません。</div>';
         return;
@@ -142,7 +146,7 @@ function initApp() {
       anniversaries.forEach(anniversary => {
         const item = document.createElement('p');
         item.className = 'text-gray-800 dark:text-gray-200';
-        item.textContent = anniversary.anniversary;
+        item.textContent = anniversary;
         anniversaryContainer.appendChild(item);
       });
     } catch (error) {
@@ -150,7 +154,6 @@ function initApp() {
       anniversaryContainer.innerHTML = '<div class="text-center text-red-500">情報の取得に失敗しました。</div>';
     }
   }
-
   async function fetchNews() {
     try {
       newsContainer.innerHTML = '<div class="text-center">ニュースを取得中...</div>';
@@ -196,7 +199,6 @@ function initApp() {
       });
     } catch {}
   }
-
   function jsonp(url, params = {}, timeout = 5000) {
     return new Promise((resolve, reject) => {
       const callbackName = 'jsonp_cb_' + Date.now();
@@ -209,7 +211,6 @@ function initApp() {
         cleanup();
         reject(new Error('JSONP timeout'));
       }, timeout);
-
       function cleanup() {
         clearTimeout(timer);
         try {
@@ -230,7 +231,6 @@ function initApp() {
       document.body.appendChild(script);
     });
   }
-
   async function fetchGoogleSuggestionsJSONP(query) {
     if (!query) return [];
     const url = 'https://suggestqueries.google.com/complete/search';
@@ -248,7 +248,6 @@ function initApp() {
       return [];
     }
   }
-
   function renderSuggestions(list, container, isHistory = false) {
     container.innerHTML = '';
     if (!list || list.length === 0) {
@@ -302,7 +301,6 @@ function initApp() {
       container.appendChild(item);
     });
   }
-
   function getSearchHistory() {
     try {
       const history = localStorage.getItem(HISTORY_KEY);
@@ -311,7 +309,6 @@ function initApp() {
       return [];
     }
   }
-
   function saveSearchHistory(query) {
     if (!query) return;
     let history = getSearchHistory();
@@ -322,18 +319,15 @@ function initApp() {
     }
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }
-
   function deleteSearchHistory(queryToDelete) {
     let history = getSearchHistory();
     history = history.filter(item => item !== queryToDelete);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }
-
   function renderSearchHistory(container) {
     const history = getSearchHistory();
     renderSuggestions(history, container, true);
   }
-
   function doSearch(q) {
     if (!q) return;
     saveSearchHistory(q);
@@ -341,7 +335,6 @@ function initApp() {
     closeOverlay();
     mainSuggestions.classList.add('hidden');
   }
-
   function debounce(fn, wait = 200) {
     let t;
     return (...args) => {
@@ -349,7 +342,6 @@ function initApp() {
       t = setTimeout(() => fn(...args), wait);
     };
   }
-
   const onInput = debounce(async (evt, container) => {
     const q = evt.target.value.trim();
     if (!q) {
@@ -359,7 +351,6 @@ function initApp() {
     const suggestions = await fetchGoogleSuggestionsJSONP(q);
     renderSuggestions(suggestions, container);
   }, 180);
-
   function toggleClearButton(query, clearButton) {
     if (query.length > 0) {
       clearButton.classList.remove('hidden');
@@ -367,7 +358,6 @@ function initApp() {
       clearButton.classList.add('hidden');
     }
   }
-
   function openMobileSearchOverlay(query = '') {
     lastScrollPosition = window.scrollY;
     overlay.style.display = 'flex';
@@ -385,7 +375,6 @@ function initApp() {
     toggleClearButton(overlayInput.value, overlayClearButton);
     overlayInput.focus();
   }
-
   mainInput.addEventListener('focus', () => {
     if (window.innerWidth <= 768) {
       openMobileSearchOverlay(mainInput.value);
@@ -419,7 +408,6 @@ function initApp() {
     toggleClearButton(mainInput.value, mainClearButton);
     renderSearchHistory(mainSuggestions);
   });
-
   overlayInput.addEventListener('focus', () => {
     if (overlayInput.value.trim() === '') {
       renderSearchHistory(overlaySuggestions);
@@ -441,7 +429,6 @@ function initApp() {
     renderSearchHistory(overlaySuggestions);
     overlayClearButton.classList.add('hidden');
   });
-
   function closeOverlay() {
     overlay.style.display = 'none';
     mainInput.value = '';
@@ -453,13 +440,11 @@ function initApp() {
     toggleClearButton(mainInput.value, mainClearButton);
     toggleClearButton(overlayInput.value, overlayClearButton);
   });
-
   const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
   const mainSearchContainer = document.getElementById('search-container-wrapper');
   const fixedInput = document.getElementById('search-input-fixed');
   const fixedClearButton = document.getElementById('clear-button-fixed');
   const fixedButton = document.getElementById('search-button-fixed');
-
   function handleScroll() {
     if (window.innerWidth <= 768) {
       const containerTop = mainSearchContainer.getBoundingClientRect().top;
@@ -491,7 +476,6 @@ function initApp() {
   fetchAnniversaries();
   fetchNews();
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
   const preloader = document.getElementById('preloader');
