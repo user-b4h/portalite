@@ -2,16 +2,13 @@
 * {
   font-family: "Noto Sans JP", "HiraginoSans-W2", "Hiragino Kaku Gothic ProN", Meiryo, "メイリオ", sans-serif;
 }
-
 body {
   background: #f3f4f6;
   color: #1f2937;
 }
-
 .card {
   background: #fff;
 }
-
 @media (prefers-color-scheme: dark) {
   body {
     background: #1f2937;
@@ -21,30 +18,24 @@ body {
     background: #374151;
   }
 }
-
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
 }
-
 ::-webkit-scrollbar {
   width: 12px;
 }
-
 ::-webkit-scrollbar-track {
   background: #e2e8f0;
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
   background-color: #9ca3af;
   border-radius: 10px;
   border: 3px solid #e2e8f0;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background-color: #6b7280;
 }
-
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-track {
     background: #1f2937;
@@ -57,18 +48,15 @@ input[type="search"]::-webkit-search-cancel-button {
     background-color: #6b7280;
   }
 }
-
 body {
   scrollbar-width: thin;
   scrollbar-color: #9ca3af #e2e8f0;
 }
-
 @media (prefers-color-scheme: dark) {
   body {
     scrollbar-color: #4b5563 #1f2937;
   }
 }
-
 #search-overlay {
   position: fixed;
   top: 0;
@@ -80,37 +68,31 @@ body {
   display: none;
   flex-direction: column;
 }
-
 @media (prefers-color-scheme: dark) {
   #search-overlay {
     background: #1f2937;
   }
 }
-
 .news-item {
   padding: 1rem;
   transition-property: background-color, transform;
   transition-duration: 300ms;
 }
-
 .news-item:not(:last-child) {
   border-bottom: 2px solid #e2e8f0;
 }
-
 @media (hover: hover) {
   .news-item:hover {
     background-color: #f1f5f9;
     transform: translateY(-2px);
   }
 }
-
 @media (hover: none) {
   .news-item:active {
     background-color: #f1f5f9;
     transform: translateY(-2px);
   }
 }
-
 @media (prefers-color-scheme: dark) {
   .news-item:not(:last-child) {
     border-bottom: 2px solid #4a5568;
@@ -126,7 +108,6 @@ body {
     }
   }
 }
-
 .clear-button {
   position: absolute;
   right: 0.75rem;
@@ -137,38 +118,32 @@ body {
   font-size: 1.5rem;
   z-index: 20;
 }
-
 @media (hover: hover) {
   .clear-button:hover {
     color: #6b7280;
   }
 }
-
 @media (hover: none) {
   .clear-button:active {
     color: #6b7280;
   }
 }
-
 .history-delete-button {
   color: #9ca3af;
   margin-left: auto;
   padding: 0.5rem;
   cursor: pointer;
 }
-
 @media (hover: hover) {
   .history-delete-button:hover {
     color: #ef4444;
   }
 }
-
 @media (hover: none) {
   .history-delete-button:active {
     color: #ef4444;
   }
 }
-
 .link-item {
   display: flex;
   align-items: center;
@@ -180,7 +155,6 @@ body {
   transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 @media (hover: hover) {
   .link-item:hover {
     transform: translateY(-2px);
@@ -188,7 +162,6 @@ body {
     background-color: #e2e8f0;
   }
 }
-
 @media (hover: none) {
   .link-item:active {
     transform: translateY(-2px);
@@ -196,7 +169,6 @@ body {
     background-color: #e2e8f0;
   }
 }
-
 @media (prefers-color-scheme: dark) {
   .link-item {
     background-color: #2d3748;
@@ -215,7 +187,6 @@ body {
     }
   }
 }
-
 @keyframes slideInFromTop {
   0% {
     transform: translateY(-100%);
@@ -224,7 +195,6 @@ body {
     transform: translateY(0);
   }
 }
-
 .fixed-search {
   position: fixed;
   top: 0;
@@ -239,25 +209,21 @@ body {
   transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
   pointer-events: none;
 }
-
 .fixed-search.is-visible {
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
 }
-
 @media (min-width: 640px) {
   .fixed-search {
     display: none;
   }
 }
-
 @media (prefers-color-scheme: dark) {
   .fixed-search {
     background-color: #1f2937;
   }
 }
-
 #preloader {
   transition: opacity 0.5s ease-out;
 }
