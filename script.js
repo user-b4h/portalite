@@ -60,7 +60,6 @@ function initApp() {
         }
       }
       if (!closestCity || minDistance > DISTANCE_THRESHOLD_KM) {
-        console.warn('最寄りの地点が見つからないか、距離が遠すぎます。札幌の天気情報を取得します。');
         throw new Error('Distance too far or no closest city found, falling back to Sapporo.');
       }
       const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${closestCity.id}`;
@@ -90,7 +89,6 @@ function initApp() {
         weatherContainer.appendChild(el);
       });
     } catch (error) {
-      console.error('天気情報の取得に失敗しました:', error);
       const sapporoCityId = '016010';
       const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${sapporoCityId}`;
       try {
@@ -120,41 +118,8 @@ function initApp() {
           weatherContainer.appendChild(el);
         });
       } catch (sapporoError) {
-        console.error('札幌の天気情報の取得にも失敗しました:', sapporoError);
         weatherContainer.innerHTML = '<div class="text-center col-span-3 text-red-500">天気情報の取得に失敗しました。</div>';
       }
-    }
-  }
-  async function fetchAnniversaries() {
-    const anniversaryContainer = document.getElementById('anniversary-container');
-    anniversaryContainer.innerHTML = '<div class="text-center">情報を取得中...</div>';
-    try {
-      const today = new Date();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      const apiUrl = `https://api.whatistoday.cyou/index.cgi/v3/anniv/${month}${day}`;
-      const proxyUrl = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(apiUrl)}`;
-      const response = await fetch(proxyUrl);
-      if (!response.ok) throw new Error('API request failed');
-      const data = await response.json();
-      anniversaryContainer.innerHTML = '';
-      const anniversaries = Object.values(data).filter(anniv => typeof anniv === 'string' && anniv.trim() !== '' && anniv !== `${month}${day}`);
-      if (anniversaries.length === 0) {
-        anniversaryContainer.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400">今日は特にありません。</div>';
-        return;
-      }
-      const ul = document.createElement('ul');
-      ul.className = 'list-disc list-inside space-y-1';
-      anniversaries.forEach(anniversary => {
-        const item = document.createElement('li');
-        item.className = 'text-lg text-gray-800 dark:text-gray-200';
-        item.textContent = anniversary;
-        ul.appendChild(item);
-      });
-      anniversaryContainer.appendChild(ul);
-    } catch (error) {
-      console.error('今日は何の日情報の取得に失敗しました:', error);
-      anniversaryContainer.innerHTML = '<div class="text-center text-red-500">情報の取得に失敗しました。</div>';
     }
   }
   async function fetchNews() {
@@ -476,7 +441,6 @@ function initApp() {
   fixedButton.addEventListener('click', () => doSearch(fixedInput.value.trim()));
   toggleClearButton(mainInput.value, mainClearButton);
   fetchWeather();
-  fetchAnniversaries();
   fetchNews();
 }
 document.addEventListener('DOMContentLoaded', () => {
