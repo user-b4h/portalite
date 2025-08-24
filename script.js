@@ -18,6 +18,7 @@ function initApp() {
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
   copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
+
   async function fetchWeather() {
     weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
     try {
@@ -167,6 +168,41 @@ function initApp() {
       });
     } catch {}
   }
+
+  async function fetchAnniversaries() {
+    const anniversaryContainer = document.getElementById('anniversary-container');
+    anniversaryContainer.innerHTML = '<div class="text-center">記念日情報を取得中...</div>';
+    try {
+      const response = await fetch('json/anniversary.json');
+      const data = await response.json();
+
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+
+      const monthKey = `${month}月`;
+      const dayKey = `${day}日`;
+
+      anniversaryContainer.innerHTML = '';
+
+      if (data[monthKey] && data[monthKey][dayKey]) {
+        const anniversaries = data[monthKey][dayKey];
+        const ul = document.createElement('ul');
+        ul.className = 'list-disc list-inside';
+        anniversaries.forEach(anniversary => {
+          const li = document.createElement('li');
+          li.textContent = anniversary;
+          ul.appendChild(li);
+        });
+        anniversaryContainer.appendChild(ul);
+      } else {
+        anniversaryContainer.innerHTML = '<div class="text-center">今日は特別な記念日はありません。</div>';
+      }
+    } catch (error) {
+      anniversaryContainer.innerHTML = '<div class="text-center text-red-500">記念日情報の取得に失敗しました。</div>';
+    }
+  }
+
   function jsonp(url, params = {}, timeout = 5000) {
     return new Promise((resolve, reject) => {
       const callbackName = 'jsonp_cb_' + Date.now();
@@ -442,6 +478,7 @@ function initApp() {
   toggleClearButton(mainInput.value, mainClearButton);
   fetchWeather();
   fetchNews();
+  fetchAnniversaries();
 }
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
