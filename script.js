@@ -30,7 +30,7 @@ function initApp() {
       });
       const userLat = position.coords.latitude;
       const userLon = position.coords.longitude;
-      const cityCoordsResponse = await fetch('city_coords.json');
+      const cityCoordsResponse = await fetch('json/city_coords.json');
       const cityCoords = await cityCoordsResponse.json();
       let closestCity = null;
       let minDistance = Infinity;
