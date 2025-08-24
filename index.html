@@ -10,9 +10,11 @@
   <link rel="icon" href="icon/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon/apple-touch-icon.png">
   <link rel="manifest" href="manifest.json">
+  
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
@@ -21,15 +23,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="p-4 sm:p-8 flex flex-col items-center min-h-screen text-base sm:text-lg">
+
   <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center">
     <img src="icon/icon.svg" alt="Portalite Logo" class="w-32 h-32 mb-4">
     <p class="text-3xl font-bold">Portalite</p>
   </div>
+
   <main id="main-content" class="hidden w-full max-w-4xl space-y-8 pointer-events-none">
     <header class="text-center">
       <h1 class="text-5xl sm:text-6xl font-bold mb-2">Portalite</h1>
       <p class="text-xl">シンプルなポータルアプリ</p>
     </header>
+
     <section class="card p-6 rounded-2xl shadow-lg relative">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">ウェブ検索</h2>
       <div id="search-container-wrapper">
@@ -53,6 +58,7 @@
         </form>
       </div>
     </section>
+
     <section class="card p-6 rounded-2xl shadow-lg">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">よく使うサイト</h2>
       <div id="links-container" class="space-y-4">
@@ -64,47 +70,47 @@
         </a>
       </div>
     </section>
-    <section class="card p-6 rounded-2xl shadow-lg">
-      <h2 class="text-2xl sm:text-3xl font-semibold mb-4">今日は何の日</h2>
-      <div id="anniversary-container" class="space-y-2 text-base">
-        <div class="text-center">情報を取得中...</div>
-      </div>
-    </section>
+
     <section class="card p-6 rounded-2xl shadow-lg">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">札幌の天気</h2>
       <div id="weather-container" class="grid sm:grid-cols-3 gap-4 text-center text-base sm:text-lg">
         <div class="text-center col-span-3">天気情報を取得中...</div>
       </div>
     </section>
+
     <section class="card p-6 rounded-2xl shadow-lg">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">最新ニュース (NHK)</h2>
       <div id="news-container" class="space-y-4 text-base sm:text-lg">
         <div class="text-center">ニュースを取得中...</div>
       </div>
     </section>
+    
     <footer class="text-center text-gray-500 dark:text-gray-400 text-sm sm:text-base mt-8">
       <span id="copyright-text"></span>
     </footer>
+
   </main>
+  
   <div id="fixed-search-wrapper" class="fixed-search w-full">
     <div class="w-full max-w-4xl mx-auto">
-      <form action="#" id="search-form-fixed" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-fixed').value.trim());">
-        <div class="input-group flex space-x-2 items-center">
-          <div class="relative flex-grow min-w-0">
-            <input id="search-input-fixed" type="search" placeholder="検索キーワードを入力..."
-                   class="w-full p-3 pr-12 rounded-xl border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500
-                          dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
-                   autocomplete="off">
-            <i id="clear-button-fixed" class="fas fa-times-circle clear-button hidden"></i>
-          </div>
-          <button id="search-button-fixed" type="submit"
-                  class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md flex-shrink-0 text-base">
-            検索
-          </button>
-        </div>
-      </form>
+        <form action="#" id="search-form-fixed" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-fixed').value.trim());">
+            <div class="input-group flex space-x-2 items-center">
+                <div class="relative flex-grow min-w-0">
+                    <input id="search-input-fixed" type="search" placeholder="検索キーワードを入力..."
+                           class="w-full p-3 pr-12 rounded-xl border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500
+                                  dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
+                           autocomplete="off">
+                    <i id="clear-button-fixed" class="fas fa-times-circle clear-button hidden"></i>
+                </div>
+                <button id="search-button-fixed" type="submit"
+                        class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md flex-shrink-0 text-base">
+                    検索
+                </button>
+            </div>
+        </form>
     </div>
   </div>
+
   <div id="search-overlay" class="hidden">
     <div class="p-4 flex items-center space-x-2 border-b border-gray-200 dark:border-gray-600">
       <form action="#" id="search-form-overlay" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-overlay').value.trim());" class="relative flex-grow min-w-0 flex items-center space-x-2">
@@ -127,6 +133,7 @@
     </div>
     <div id="suggestions-container-overlay" class="flex-grow overflow-y-auto p-2 text-lg"></div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
