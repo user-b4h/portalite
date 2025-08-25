@@ -18,7 +18,6 @@ function initApp() {
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
   copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
-
   async function fetchWeather() {
     weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
     try {
@@ -168,23 +167,18 @@ function initApp() {
       });
     } catch {}
   }
-
   async function fetchAnniversaries() {
     const anniversaryContainer = document.getElementById('anniversary-container');
     anniversaryContainer.innerHTML = '<div class="text-center">記念日情報を取得中...</div>';
     try {
       const response = await fetch('json/anniversary.json');
       const data = await response.json();
-
       const today = new Date();
       const month = today.getMonth() + 1;
       const day = today.getDate();
-
       const monthKey = `${month}月`;
       const dayKey = `${day}日`;
-
       anniversaryContainer.innerHTML = '';
-
       if (data[monthKey] && data[monthKey][dayKey]) {
         const anniversaries = data[monthKey][dayKey];
         const ul = document.createElement('ul');
@@ -202,7 +196,6 @@ function initApp() {
       anniversaryContainer.innerHTML = '<div class="text-center text-red-500">記念日情報の取得に失敗しました。</div>';
     }
   }
-
   function jsonp(url, params = {}, timeout = 5000) {
     return new Promise((resolve, reject) => {
       const callbackName = 'jsonp_cb_' + Date.now();
@@ -479,6 +472,34 @@ function initApp() {
   fetchWeather();
   fetchNews();
   fetchAnniversaries();
+  const kanjiButton = document.getElementById('kanji-check-button');
+  const kanjiOverlay = document.getElementById('kanji-overlay');
+  const kanjiCancelButton = document.getElementById('kanji-cancel-button');
+  const kanjiTextarea = document.getElementById('kanji-textarea');
+  const kanjiClearButton = document.getElementById('kanji-clear-button');
+  function openKanjiOverlay() {
+    kanjiOverlay.style.display = 'flex';
+    kanjiOverlay.classList.remove('hidden');
+    kanjiTextarea.focus();
+  }
+  function closeKanjiOverlay() {
+    kanjiOverlay.style.display = 'none';
+  }
+  function updateKanjiCharCount() {
+    const len = kanjiTextarea.value.length;
+  }
+  kanjiButton.addEventListener('click', openKanjiOverlay);
+  kanjiCancelButton.addEventListener('click', closeKanjiOverlay);
+  kanjiTextarea.addEventListener('input', updateKanjiCharCount);
+  kanjiClearButton.addEventListener('click', () => {
+    kanjiTextarea.value = '';
+    kanjiTextarea.focus();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && kanjiOverlay.style.display === 'flex') {
+      closeKanjiOverlay();
+    }
+  });
 }
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
