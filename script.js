@@ -484,6 +484,7 @@ function initApp() {
   }
   function closeKanjiOverlay() {
     kanjiOverlay.style.display = 'none';
+    kanjiTextarea.value = '';
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
