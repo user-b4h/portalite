@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -45,10 +45,6 @@
                    class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 hidden text-base sm:text-lg">
               </div>
             </div>
-            <button id="search-button-main" type="submit"
-                    class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md flex-shrink-0 text-base">
-              検索
-            </button>
           </div>
         </form>
       </div>
@@ -102,10 +98,6 @@
                            autocomplete="off">
                     <i id="clear-button-fixed" class="fas fa-times-circle clear-button hidden"></i>
                 </div>
-                <button id="search-button-fixed" type="submit"
-                        class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md flex-shrink-0 text-base">
-                    検索
-                </button>
             </div>
         </form>
     </div>
@@ -120,10 +112,6 @@
                  placeholder="検索キーワード..." autocomplete="off">
           <i id="clear-button-overlay" class="fas fa-times-circle clear-button hidden"></i>
         </div>
-        <button id="overlay-search-button" type="submit"
-                class="flex-shrink-0 bg-blue-600 text-white px-3 py-2 rounded-xl hover:bg-blue-700 transition duration-300 text-lg">
-          検索
-        </button>
       </form>
       <button id="cancel-button"
               class="flex-shrink-0 text-blue-500 font-semibold text-lg ml-1">
