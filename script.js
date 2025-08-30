@@ -346,6 +346,10 @@ function initApp() {
       trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
     }
     container.classList.remove('hidden');
+    container.classList.add('no-pointer-events');
+    setTimeout(() => {
+      container.classList.remove('no-pointer-events');
+    }, 100);
   }
   function getSearchHistory() {
     try {
