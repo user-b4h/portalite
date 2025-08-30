@@ -265,7 +265,6 @@ function initApp() {
       });
     } catch (error) {
       trendsData = null;
-      console.error('トレンド情報の取得に失敗しました。', error);
     }
   }
   function renderTrends(items, trendsEl) {
@@ -334,23 +333,17 @@ function initApp() {
         }
         container.appendChild(item);
       });
+    }
+    const trendsEl = document.createElement('div');
+    trendsEl.id = 'trends-container';
+    trendsEl.className = 'border-t border-gray-200 dark:border-gray-600 pt-4';
+    container.appendChild(trendsEl);
+    if (trendsData) {
+      renderTrends(trendsData, trendsEl);
     } else {
-      container.classList.add('hidden');
+      trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
     }
-    if (isHistory) {
-      let trendsEl = container.querySelector('#trends-container');
-      if (!trendsEl) {
-        trendsEl = document.createElement('div');
-        trendsEl.id = 'trends-container';
-        trendsEl.className = 'border-t border-gray-200 dark:border-gray-600 pt-4';
-        container.appendChild(trendsEl);
-      }
-      if (trendsData) {
-        renderTrends(trendsData, trendsEl);
-      } else {
-        trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
-      }
-    }
+    container.classList.remove('hidden');
   }
   function getSearchHistory() {
     try {
