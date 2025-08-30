@@ -284,7 +284,7 @@ function initApp() {
       }
     });
   }
-  function renderSuggestions(list, container, isHistory = false) {
+  function renderSuggestions(list, container, isHistory = false, query = '') {
     container.innerHTML = '';
     if (list && list.length > 0) {
       list.forEach((s, index) => {
@@ -334,13 +334,10 @@ function initApp() {
       });
     }
     const history = getSearchHistory();
-    if (history.length === 0) {
+    if (history.length === 0 && query === '') {
       const trendsEl = document.createElement('div');
       trendsEl.id = 'trends-container';
       trendsEl.className = 'pt-4';
-      if (list.length === 0) {
-        trendsEl.classList.add('border-t', 'border-gray-200', 'dark:border-gray-600');
-      }
       container.appendChild(trendsEl);
       if (trendsData) {
         renderTrends(trendsData, trendsEl);
@@ -379,7 +376,8 @@ function initApp() {
   }
   function renderSearchHistory(container) {
     const history = getSearchHistory();
-    renderSuggestions(history, container, true);
+    const inputElement = (container === mainSuggestions) ? mainInput : overlayInput;
+    renderSuggestions(history, container, true, inputElement.value.trim());
   }
   function doSearch(q) {
     if (!q) return;
@@ -402,7 +400,7 @@ function initApp() {
       return;
     }
     const suggestions = await fetchGoogleSuggestionsJSONP(q);
-    renderSuggestions(suggestions, container);
+    renderSuggestions(suggestions, container, false, q);
   }, 180);
   function toggleClearButton(query, clearButton) {
     if (query.length > 0) {
