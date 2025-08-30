@@ -287,7 +287,6 @@ function initApp() {
   function renderSuggestions(list, container, isHistory = false) {
     container.innerHTML = '';
     if (list && list.length > 0) {
-      container.classList.remove('hidden');
       list.forEach((s, index) => {
         const item = document.createElement('div');
         if (isHistory) {
@@ -336,7 +335,10 @@ function initApp() {
     }
     const trendsEl = document.createElement('div');
     trendsEl.id = 'trends-container';
-    trendsEl.className = 'border-t border-gray-200 dark:border-gray-600 pt-4';
+    trendsEl.className = 'pt-4';
+    if (isHistory && list && list.length > 0) {
+        trendsEl.classList.add('border-t', 'border-gray-200', 'dark:border-gray-600');
+    }
     container.appendChild(trendsEl);
     if (trendsData) {
       renderTrends(trendsData, trendsEl);
