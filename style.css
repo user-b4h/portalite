@@ -228,3 +228,6 @@ body {
 #kanji-textarea {
   resize: none;
 }
+.no-pointer-events {
+  pointer-events: none;
+}
