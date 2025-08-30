@@ -2,18 +2,19 @@ function initApp() {
   const weatherContainer = document.getElementById('weather-container');
   const newsContainer = document.getElementById('news-container');
   const mainInput = document.getElementById('search-input-main');
-  const mainButton = document.getElementById('search-button-main');
   const mainSuggestions = document.getElementById('suggestions-container-main');
   const mainClearButton = document.getElementById('clear-button-main');
   const overlay = document.getElementById('search-overlay');
   const overlayInput = document.getElementById('search-input-overlay');
-  const overlaySearchButton = document.getElementById('overlay-search-button');
   const cancelButton = document.getElementById('cancel-button');
   const overlaySuggestions = document.getElementById('suggestions-container-overlay');
   const overlayClearButton = document.getElementById('clear-button-overlay');
   const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 10;
+  const TRENDS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
+  const TRENDS_URL = 'https://trends.google.co.jp/trending/rss?geo=JP';
+  let trendsData = null;
   let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
@@ -245,58 +246,111 @@ function initApp() {
       return [];
     }
   }
+  async function fetchTrendsData() {
+    try {
+      const response = await fetch(`${TRENDS_PROXY}${TRENDS_URL}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const text = await response.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(text, 'text/xml');
+      trendsData = Array.from(xmlDoc.querySelectorAll('item')).slice(0, 5).map(item => {
+        const title = item.querySelector('title')?.textContent;
+        const link = item.querySelector('link')?.textContent;
+        return {
+          title,
+          link
+        };
+      });
+    } catch (error) {
+      trendsData = null;
+      console.error('トレンド情報の取得に失敗しました。', error);
+    }
+  }
+  function renderTrends(items, trendsEl) {
+    trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンド</p>';
+    items.forEach((item, index) => {
+      if (item.title && item.link) {
+        const trendItem = document.createElement('div');
+        trendItem.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center`;
+        if (index < items.length - 1) {
+          trendItem.classList.add('border-b', 'border-gray-200', 'dark:border-gray-600');
+        }
+        trendItem.innerHTML = `<i class="fas fa-chart-line text-gray-400 mr-2"></i><span>${item.title}</span>`;
+        trendItem.addEventListener('click', () => {
+          doSearch(item.title);
+        });
+        trendsEl.appendChild(trendItem);
+      }
+    });
+  }
   function renderSuggestions(list, container, isHistory = false) {
     container.innerHTML = '';
-    if (!list || list.length === 0) {
+    if (list && list.length > 0) {
+      container.classList.remove('hidden');
+      list.forEach((s, index) => {
+        const item = document.createElement('div');
+        if (isHistory) {
+          item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center justify-between group`;
+          item.addEventListener('click', () => {
+            if (container === overlaySuggestions) {
+              overlayInput.value = s;
+              toggleClearButton(overlayInput.value, overlayClearButton);
+            } else {
+              mainInput.value = s;
+              toggleClearButton(mainInput.value, mainClearButton);
+            }
+            doSearch(s);
+          });
+          const searchIcon = document.createElement('div');
+          searchIcon.className = 'flex items-center flex-grow';
+          searchIcon.innerHTML = `<i class="fas fa-history text-gray-400 mr-2"></i><span>${s}</span>`;
+          item.appendChild(searchIcon);
+          const deleteButton = document.createElement('i');
+          deleteButton.className = 'fas fa-times history-delete-button';
+          deleteButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteSearchHistory(s);
+            renderSearchHistory(container);
+          });
+          item.appendChild(deleteButton);
+        } else {
+          item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center`;
+          item.innerHTML = `<i class="fas fa-search text-gray-400 mr-2"></i><span>${s}</span>`;
+          item.addEventListener('click', () => {
+            if (container === overlaySuggestions) {
+              overlayInput.value = s;
+              toggleClearButton(overlayInput.value, overlayClearButton);
+            } else {
+              mainInput.value = s;
+              toggleClearButton(mainInput.value, mainClearButton);
+            }
+            doSearch(s);
+          });
+        }
+        if (index < list.length - 1) {
+          item.classList.add('border-b', 'border-gray-200', 'dark:border-gray-600');
+        }
+        container.appendChild(item);
+      });
+    } else {
       container.classList.add('hidden');
-      return;
     }
-    container.classList.remove('hidden');
-    list.forEach((s, index) => {
-      const item = document.createElement('div');
-      if (isHistory) {
-        item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center justify-between group`;
-        item.addEventListener('click', () => {
-          if (container === overlaySuggestions) {
-            overlayInput.value = s;
-            toggleClearButton(overlayInput.value, overlayClearButton);
-          } else {
-            mainInput.value = s;
-            toggleClearButton(mainInput.value, mainClearButton);
-          }
-          doSearch(s);
-        });
-        const searchIcon = document.createElement('div');
-        searchIcon.className = 'flex items-center flex-grow';
-        searchIcon.innerHTML = `<i class="fas fa-history text-gray-400 mr-2"></i><span>${s}</span>`;
-        item.appendChild(searchIcon);
-        const deleteButton = document.createElement('i');
-        deleteButton.className = 'fas fa-times history-delete-button';
-        deleteButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          deleteSearchHistory(s);
-          renderSearchHistory(container);
-        });
-        item.appendChild(deleteButton);
+    if (isHistory) {
+      let trendsEl = container.querySelector('#trends-container');
+      if (!trendsEl) {
+        trendsEl = document.createElement('div');
+        trendsEl.id = 'trends-container';
+        trendsEl.className = 'border-t border-gray-200 dark:border-gray-600 pt-4';
+        container.appendChild(trendsEl);
+      }
+      if (trendsData) {
+        renderTrends(trendsData, trendsEl);
       } else {
-        item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center`;
-        item.innerHTML = `<i class="fas fa-search text-gray-400 mr-2"></i><span>${s}</span>`;
-        item.addEventListener('click', () => {
-          if (container === overlaySuggestions) {
-            overlayInput.value = s;
-            toggleClearButton(overlayInput.value, overlayClearButton);
-          } else {
-            mainInput.value = s;
-            toggleClearButton(mainInput.value, mainClearButton);
-          }
-          doSearch(s);
-        });
+        trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
       }
-      if (index < list.length - 1) {
-        item.classList.add('border-b', 'border-gray-200', 'dark:border-gray-600');
-      }
-      container.appendChild(item);
-    });
+    }
   }
   function getSearchHistory() {
     try {
@@ -395,7 +449,6 @@ function initApp() {
   mainSuggestions.addEventListener('mousedown', (e) => {
     e.preventDefault();
   });
-  mainButton.addEventListener('click', () => doSearch(mainInput.value.trim()));
   mainClearButton.addEventListener('click', () => {
     mainInput.value = '';
     if (window.innerWidth > 768) {
@@ -406,19 +459,18 @@ function initApp() {
     renderSearchHistory(mainSuggestions);
   });
   overlayInput.addEventListener('focus', () => {
-      if (overlayInput.value.trim() === '') {
-          renderSearchHistory(overlaySuggestions);
-      }
-      toggleClearButton(overlayInput.value, overlayClearButton);
+    if (overlayInput.value.trim() === '') {
+      renderSearchHistory(overlaySuggestions);
+    }
+    toggleClearButton(overlayInput.value, overlayClearButton);
   });
   overlayInput.addEventListener('input', (e) => {
-      onInput(e, overlaySuggestions);
-      toggleClearButton(overlayInput.value, overlayClearButton);
+    onInput(e, overlaySuggestions);
+    toggleClearButton(overlayInput.value, overlayClearButton);
   });
   overlaySuggestions.addEventListener('mousedown', (e) => {
-      e.preventDefault();
+    e.preventDefault();
   });
-  overlaySearchButton.addEventListener('click', () => doSearch(overlayInput.value.trim()));
   cancelButton.addEventListener('click', closeOverlay);
   overlayClearButton.addEventListener('click', () => {
     overlayInput.value = '';
@@ -441,7 +493,6 @@ function initApp() {
   const mainSearchContainer = document.getElementById('search-container-wrapper');
   const fixedInput = document.getElementById('search-input-fixed');
   const fixedClearButton = document.getElementById('clear-button-fixed');
-  const fixedButton = document.getElementById('search-button-fixed');
   function handleScroll() {
     if (window.innerWidth <= 768) {
       const containerTop = mainSearchContainer.getBoundingClientRect().top;
@@ -467,11 +518,11 @@ function initApp() {
     fixedInput.focus();
     toggleClearButton(fixedInput.value, fixedClearButton);
   });
-  fixedButton.addEventListener('click', () => doSearch(fixedInput.value.trim()));
   toggleClearButton(mainInput.value, mainClearButton);
   fetchWeather();
   fetchNews();
   fetchAnniversaries();
+  fetchTrendsData();
   const kanjiButton = document.getElementById('kanji-check-button');
   const kanjiOverlay = document.getElementById('kanji-overlay');
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
@@ -501,6 +552,25 @@ function initApp() {
       closeKanjiOverlay();
     }
   });
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+    const inputElement = event.target.querySelector('input[type="search"]');
+    if (inputElement) {
+      doSearch(inputElement.value.trim());
+    }
+  }
+  const mainForm = document.getElementById('search-form-main');
+  const fixedForm = document.getElementById('search-form-fixed');
+  const overlayForm = document.getElementById('search-form-overlay');
+  if (mainForm) {
+    mainForm.addEventListener('submit', handleSearchSubmit);
+  }
+  if (fixedForm) {
+    fixedForm.addEventListener('submit', handleSearchSubmit);
+  }
+  if (overlayForm) {
+    overlayForm.addEventListener('submit', handleSearchSubmit);
+  }
 }
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
