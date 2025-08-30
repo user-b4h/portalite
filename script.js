@@ -333,17 +333,20 @@ function initApp() {
         container.appendChild(item);
       });
     }
-    const trendsEl = document.createElement('div');
-    trendsEl.id = 'trends-container';
-    trendsEl.className = 'pt-4';
-    if (isHistory && list && list.length > 0) {
+    const history = getSearchHistory();
+    if (history.length === 0) {
+      const trendsEl = document.createElement('div');
+      trendsEl.id = 'trends-container';
+      trendsEl.className = 'pt-4';
+      if (list.length === 0) {
         trendsEl.classList.add('border-t', 'border-gray-200', 'dark:border-gray-600');
-    }
-    container.appendChild(trendsEl);
-    if (trendsData) {
-      renderTrends(trendsData, trendsEl);
-    } else {
-      trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
+      }
+      container.appendChild(trendsEl);
+      if (trendsData) {
+        renderTrends(trendsData, trendsEl);
+      } else {
+        trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
+      }
     }
     container.classList.remove('hidden');
     container.classList.add('no-pointer-events');
