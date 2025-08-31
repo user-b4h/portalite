@@ -343,6 +343,17 @@ function initApp() {
         container.appendChild(item);
       });
     }
+    if (isHistory && list.length > 0) {
+      const clearButtonWrapper = document.createElement('div');
+      clearButtonWrapper.className = 'mt-2 px-2';
+      const clearButton = document.createElement('button');
+      clearButton.id = 'clear-all-history-button';
+      clearButton.className = 'w-full p-2 text-sm text-center text-red-500 rounded-lg bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors';
+      clearButton.textContent = '検索履歴を消去';
+      clearButton.addEventListener('click', clearAllSearchHistory);
+      clearButtonWrapper.appendChild(clearButton);
+      container.appendChild(clearButtonWrapper);
+    }
     const history = getSearchHistory();
     const trendsToShow = 10 - history.length;
     if (query === '' && trendsToShow > 0) {
@@ -384,6 +395,13 @@ function initApp() {
     let history = getSearchHistory();
     history = history.filter(item => item !== queryToDelete);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  }
+  function clearAllSearchHistory() {
+    if (window.confirm("検索履歴をすべて消去してよろしいですか？")) {
+        localStorage.removeItem(HISTORY_KEY);
+        renderSearchHistory(mainSuggestions);
+        renderSearchHistory(overlaySuggestions);
+    }
   }
   function renderSearchHistory(container) {
     const history = getSearchHistory();
