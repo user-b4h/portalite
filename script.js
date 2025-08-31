@@ -349,7 +349,7 @@ function initApp() {
       const clearButton = document.createElement('button');
       clearButton.id = 'clear-all-history-button';
       clearButton.className = 'w-full p-2 text-sm text-center text-red-500 rounded-lg bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors';
-      clearButton.textContent = '検索履歴を消去';
+      clearButton.textContent = '検索履歴をすべて消去';
       clearButton.addEventListener('click', clearAllSearchHistory);
       clearButtonWrapper.appendChild(clearButton);
       container.appendChild(clearButtonWrapper);
