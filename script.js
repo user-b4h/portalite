@@ -263,8 +263,18 @@ function initApp() {
           link
         };
       });
+      updateTrendsDisplay(overlaySuggestions);
+      updateTrendsDisplay(mainSuggestions);
     } catch (error) {
       trendsData = null;
+    }
+  }
+  function updateTrendsDisplay(container) {
+    const trendsEl = container.querySelector('#trends-container');
+    if (trendsEl && trendsData) {
+      const history = getSearchHistory();
+      const trendsToShow = 10 - history.length;
+      renderTrends(trendsData.slice(0, trendsToShow), trendsEl);
     }
   }
   function renderTrends(items, trendsEl) {
@@ -523,7 +533,14 @@ function initApp() {
   fetchWeather();
   fetchNews();
   fetchAnniversaries();
-  fetchTrendsData();
+  fetchTrendsData().then(() => {
+    if (!mainSuggestions.classList.contains('hidden')) {
+      renderSearchHistory(mainSuggestions);
+    }
+    if (!overlaySuggestions.classList.contains('hidden')) {
+      renderSearchHistory(overlaySuggestions);
+    }
+  });
   const kanjiButton = document.getElementById('kanji-check-button');
   const kanjiOverlay = document.getElementById('kanji-overlay');
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
