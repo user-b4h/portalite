@@ -255,7 +255,7 @@ function initApp() {
       const text = await response.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(text, 'text/xml');
-      trendsData = Array.from(xmlDoc.querySelectorAll('item')).slice(0, 5).map(item => {
+      trendsData = Array.from(xmlDoc.querySelectorAll('item')).slice(0, 10).map(item => {
         const title = item.querySelector('title')?.textContent;
         const link = item.querySelector('link')?.textContent;
         return {
@@ -334,13 +334,14 @@ function initApp() {
       });
     }
     const history = getSearchHistory();
-    if (history.length === 0 && query === '') {
+    const trendsToShow = 10 - history.length;
+    if (query === '' && trendsToShow > 0) {
       const trendsEl = document.createElement('div');
       trendsEl.id = 'trends-container';
       trendsEl.className = 'pt-4';
       container.appendChild(trendsEl);
       if (trendsData) {
-        renderTrends(trendsData, trendsEl);
+        renderTrends(trendsData.slice(0, trendsToShow), trendsEl);
       } else {
         trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
       }
