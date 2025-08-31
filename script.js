@@ -401,6 +401,8 @@ function initApp() {
         localStorage.removeItem(HISTORY_KEY);
         renderSearchHistory(mainSuggestions);
         renderSearchHistory(overlaySuggestions);
+        mainSuggestions.classList.add('hidden');
+        overlaySuggestions.classList.add('hidden');
     }
   }
   function renderSearchHistory(container) {
