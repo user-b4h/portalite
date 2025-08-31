@@ -118,7 +118,6 @@ body {
   transform: translateY(-50%);
   color: #9ca3af;
   pointer-events: none;
-  z-index: 20;
 }
 .history-delete-button {
     color: #9ca3af;
