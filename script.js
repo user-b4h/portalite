@@ -338,7 +338,7 @@ function initApp() {
     if (query === '' && trendsToShow > 0) {
       const trendsEl = document.createElement('div');
       trendsEl.id = 'trends-container';
-      trendsEl.className = 'pt-4';
+      trendsEl.className = 'pt-2';
       container.appendChild(trendsEl);
       if (trendsData) {
         renderTrends(trendsData.slice(0, trendsToShow), trendsEl);
