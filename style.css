@@ -239,6 +239,3 @@ body {
 .no-pointer-events {
   pointer-events: none;
 }
-.pl-12 {
-  padding-left: 2.2rem !important;
-}
