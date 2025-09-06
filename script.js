@@ -13,7 +13,7 @@ function initApp() {
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 10;
   const TRENDS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
-  const TRENDS_URL = 'https://trends.google.co.jp/trending/rss?geo=JP';
+  const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
   let trendsData = null;
   let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
@@ -278,7 +278,7 @@ function initApp() {
     }
   }
   function renderTrends(items, trendsEl) {
-    trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンド</p>';
+    trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンド（Google）</p>';
     items.forEach((item, index) => {
       if (item.title && item.link) {
         const trendItem = document.createElement('div');
