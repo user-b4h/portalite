@@ -239,3 +239,8 @@ body {
 .no-pointer-events {
   pointer-events: none;
 }
+.no-scroll {
+  position: fixed;
+  width: 100%;
+  overflow-y: hidden;
+}
