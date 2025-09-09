@@ -442,6 +442,8 @@ function initApp() {
   }
   function openMobileSearchOverlay(query = '') {
     lastScrollPosition = window.scrollY;
+    document.body.style.top = `-${lastScrollPosition}px`;
+    document.body.classList.add('no-scroll');
     overlay.style.display = 'flex';
     overlay.classList.remove('hidden');
     overlayInput.value = query;
@@ -514,6 +516,8 @@ function initApp() {
     mainInput.value = '';
     mainSuggestions.innerHTML = '';
     mainClearButton.classList.add('hidden');
+    document.body.classList.remove('no-scroll');
+    document.body.style.top = '';
     window.scrollTo(0, lastScrollPosition);
   }
   window.addEventListener('resize', () => {
