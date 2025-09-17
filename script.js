@@ -570,7 +570,11 @@ function initApp() {
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
   const kanjiTextarea = document.getElementById('kanji-textarea');
   const kanjiClearButton = document.getElementById('kanji-clear-button');
+  let lastScrollPositionKanji = 0;
   function openKanjiOverlay() {
+    lastScrollPositionKanji = window.scrollY;
+    document.body.style.top = `-${lastScrollPositionKanji}px`;
+    document.body.classList.add('no-scroll');
     kanjiOverlay.style.display = 'flex';
     kanjiOverlay.classList.remove('hidden');
     kanjiTextarea.focus();
@@ -578,6 +582,9 @@ function initApp() {
   function closeKanjiOverlay() {
     kanjiOverlay.style.display = 'none';
     kanjiTextarea.value = '';
+    document.body.classList.remove('no-scroll');
+    document.body.style.top = '';
+    window.scrollTo(0, lastScrollPositionKanji);
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
