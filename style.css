@@ -233,6 +233,26 @@ body {
   flex-direction: column;
   max-height: 80vh;
 }
+@media (max-width: 639px) {
+  #kanji-overlay {
+    align-items: flex-start;
+    background-color: #f3f4f6;
+    backdrop-filter: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    #kanji-overlay {
+      background-color: #1f2937;
+    }
+  }
+  #kanji-inner {
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
+    min-height: calc(100vh - 2rem);
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
 #kanji-textarea {
   resize: none;
 }
