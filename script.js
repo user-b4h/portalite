@@ -530,8 +530,8 @@ function initApp() {
   const fixedClearButton = document.getElementById('clear-button-fixed');
   function handleScroll() {
     if (window.innerWidth <= 768) {
-      const containerTop = mainSearchContainer.getBoundingClientRect().top;
-      if (containerTop <= 0) {
+      const scrollY = window.scrollY || window.pageYOffset;
+      if (scrollY > 0) {
         fixedSearchWrapper.classList.add('is-visible');
       } else {
         fixedSearchWrapper.classList.remove('is-visible');
