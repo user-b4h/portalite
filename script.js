@@ -530,7 +530,7 @@ function initApp() {
   const fixedInput = document.getElementById('search-input-fixed');
   const fixedClearButton = document.getElementById('clear-button-fixed');
   function handleScroll() {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 768 && !document.body.classList.contains('no-scroll')) {
       const containerTop = mainSearchContainer.getBoundingClientRect().top;
       if (containerTop <= 0) {
         fixedSearchWrapper.classList.add('is-visible');
@@ -579,7 +579,6 @@ function initApp() {
     kanjiOverlay.style.display = 'flex';
     kanjiOverlay.classList.remove('hidden');
     kanjiTextarea.focus();
-    fixedSearchWrapper.classList.remove('is-visible');
   }
   function closeKanjiOverlay() {
     kanjiOverlay.style.display = 'none';
