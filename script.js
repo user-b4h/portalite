@@ -519,7 +519,7 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPosition);
-    handleScroll();
+    fixedSearchWrapper.classList.remove('is-visible');
   }
   window.addEventListener('resize', () => {
     toggleClearButton(mainInput.value, mainClearButton);
@@ -579,6 +579,7 @@ function initApp() {
     kanjiOverlay.style.display = 'flex';
     kanjiOverlay.classList.remove('hidden');
     kanjiTextarea.focus();
+    fixedSearchWrapper.classList.remove('is-visible');
   }
   function closeKanjiOverlay() {
     kanjiOverlay.style.display = 'none';
@@ -586,7 +587,7 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPositionKanji);
-    handleScroll();
+    fixedSearchWrapper.classList.remove('is-visible');
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
