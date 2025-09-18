@@ -519,7 +519,7 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPosition);
-    fixedSearchWrapper.classList.remove('is-visible');
+    handleScroll();
   }
   window.addEventListener('resize', () => {
     toggleClearButton(mainInput.value, mainClearButton);
@@ -586,7 +586,7 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPositionKanji);
-    fixedSearchWrapper.classList.remove('is-visible');
+    handleScroll();
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
