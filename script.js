@@ -519,6 +519,7 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPosition);
+    handleScroll();
   }
   window.addEventListener('resize', () => {
     toggleClearButton(mainInput.value, mainClearButton);
@@ -585,6 +586,7 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPositionKanji);
+    handleScroll();
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
