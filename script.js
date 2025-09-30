@@ -9,11 +9,11 @@ function initApp() {
   const cancelButton = document.getElementById('cancel-button');
   const overlaySuggestions = document.getElementById('suggestions-container-overlay');
   const overlayClearButton = document.getElementById('clear-button-overlay');
-  const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
+  const newsRssUrl = 'https://news.web.nhk/n-data/conf/na/rss/cat0.xml';
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 10;
-  const TRENDS_PROXY = 'https://corsproxy.io/?url=';
   const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
+  const CORS_PROXY = 'https://corsproxy.io/?url=';
   let trendsData = null;
   let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
@@ -126,8 +126,7 @@ function initApp() {
   async function fetchNews() {
     try {
       newsContainer.innerHTML = '<div class="text-center">ニュースを取得中...</div>';
-      const proxiedUrl = `${TRENDS_PROXY}${encodeURIComponent(newsRssUrl)}`;
-      const r = await fetch(proxiedUrl);
+      const r = await fetch(`${CORS_PROXY}${encodeURIComponent(newsRssUrl)}`);
       const txt = await r.text();
       const xml = new DOMParser().parseFromString(txt, 'text/xml');
       const items = Array.from(xml.querySelectorAll('item')).map(item => {
@@ -249,7 +248,7 @@ function initApp() {
   }
   async function fetchTrendsData() {
     try {
-      const response = await fetch(`${TRENDS_PROXY}${encodeURIComponent(TRENDS_URL)}`);
+      const response = await fetch(`${CORS_PROXY}${encodeURIComponent(TRENDS_URL)}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -525,35 +524,6 @@ function initApp() {
     toggleClearButton(mainInput.value, mainClearButton);
     toggleClearButton(overlayInput.value, overlayClearButton);
   });
-  const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
-  const mainSearchContainer = document.getElementById('search-container-wrapper');
-  const fixedInput = document.getElementById('search-input-fixed');
-  const fixedClearButton = document.getElementById('clear-button-fixed');
-  function handleScroll() {
-    if (window.innerWidth <= 768) {
-      const containerTop = mainSearchContainer.getBoundingClientRect().top;
-      if (containerTop <= 0) {
-        fixedSearchWrapper.classList.add('is-visible');
-      } else {
-        fixedSearchWrapper.classList.remove('is-visible');
-      }
-    } else {
-      fixedSearchWrapper.classList.remove('is-visible');
-    }
-  }
-  window.addEventListener('scroll', handleScroll);
-  window.addEventListener('resize', handleScroll);
-  fixedInput.addEventListener('focus', () => {
-    openMobileSearchOverlay(fixedInput.value);
-  });
-  fixedInput.addEventListener('input', (e) => {
-    toggleClearButton(fixedInput.value, fixedClearButton);
-  });
-  fixedClearButton.addEventListener('click', () => {
-    fixedInput.value = '';
-    fixedInput.focus();
-    toggleClearButton(fixedInput.value, fixedClearButton);
-  });
   toggleClearButton(mainInput.value, mainClearButton);
   fetchWeather();
   fetchNews();
@@ -610,13 +580,9 @@ function initApp() {
     }
   }
   const mainForm = document.getElementById('search-form-main');
-  const fixedForm = document.getElementById('search-form-fixed');
   const overlayForm = document.getElementById('search-form-overlay');
   if (mainForm) {
     mainForm.addEventListener('submit', handleSearchSubmit);
-  }
-  if (fixedForm) {
-    fixedForm.addEventListener('submit', handleSearchSubmit);
   }
   if (overlayForm) {
     overlayForm.addEventListener('submit', handleSearchSubmit);
