@@ -9,7 +9,7 @@ function initApp() {
   const cancelButton = document.getElementById('cancel-button');
   const overlaySuggestions = document.getElementById('suggestions-container-overlay');
   const overlayClearButton = document.getElementById('clear-button-overlay');
-  const newsRssUrl = 'https://www.nhk.or.jp/rss/news/cat0.xml';
+  const newsRssUrl = 'https://news.web.nhk/n-data/conf/na/rss/cat0.xml';
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 10;
   const TRENDS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
