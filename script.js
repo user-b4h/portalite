@@ -511,6 +511,8 @@ function initApp() {
     renderSearchHistory(overlaySuggestions);
     overlayClearButton.classList.add('hidden');
   });
+  const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
+  const mainSearchContainer = document.getElementById('search-container-wrapper');
   function closeOverlay() {
     overlay.style.display = 'none';
     mainInput.value = '';
@@ -519,13 +521,13 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPosition);
+    fixedSearchWrapper.classList.remove('is-visible');
+    handleScroll();
   }
   window.addEventListener('resize', () => {
     toggleClearButton(mainInput.value, mainClearButton);
     toggleClearButton(overlayInput.value, overlayClearButton);
   });
-  const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
-  const mainSearchContainer = document.getElementById('search-container-wrapper');
   const fixedInput = document.getElementById('search-input-fixed');
   const fixedClearButton = document.getElementById('clear-button-fixed');
   function handleScroll() {
@@ -585,6 +587,8 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPositionKanji);
+    fixedSearchWrapper.classList.remove('is-visible');
+    handleScroll();
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
