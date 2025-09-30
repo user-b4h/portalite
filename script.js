@@ -15,6 +15,7 @@ function initApp() {
   const TRENDS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
   const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
   let trendsData = null;
+  let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
   copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
@@ -440,6 +441,9 @@ function initApp() {
     }
   }
   function openMobileSearchOverlay(query = '') {
+    lastScrollPosition = window.scrollY;
+    document.body.style.top = `-${lastScrollPosition}px`;
+    document.body.classList.add('no-scroll');
     overlay.style.display = 'flex';
     overlay.classList.remove('hidden');
     overlayInput.value = query;
@@ -454,7 +458,6 @@ function initApp() {
     }
     toggleClearButton(overlayInput.value, overlayClearButton);
     overlayInput.focus();
-    fixedSearchWrapper.classList.remove('is-visible');
   }
   mainInput.addEventListener('focus', () => {
     if (window.innerWidth <= 768) {
@@ -513,40 +516,13 @@ function initApp() {
     mainInput.value = '';
     mainSuggestions.innerHTML = '';
     mainClearButton.classList.add('hidden');
-    handleScroll();
+    document.body.classList.remove('no-scroll');
+    document.body.style.top = '';
+    window.scrollTo(0, lastScrollPosition);
   }
   window.addEventListener('resize', () => {
     toggleClearButton(mainInput.value, mainClearButton);
     toggleClearButton(overlayInput.value, overlayClearButton);
-  });
-  const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
-  const mainSearchContainer = document.getElementById('search-container-wrapper');
-  const fixedInput = document.getElementById('search-input-fixed');
-  const fixedClearButton = document.getElementById('clear-button-fixed');
-  function handleScroll() {
-    if (window.innerWidth <= 768) {
-      const containerTop = mainSearchContainer.getBoundingClientRect().top;
-      if (containerTop <= 0) {
-        fixedSearchWrapper.classList.add('is-visible');
-      } else {
-        fixedSearchWrapper.classList.remove('is-visible');
-      }
-    } else {
-      fixedSearchWrapper.classList.remove('is-visible');
-    }
-  }
-  window.addEventListener('scroll', handleScroll);
-  window.addEventListener('resize', handleScroll);
-  fixedInput.addEventListener('focus', () => {
-    openMobileSearchOverlay(fixedInput.value);
-  });
-  fixedInput.addEventListener('input', (e) => {
-    toggleClearButton(fixedInput.value, fixedClearButton);
-  });
-  fixedClearButton.addEventListener('click', () => {
-    fixedInput.value = '';
-    fixedInput.focus();
-    toggleClearButton(fixedInput.value, fixedClearButton);
   });
   toggleClearButton(mainInput.value, mainClearButton);
   fetchWeather();
@@ -565,16 +541,21 @@ function initApp() {
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
   const kanjiTextarea = document.getElementById('kanji-textarea');
   const kanjiClearButton = document.getElementById('kanji-clear-button');
+  let lastScrollPositionKanji = 0;
   function openKanjiOverlay() {
+    lastScrollPositionKanji = window.scrollY;
+    document.body.style.top = `-${lastScrollPositionKanji}px`;
+    document.body.classList.add('no-scroll');
     kanjiOverlay.style.display = 'flex';
     kanjiOverlay.classList.remove('hidden');
     kanjiTextarea.focus();
-    fixedSearchWrapper.classList.remove('is-visible');
   }
   function closeKanjiOverlay() {
     kanjiOverlay.style.display = 'none';
     kanjiTextarea.value = '';
-    handleScroll();
+    document.body.classList.remove('no-scroll');
+    document.body.style.top = '';
+    window.scrollTo(0, lastScrollPositionKanji);
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
@@ -599,13 +580,9 @@ function initApp() {
     }
   }
   const mainForm = document.getElementById('search-form-main');
-  const fixedForm = document.getElementById('search-form-fixed');
   const overlayForm = document.getElementById('search-form-overlay');
   if (mainForm) {
     mainForm.addEventListener('submit', handleSearchSubmit);
-  }
-  if (fixedForm) {
-    fixedForm.addEventListener('submit', handleSearchSubmit);
   }
   if (overlayForm) {
     overlayForm.addEventListener('submit', handleSearchSubmit);
