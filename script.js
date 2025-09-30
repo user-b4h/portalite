@@ -15,7 +15,6 @@ function initApp() {
   const TRENDS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
   const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
   let trendsData = null;
-  let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
   copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
@@ -441,8 +440,6 @@ function initApp() {
     }
   }
   function openMobileSearchOverlay(query = '') {
-    lastScrollPosition = window.scrollY;
-    document.body.style.top = `-${lastScrollPosition}px`;
     document.body.classList.add('no-scroll');
     overlay.style.display = 'flex';
     overlay.classList.remove('hidden');
@@ -511,8 +508,6 @@ function initApp() {
     renderSearchHistory(overlaySuggestions);
     overlayClearButton.classList.add('hidden');
   });
-  const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
-  const mainSearchContainer = document.getElementById('search-container-wrapper');
   function closeOverlay() {
     overlay.style.display = 'none';
     mainInput.value = '';
@@ -520,14 +515,13 @@ function initApp() {
     mainClearButton.classList.add('hidden');
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
-    window.scrollTo(0, lastScrollPosition);
-    fixedSearchWrapper.classList.remove('is-visible');
-    handleScroll();
   }
   window.addEventListener('resize', () => {
     toggleClearButton(mainInput.value, mainClearButton);
     toggleClearButton(overlayInput.value, overlayClearButton);
   });
+  const fixedSearchWrapper = document.getElementById('fixed-search-wrapper');
+  const mainSearchContainer = document.getElementById('search-container-wrapper');
   const fixedInput = document.getElementById('search-input-fixed');
   const fixedClearButton = document.getElementById('clear-button-fixed');
   function handleScroll() {
@@ -572,10 +566,7 @@ function initApp() {
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
   const kanjiTextarea = document.getElementById('kanji-textarea');
   const kanjiClearButton = document.getElementById('kanji-clear-button');
-  let lastScrollPositionKanji = 0;
   function openKanjiOverlay() {
-    lastScrollPositionKanji = window.scrollY;
-    document.body.style.top = `-${lastScrollPositionKanji}px`;
     document.body.classList.add('no-scroll');
     kanjiOverlay.style.display = 'flex';
     kanjiOverlay.classList.remove('hidden');
@@ -586,9 +577,6 @@ function initApp() {
     kanjiTextarea.value = '';
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
-    window.scrollTo(0, lastScrollPositionKanji);
-    fixedSearchWrapper.classList.remove('is-visible');
-    handleScroll();
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
