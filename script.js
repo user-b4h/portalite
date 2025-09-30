@@ -519,7 +519,6 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPosition);
-    handleScroll();
   }
   window.addEventListener('resize', () => {
     toggleClearButton(mainInput.value, mainClearButton);
@@ -530,7 +529,7 @@ function initApp() {
   const fixedInput = document.getElementById('search-input-fixed');
   const fixedClearButton = document.getElementById('clear-button-fixed');
   function handleScroll() {
-    if (window.innerWidth <= 768 && !document.body.classList.contains('no-scroll')) {
+    if (window.innerWidth <= 768) {
       const containerTop = mainSearchContainer.getBoundingClientRect().top;
       if (containerTop <= 0) {
         fixedSearchWrapper.classList.add('is-visible');
@@ -586,7 +585,6 @@ function initApp() {
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPositionKanji);
-    handleScroll();
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
