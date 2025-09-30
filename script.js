@@ -15,7 +15,6 @@ function initApp() {
   const TRENDS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
   const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
   let trendsData = null;
-  let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
   copyrightText.textContent = `Copyright © ${currentYear} Portalite. All rights reserved.`;
@@ -455,6 +454,7 @@ function initApp() {
     }
     toggleClearButton(overlayInput.value, overlayClearButton);
     overlayInput.focus();
+    fixedSearchWrapper.classList.remove('is-visible');
   }
   mainInput.addEventListener('focus', () => {
     if (window.innerWidth <= 768) {
@@ -513,6 +513,7 @@ function initApp() {
     mainInput.value = '';
     mainSuggestions.innerHTML = '';
     mainClearButton.classList.add('hidden');
+    handleScroll();
   }
   window.addEventListener('resize', () => {
     toggleClearButton(mainInput.value, mainClearButton);
@@ -568,10 +569,12 @@ function initApp() {
     kanjiOverlay.style.display = 'flex';
     kanjiOverlay.classList.remove('hidden');
     kanjiTextarea.focus();
+    fixedSearchWrapper.classList.remove('is-visible');
   }
   function closeKanjiOverlay() {
     kanjiOverlay.style.display = 'none';
     kanjiTextarea.value = '';
+    handleScroll();
   }
   function updateKanjiCharCount() {
     const len = kanjiTextarea.value.length;
