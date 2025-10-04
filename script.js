@@ -154,12 +154,11 @@ function initApp() {
         let formattedDate = '';
         if (item.pubDate) {
           const d = new Date(item.pubDate);
-          const year = d.getFullYear();
           const month = d.getMonth() + 1;
           const day = d.getDate();
           const hours = String(d.getHours()).padStart(2, '0');
           const minutes = String(d.getMinutes()).padStart(2, '0');
-          formattedDate = `${year}年${month}月${day}日 ${hours}:${minutes}`;
+          formattedDate = `${month}月${day}日 ${hours}:${minutes}`;
         }
         const sourceText = item.source ? `<span class="font-medium">${item.source}</span> / ` : '';
         const a = document.createElement('a');
