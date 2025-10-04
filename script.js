@@ -9,7 +9,7 @@ function initApp() {
   const cancelButton = document.getElementById('cancel-button');
   const overlaySuggestions = document.getElementById('suggestions-container-overlay');
   const overlayClearButton = document.getElementById('clear-button-overlay');
-  const newsRssUrl = 'https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNRE5mTTJRU0FtVnVLQUFQAQ?hl=ja&gl=JP&ceid=JP:ja';
+  const newsRssUrl = 'https://news.web.nhk/n-data/conf/na/rss/cat0.xml';
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 10;
   const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
@@ -129,38 +129,32 @@ function initApp() {
       const r = await fetch(`${CORS_PROXY}${encodeURIComponent(newsRssUrl)}`);
       const txt = await r.text();
       const xml = new DOMParser().parseFromString(txt, 'text/xml');
-      let items = Array.from(xml.querySelectorAll('item')).map(item => {
-        let title = item.querySelector('title')?.textContent;
+      const items = Array.from(xml.querySelectorAll('item')).map(item => {
+        const title = item.querySelector('title')?.textContent;
+        const description = item.querySelector('description')?.textContent;
         const link = item.querySelector('link')?.textContent;
         const pubDate = item.querySelector('pubDate')?.textContent;
-        const source = item.querySelector('source')?.textContent;
-        if (title && source) {
-            const suffix = ` - ${source}`;
-            if (title.endsWith(suffix)) {
-                title = title.substring(0, title.length - suffix.length);
-            }
-        }
         return {
           title,
+          description,
           link,
-          pubDate,
-          source
+          pubDate
         };
       }).filter(item => item.title && item.link && item.pubDate);
       items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-      items = items.slice(0, 20);
       newsContainer.innerHTML = '';
+      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
       items.forEach(item => {
         let formattedDate = '';
         if (item.pubDate) {
           const d = new Date(item.pubDate);
           const month = d.getMonth() + 1;
           const day = d.getDate();
+          const weekday = weekdays[d.getDay()];
           const hours = String(d.getHours()).padStart(2, '0');
           const minutes = String(d.getMinutes()).padStart(2, '0');
-          formattedDate = `${month}月${day}日 ${hours}:${minutes}`;
+          formattedDate = `${month}月${day}日(${weekday}) ${hours}:${minutes}`;
         }
-        const sourceText = item.source ? `<span class="font-medium">${item.source}</span> / ` : '';
         const a = document.createElement('a');
         a.href = item.link;
         a.target = '_blank';
@@ -168,7 +162,8 @@ function initApp() {
         a.className = 'news-item block transition-colors duration-300';
         a.innerHTML = `
           <p class="font-semibold text-lg sm:text-xl">${item.title}</p>
-          <p class="text-base text-gray-500 dark:text-gray-400 mt-1">${sourceText}${formattedDate}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${formattedDate}</p>
+          ${item.description ? `<p class="text-base text-gray-600 dark:text-gray-400 mt-1">${item.description}</p>` : ''}
         `;
         newsContainer.appendChild(a);
       });
