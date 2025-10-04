@@ -150,15 +150,17 @@ function initApp() {
       items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
       items = items.slice(0, 20);
       newsContainer.innerHTML = '';
+      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
       items.forEach(item => {
         let formattedDate = '';
         if (item.pubDate) {
           const d = new Date(item.pubDate);
           const month = d.getMonth() + 1;
           const day = d.getDate();
+          const weekday = weekdays[d.getDay()];
           const hours = String(d.getHours()).padStart(2, '0');
           const minutes = String(d.getMinutes()).padStart(2, '0');
-          formattedDate = `${month}月${day}日 ${hours}:${minutes}`;
+          formattedDate = `${month}月${day}日(${weekday}) ${hours}:${minutes}`;
         }
         const sourceText = item.source ? `<span class="font-medium">${item.source}</span> / ` : '';
         const a = document.createElement('a');
