@@ -39,7 +39,7 @@
       <h1 class="text-5xl sm:text-6xl font-bold mb-2">Portalite</h1>
       <p class="text-xl">シンプルなポータルアプリ</p>
     </header>
-    <section class="card p-6 rounded-2xl shadow-lg relative">
+    <section class="card p-6 rounded-3xl shadow-lg relative">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">ウェブ検索</h2>
       <div id="search-container-wrapper">
         <form action="#" id="search-form-main" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-main').value.trim());">
@@ -47,19 +47,19 @@
             <div class="relative flex-grow min-w-0">
               <i class="fas fa-search search-icon"></i>
               <input id="search-input-main" type="search" placeholder="検索キーワードを入力..."
-                     class="w-full p-3 pl-9 pr-12 rounded-xl border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500
+                     class="w-full p-3 pl-9 pr-12 rounded-2xl border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500
                             dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
                      autocomplete="off">
               <i id="clear-button-main" class="fas fa-times-circle clear-button hidden"></i>
               <div id="suggestions-container-main"
-                   class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 hidden text-base sm:text-lg">
+                   class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 hidden text-base sm:text-lg">
               </div>
             </div>
           </div>
         </form>
       </div>
     </section>
-    <section class="card p-6 rounded-2xl shadow-lg">
+    <section class="card p-6 rounded-3xl shadow-lg">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">よく使う機能・サイト</h2>
       <div id="links-container" class="space-y-4">
         <a href="https://mypage.transit-jr.net/my_chart/sasaki-asuka/" target="_blank" rel="noopener noreferrer" class="link-item">
@@ -75,19 +75,19 @@
         </a>
       </div>
     </section>
-    <section class="card p-6 rounded-2xl shadow-lg">
+    <section class="card p-6 rounded-3xl shadow-lg">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">今日は何の日</h2>
       <div id="anniversary-container" class="space-y-3 text-lg sm:text-xl">
         <div class="text-center">記念日情報を取得中...</div>
       </div>
     </section>
-    <section class="card p-6 rounded-2xl shadow-lg">
+    <section class="card p-6 rounded-3xl shadow-lg">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">札幌の天気</h2>
       <div id="weather-container" class="grid sm:grid-cols-3 gap-4 text-center text-base sm:text-lg">
         <div class="text-center col-span-3">天気情報を取得中...</div>
       </div>
     </section>
-    <section class="card p-6 rounded-2xl shadow-lg">
+    <section class="card p-6 rounded-3xl shadow-lg">
       <h2 class="text-2xl sm:text-3xl font-semibold mb-4">最新ニュース（Google）</h2>
       <div id="news-container" class="space-y-1 text-base sm:text-lg">
         <div class="text-center">ニュースを取得中...</div>
@@ -103,7 +103,7 @@
         <div class="relative flex-grow min-w-0">
           <i class="fas fa-search search-icon text-lg"></i>
           <input id="search-input-overlay" type="search"
-                 class="w-full p-3 pl-9 pr-12 rounded-xl border border-gray-300 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500
+                 class="w-full p-3 pl-9 pr-12 rounded-2xl border border-gray-300 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500
                         dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
                  placeholder="検索キーワード..." autocomplete="off">
           <i id="clear-button-overlay" class="fas fa-times-circle clear-button hidden"></i>
@@ -117,15 +117,15 @@
     <div id="suggestions-container-overlay" class="flex-grow overflow-y-auto p-2 text-lg"></div>
   </div>
   <div id="kanji-overlay" class="hidden">
-    <div id="kanji-inner" class="rounded-2xl shadow-xl max-w-2xl w-[90%] bg-white dark:bg-gray-800 sm:w-[90%] sm:max-w-2xl sm:rounded-2xl sm:shadow-xl sm:bg-white sm:dark:bg-gray-800">
+    <div id="kanji-inner" class="rounded-3xl shadow-xl max-w-2xl w-[90%] bg-white dark:bg-gray-800 sm:w-[90%] sm:max-w-2xl sm:rounded-3xl sm:shadow-xl sm:bg-white sm:dark:bg-gray-800">
     <div class="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-600">
       <h3 class="text-xl font-semibold">漢字チェック</h3>
       <button id="kanji-cancel-button" class="text-blue-500 font-semibold text-lg">閉じる</button>
     </div>
     <div class="flex-grow overflow-y-auto p-4">
-      <textarea id="kanji-textarea" placeholder="ここに入力..." class="w-full h-[25vh] p-3 rounded-xl border border-gray-300 text-4xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"></textarea>
+      <textarea id="kanji-textarea" placeholder="ここに入力..." class="w-full h-[25vh] p-3 rounded-2xl border border-gray-300 text-4xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"></textarea>
       <div class="mt-3 flex items-center justify-end space-x-2">
-        <button id="kanji-clear-button" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600">クリア</button>
+        <button id="kanji-clear-button" class="px-4 py-2 rounded-2xl border border-gray-300 dark:border-gray-600">クリア</button>
       </div>
     </div>
   </div>
