@@ -286,7 +286,7 @@ function initApp() {
     }
   }
   function renderTrends(items, trendsEl) {
-    trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンド（Google）</p>';
+    trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンド</p>';
     items.forEach((item, index) => {
       if (item.title && item.link) {
         const trendItem = document.createElement('div');
