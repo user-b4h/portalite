@@ -11,7 +11,7 @@ function initApp() {
   const overlayClearButton = document.getElementById('clear-button-overlay');
   const newsRssUrl = 'https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNRE5mTTJRU0FtVnVLQUFQAQ?hl=ja&gl=JP&ceid=JP:ja';
   const HISTORY_KEY = 'search-history';
-  const HISTORY_LIMIT = 10;
+  const HISTORY_LIMIT = 20;
   const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
   const CORS_PROXY = 'https://corsproxy.io/?url=';
   let trendsData = null;
@@ -278,11 +278,9 @@ function initApp() {
     }
   }
   function updateTrendsDisplay(container) {
-    const trendsEl = container.querySelector('#trends-container');
+    let trendsEl = container.querySelector('#trends-container');
     if (trendsEl && trendsData) {
-      const history = getSearchHistory();
-      const trendsToShow = 10 - history.length;
-      renderTrends(trendsData.slice(0, trendsToShow), trendsEl);
+      renderTrends(trendsData.slice(0, 10), trendsEl);
     }
   }
   function renderTrends(items, trendsEl) {
@@ -362,15 +360,13 @@ function initApp() {
       clearButtonWrapper.appendChild(clearButton);
       container.appendChild(clearButtonWrapper);
     }
-    const history = getSearchHistory();
-    const trendsToShow = 10 - history.length;
-    if (query === '' && trendsToShow > 0) {
+    if (query === '') {
       const trendsEl = document.createElement('div');
       trendsEl.id = 'trends-container';
       trendsEl.className = 'pt-2';
       container.appendChild(trendsEl);
       if (trendsData) {
-        renderTrends(trendsData.slice(0, trendsToShow), trendsEl);
+        renderTrends(trendsData.slice(0, 10), trendsEl);
       } else {
         trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
       }
