@@ -10,6 +10,7 @@ function initApp() {
   const overlaySuggestions = document.getElementById('suggestions-container-overlay');
   const overlayClearButton = document.getElementById('clear-button-overlay');
   const newsRssUrl = 'https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNRE5mTTJRU0FtVnVLQUFQAQ?hl=ja&gl=JP&ceid=JP:ja';
+  const EARTHQUAKE_API_URL = 'https://api.p2pquake.net/v2/history?codes=551&limit=1';
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 20;
   const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
@@ -175,6 +176,72 @@ function initApp() {
         newsContainer.appendChild(a);
       });
     } catch {}
+  }
+  async function fetchEarthquakeData() {
+    const earthquakeContainer = document.getElementById('earthquake-container');
+    earthquakeContainer.innerHTML = '<div class="text-center">地震情報を取得中...</div>';
+    const scaleMap = {
+      10: '1', 20: '2', 30: '3', 40: '4', 
+      45: '5弱', 50: '5強', 55: '6弱', 60: '6強', 
+      70: '7'
+    };
+    try {
+      const response = await fetch(EARTHQUAKE_API_URL);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      earthquakeContainer.innerHTML = '';
+      if (data && data.length > 0) {
+        const latestQuake = data[0];
+        if (latestQuake.code !== 551) { 
+             earthquakeContainer.innerHTML = '<div class="text-center">現在、最新の地震情報はありません。</div>';
+             return;
+        }
+        const quakeData = latestQuake.earthquake;
+        const timeStr = latestQuake.time; 
+        const d = new Date(timeStr);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hour = String(d.getHours()).padStart(2, '0');
+        const minute = String(d.getMinutes()).padStart(2, '0');
+        const formattedDate = `${year}/${month}/${day} ${hour}:${minute}`;
+        const magnitude = quakeData.hypocenter.magnitude || '不明'; 
+        const hypocenter = quakeData.hypocenter.name || '不明';
+        const maxScale = quakeData.maxScale;
+        const maxSeismicIntensity = maxScale ? scaleMap[maxScale] || '不明' : '不明';
+        
+        const points = latestQuake.points || [];
+        const shakenLocations = points
+            .filter(p => p.scale > 0)
+            .sort((a, b) => b.scale - a.scale)
+            .map(p => `${p.addr} (震度${scaleMap[p.scale]})`)
+            .join('、 ');
+
+        const shakenLocationsHtml = shakenLocations 
+            ? `<div class="text-sm text-gray-600 dark:text-gray-300 mt-2"><p class="font-bold mb-1">各地の震度:</p> <p>${shakenLocations}</p></div>`
+            : '';
+
+        const cardHtml = `
+          <div class="earthquake-item p-4 rounded-xl shadow-inner card"> 
+            <p class="font-bold text-xl sm:text-2xl mb-1">${hypocenter}で地震</p>
+            <p class="text-lg text-red-600 dark:text-red-400 mb-2">最大震度: ${maxSeismicIntensity}</p>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-base text-gray-600 dark:text-gray-300">
+              <span>M（規模）: ${magnitude}</span>
+              <span class="mt-1 sm:mt-0">発生日時: ${formattedDate}</span>
+            </div>
+            ${shakenLocationsHtml} 
+          </div>
+        `;
+        earthquakeContainer.innerHTML = cardHtml;
+      } else {
+        earthquakeContainer.innerHTML = '<div class="text-center">現在、最新の地震情報はありません。</div>';
+      }
+    } catch (error) {
+      console.error('Failed to fetch earthquake data:', error);
+      earthquakeContainer.innerHTML = '<div class="text-center text-red-500">地震情報の取得に失敗しました。</div>';
+    }
   }
   async function fetchAnniversaries() {
     const anniversaryContainer = document.getElementById('anniversary-container');
@@ -532,6 +599,7 @@ function initApp() {
   fetchWeather();
   fetchNews();
   fetchAnniversaries();
+  fetchEarthquakeData();
   fetchTrendsData().then(() => {
     if (!mainSuggestions.classList.contains('hidden')) {
       renderSearchHistory(mainSuggestions);
