@@ -199,8 +199,17 @@ function initApp() {
              return;
         }
         const quakeData = latestQuake.earthquake;
-        const timeStr = latestQuake.time; 
+        let timeStr = latestQuake.time; 
+        
+        timeStr = timeStr.replace(/-/g, '/').replace('T', ' ').split('+')[0];
+        
         const d = new Date(timeStr);
+
+        if (isNaN(d.getTime())) {
+          earthquakeContainer.innerHTML = '<div class="text-center text-red-500">地震情報の発生日時を処理できませんでした。</div>';
+          return;
+        }
+        
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');
@@ -239,7 +248,6 @@ function initApp() {
         earthquakeContainer.innerHTML = '<div class="text-center">現在、最新の地震情報はありません。</div>';
       }
     } catch (error) {
-      console.error('Failed to fetch earthquake data:', error);
       earthquakeContainer.innerHTML = '<div class="text-center text-red-500">地震情報の取得に失敗しました。</div>';
     }
   }
