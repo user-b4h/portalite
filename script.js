@@ -19,7 +19,7 @@ function initApp() {
   let lastScrollPosition = 0;
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
-  copyrightText.textContent = `Updated December 9, 2025\nCopyright © ${currentYear} Portalite. All rights reserved.`;
+  copyrightText.textContent = `Updated on December 9, 2025\nCopyright © ${currentYear} Portalite. All rights reserved.`;
   async function fetchWeather() {
     weatherContainer.innerHTML = '<div class="text-center col-span-3">天気情報を取得中...</div>';
     try {
