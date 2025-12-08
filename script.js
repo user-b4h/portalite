@@ -201,7 +201,11 @@ function initApp() {
         const quakeData = latestQuake.earthquake;
         let timeStr = latestQuake.time; 
         
-        timeStr = timeStr.replace(/-/g, '/').replace('T', ' ').split('+')[0];
+        timeStr = timeStr.replace(/\//g, '-'); 
+        if (timeStr.includes(' ') && !timeStr.includes('T')) {
+            timeStr = timeStr.replace(' ', 'T');
+        }
+        timeStr = timeStr.split(/[+Z.]/)[0];
         
         const d = new Date(timeStr);
 
