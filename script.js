@@ -17,6 +17,7 @@ function initApp() {
   const CORS_PROXY = 'https://corsproxy.io/?url=';
   let trendsData = null;
   let lastScrollPosition = 0;
+  let lastScrollPositionEq = 0;
   const copyrightText = document.getElementById('copyright-text');
   const currentYear = new Date().getFullYear();
   copyrightText.innerHTML = `Updated on December 11, 2025<br>Copyright © ${currentYear} Portalite. All rights reserved.`;
@@ -203,6 +204,22 @@ function initApp() {
     } catch {}
   }
 
+  function openEqOverlay() {
+    lastScrollPositionEq = window.scrollY;
+    document.body.style.top = `-${lastScrollPositionEq}px`;
+    document.body.classList.add('no-scroll');
+
+    document.getElementById('eq-overlay').style.display = 'flex';
+    document.getElementById('eq-overlay').classList.remove('hidden');
+  }
+
+  function closeEqOverlay() {
+    document.getElementById('eq-overlay').style.display = 'none';
+    document.body.classList.remove('no-scroll');
+    document.body.style.top = '';
+    window.scrollTo(0, lastScrollPositionEq);
+  }
+
   async function fetchEarthquakeData() {
     const earthquakeContainer = document.getElementById('earthquake-container');
     earthquakeContainer.innerHTML = '<div class="text-center">地震情報を取得中...</div>';
@@ -294,14 +311,11 @@ function initApp() {
       if (eqMoreBtn) {
         eqMoreBtn.onclick = () => {
           document.getElementById('eq-list').innerHTML = `<ul class="list-disc pl-5">${allList}</ul>`;
-          document.getElementById('eq-overlay').style.display = 'flex';
-          document.getElementById('eq-overlay').classList.remove('hidden');
+          openEqOverlay();
         };
       }
 
-      document.getElementById('eq-close').onclick = () => {
-        document.getElementById('eq-overlay').style.display = 'none';
-      };
+      document.getElementById('eq-close').onclick = closeEqOverlay;
 
     } catch {
       earthquakeContainer.innerHTML = '<div class="text-center text-red-500">地震情報の取得に失敗しました。</div>';
@@ -733,8 +747,12 @@ function initApp() {
   };
 
   document.onkeydown = e => {
-    if (e.key === 'Escape' && kanjiOverlay.style.display === 'flex') {
-      closeKanjiOverlay();
+    if (e.key === 'Escape') {
+      if (kanjiOverlay.style.display === 'flex') {
+        closeKanjiOverlay();
+      } else if (document.getElementById('eq-overlay').style.display === 'flex') {
+        closeEqOverlay();
+      }
     }
   };
 
