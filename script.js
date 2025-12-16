@@ -70,7 +70,7 @@ function initApp() {
       }
 
       if (!closestCity || minDistance > DISTANCE_THRESHOLD_KM) {
-        throw new Error('Distance too far or no closest city found, falling back to Sapporo.');
+        throw new Error('Distance too far');
       }
 
       const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${closestCity.id}`;
@@ -78,9 +78,7 @@ function initApp() {
       const data = await r.json();
 
       weatherContainer.innerHTML = '';
-
       const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-
       document.querySelector('#weather-container').previousElementSibling.textContent = `${closestCity.name}の天気`;
 
       data.forecasts.slice(0, 3).forEach(forecast => {
@@ -112,7 +110,6 @@ function initApp() {
         const r = await fetch(weatherApiUrl);
         const data = await r.json();
         weatherContainer.innerHTML = '';
-
         const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
         document.querySelector('#weather-container').previousElementSibling.textContent = `札幌の天気`;
 
@@ -126,7 +123,6 @@ function initApp() {
 
           const el = document.createElement('div');
           el.className = 'p-4 rounded-xl shadow-inner card';
-
           el.innerHTML = `
             <p class="text-lg sm:text-xl font-bold">${dateLabel}</p>
             <img src="${iconUrl}" alt="${forecast.telop}" class="w-16 h-16 mx-auto my-2">
@@ -163,7 +159,6 @@ function initApp() {
             title = title.substring(0, title.length - suffix.length);
           }
         }
-
         return { title, link, pubDate, source };
       }).filter(item => item.title && item.link && item.pubDate);
 
@@ -186,21 +181,17 @@ function initApp() {
         }
 
         const sourceText = item.source ? `<span class="font-medium">${item.source}</span> / ` : '';
-
         const a = document.createElement('a');
         a.href = item.link;
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
         a.className = 'news-item block transition-colors duration-300';
-
         a.innerHTML = `
           <p class="font-semibold text-lg sm:text-xl">${item.title}</p>
           <p class="text-base text-gray-500 dark:text-gray-400 mt-1">${sourceText}${formattedDate}</p>
         `;
-
         newsContainer.appendChild(a);
       });
-
     } catch {}
   }
 
@@ -208,9 +199,10 @@ function initApp() {
     lastScrollPositionEq = window.scrollY;
     document.body.style.top = `-${lastScrollPositionEq}px`;
     document.body.classList.add('no-scroll');
-
-    document.getElementById('eq-overlay').style.display = 'flex';
-    document.getElementById('eq-overlay').classList.remove('hidden');
+    const eqOverlay = document.getElementById('eq-overlay');
+    eqOverlay.style.display = 'flex';
+    eqOverlay.classList.remove('hidden');
+    document.getElementById('eq-list').scrollTop = 0;
   }
 
   function closeEqOverlay() {
@@ -238,18 +230,17 @@ function initApp() {
       earthquakeContainer.innerHTML = '';
 
       if (!data || data.length === 0) {
-        earthquakeContainer.innerHTML = '<div class="text中心">現在、最新の地震情報はありません。</div>';
+        earthquakeContainer.innerHTML = '<div class="text-center">現在、最新の地震情報はありません。</div>';
         return;
       }
 
       const latest = data[0];
       if (latest.code !== 551) {
-        earthquakeContainer.innerHTML = '<div class="text中心">現在、最新の地震情報はありません。</div>';
+        earthquakeContainer.innerHTML = '<div class="text-center">現在、最新の地震情報はありません。</div>';
         return;
       }
 
       const quake = latest.earthquake;
-
       let timeStr = latest.time.replace(/\//g, '-');
       if (timeStr.includes(' ') && !timeStr.includes('T')) {
         timeStr = timeStr.replace(' ', 'T');
@@ -277,7 +268,7 @@ function initApp() {
       const points = latest.points || [];
       const sortedPoints = points.filter(p => p.scale > 0).sort((a, b) => b.scale - a.scale);
 
-      const previewList = sortedPoints.slice(0, 3)
+      const previewList = sortedPoints.slice(0, 10)
         .map(p => `${p.addr} (震度${scaleMap[p.scale]})`)
         .join('、 ');
 
@@ -285,7 +276,7 @@ function initApp() {
         .map(p => `<li>${p.addr} (震度${scaleMap[p.scale]})</li>`)
         .join('');
 
-      const moreButton = sortedPoints.length > 3
+      const moreButton = sortedPoints.length > 10
         ? `<button id="eq-more" class="mt-2 text-blue-500 underline">もっと見る</button>`
         : '';
 
@@ -314,9 +305,7 @@ function initApp() {
           openEqOverlay();
         };
       }
-
       document.getElementById('eq-close').onclick = closeEqOverlay;
-
     } catch {
       earthquakeContainer.innerHTML = '<div class="text-center text-red-500">地震情報の取得に失敗しました。</div>';
     }
@@ -325,31 +314,25 @@ function initApp() {
   async function fetchAnniversaries() {
     const anniversaryContainer = document.getElementById('anniversary-container');
     anniversaryContainer.innerHTML = '<div class="text-center">記念日情報を取得中...</div>';
-
     try {
       const r = await fetch('json/anniversary.json');
       const data = await r.json();
-
       const today = new Date();
       const month = today.getMonth() + 1;
       const day = today.getDate();
-
       const monthKey = `${month}月`;
       const dayKey = `${day}日`;
-
       anniversaryContainer.innerHTML = '';
 
       if (data[monthKey] && data[monthKey][dayKey]) {
         const list = data[monthKey][dayKey];
         const ul = document.createElement('ul');
         ul.className = 'list-disc list-inside';
-
         list.forEach(i => {
           const li = document.createElement('li');
           li.textContent = i;
           ul.appendChild(li);
         });
-
         anniversaryContainer.appendChild(ul);
       } else {
         anniversaryContainer.innerHTML = '<div class="text-center">今日は特別な記念日はありません。</div>';
@@ -363,13 +346,10 @@ function initApp() {
     return new Promise((resolve, reject) => {
       const callbackName = 'jsonp_cb_' + Date.now();
       params.callback = callbackName;
-
       const query = Object.keys(params)
         .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
         .join('&');
-
       const fullUrl = url + (url.includes('?') ? '&' : '?') + query;
-
       const script = document.createElement('script');
       script.src = fullUrl;
 
@@ -389,21 +369,17 @@ function initApp() {
         cleanup();
         resolve(data);
       };
-
       script.onerror = () => {
         cleanup();
         reject(new Error('JSONP error'));
       };
-
       document.body.appendChild(script);
     });
   }
 
   async function fetchGoogleSuggestionsJSONP(query) {
     if (!query) return [];
-
     const url = 'https://suggestqueries.google.com/complete/search';
-
     try {
       const data = await jsonp(url, { client: 'firefox', hl: 'ja', q: query }, 4000);
       if (Array.isArray(data) && Array.isArray(data[1])) {
@@ -419,7 +395,6 @@ function initApp() {
     try {
       const response = await fetch(`${CORS_PROXY}${encodeURIComponent(TRENDS_URL)}`);
       if (!response.ok) throw new Error();
-
       const text = await response.text();
       const xmlDoc = new DOMParser().parseFromString(text, 'text/xml');
 
@@ -428,10 +403,8 @@ function initApp() {
         const link = item.querySelector('link')?.textContent;
         return { title, link };
       });
-
       updateTrendsDisplay(overlaySuggestions);
       updateTrendsDisplay(mainSuggestions);
-
     } catch {
       trendsData = null;
     }
@@ -446,19 +419,15 @@ function initApp() {
 
   function renderTrends(items, el) {
     el.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンド</p>';
-
     items.forEach((item, index) => {
       if (item.title && item.link) {
         const div = document.createElement('div');
         div.className = 'p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center';
-
         if (index < items.length - 1) {
           div.classList.add('border-b', 'border-gray-200', 'dark:border-gray-600');
         }
-
         div.innerHTML = `<i class="fas fa-chart-line text-gray-400 mr-2"></i><span>${item.title}</span>`;
         div.onclick = () => doSearch(item.title);
-
         el.appendChild(div);
       }
     });
@@ -466,25 +435,20 @@ function initApp() {
 
   function renderSuggestions(list, container, isHistory = false, query = '') {
     container.innerHTML = '';
-
     if (list && list.length > 0) {
       list.forEach((s, index) => {
         const item = document.createElement('div');
-
         if (isHistory) {
           item.className = 'p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center justify-between group';
           item.onclick = () => {
             if (container === overlaySuggestions) overlayInput.value = s;
             else mainInput.value = s;
-
             doSearch(s);
           };
-
           const left = document.createElement('div');
           left.className = 'flex items-center flex-grow';
           left.innerHTML = `<i class="fas fa-history text-gray-400 mr-2"></i><span>${s}</span>`;
           item.appendChild(left);
-
           const del = document.createElement('i');
           del.className = 'fas fa-times history-delete-button';
           del.onclick = (e) => {
@@ -493,7 +457,6 @@ function initApp() {
             renderSearchHistory(container);
           };
           item.appendChild(del);
-
         } else {
           item.className = 'p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center';
           item.innerHTML = `<i class="fas fa-search text-gray-400 mr-2"></i><span>${s}</span>`;
@@ -503,11 +466,9 @@ function initApp() {
             doSearch(s);
           };
         }
-
         if (index < list.length - 1) {
           item.classList.add('border-b', 'border-gray-200', 'dark:border-gray-600');
         }
-
         container.appendChild(item);
       });
     }
@@ -515,13 +476,11 @@ function initApp() {
     if (isHistory && list.length > 0) {
       const w = document.createElement('div');
       w.className = 'mt-2 px-2';
-
       const b = document.createElement('button');
       b.id = 'clear-all-history-button';
       b.className = 'w-full p-2 text-sm text-center text-red-500 rounded-lg bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors';
       b.textContent = '検索履歴をすべて消去';
       b.onclick = clearAllSearchHistory;
-
       w.appendChild(b);
       container.appendChild(w);
     }
@@ -530,13 +489,10 @@ function initApp() {
       const trendsEl = document.createElement('div');
       trendsEl.id = 'trends-container';
       trendsEl.className = 'pt-2';
-
       container.appendChild(trendsEl);
-
       if (trendsData) renderTrends(trendsData.slice(0, 10), trendsEl);
       else trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
     }
-
     container.classList.remove('hidden');
     container.classList.add('no-pointer-events');
     setTimeout(() => container.classList.remove('no-pointer-events'), 100);
@@ -615,18 +571,14 @@ function initApp() {
     lastScrollPosition = window.scrollY;
     document.body.style.top = `-${lastScrollPosition}px`;
     document.body.classList.add('no-scroll');
-
     overlay.style.display = 'flex';
     overlay.classList.remove('hidden');
-
     overlayInput.value = query;
-
     if (query) {
       onInput({ target: { value: query } }, overlaySuggestions);
     } else {
       renderSearchHistory(overlaySuggestions);
     }
-
     toggleClearButton(query, overlayClearButton);
     overlayInput.focus();
   }
@@ -651,7 +603,6 @@ function initApp() {
     onInput(e, mainSuggestions);
     toggleClearButton(mainInput.value, mainClearButton);
   };
-
   mainSuggestions.onmousedown = e => e.preventDefault();
 
   mainClearButton.onclick = () => {
@@ -668,16 +619,12 @@ function initApp() {
     if (overlayInput.value.trim() === '') renderSearchHistory(overlaySuggestions);
     toggleClearButton(overlayInput.value, overlayClearButton);
   };
-
   overlayInput.oninput = e => {
     onInput(e, overlaySuggestions);
     toggleClearButton(overlayInput.value, overlayClearButton);
   };
-
   overlaySuggestions.onmousedown = e => e.preventDefault();
-
   cancelButton.onclick = closeOverlay;
-
   overlayClearButton.onclick = () => {
     overlayInput.value = '';
     overlayInput.focus();
@@ -716,7 +663,6 @@ function initApp() {
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
   const kanjiTextarea = document.getElementById('kanji-textarea');
   const kanjiClearButton = document.getElementById('kanji-clear-button');
-
   let lastScrollPositionKanji = 0;
 
   function openKanjiOverlay() {
@@ -738,9 +684,6 @@ function initApp() {
 
   kanjiButton.onclick = openKanjiOverlay;
   kanjiCancelButton.onclick = closeKanjiOverlay;
-
-  kanjiTextarea.oninput = () => {};
-
   kanjiClearButton.onclick = () => {
     kanjiTextarea.value = '';
     kanjiTextarea.focus();
@@ -764,7 +707,6 @@ function initApp() {
 
   const mainForm = document.getElementById('search-form-main');
   const overlayForm = document.getElementById('search-form-overlay');
-
   if (mainForm) mainForm.addEventListener('submit', handleSearchSubmit);
   if (overlayForm) overlayForm.addEventListener('submit', handleSearchSubmit);
 }
@@ -773,7 +715,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
   const preloader = document.getElementById('preloader');
   const mainContent = document.getElementById('main-content');
-
   setTimeout(() => {
     preloader.style.opacity = '0';
     preloader.addEventListener('transitionend', () => {
