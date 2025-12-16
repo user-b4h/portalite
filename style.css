@@ -70,13 +70,13 @@ body {
 .news-item:not(:last-child) {
   border-bottom: 2px solid #e2e8f0;
 }
-@media (hover: hover) {
+@media (hover: hover) and (min-width: 769px) {
     .news-item:hover {
       background-color: #f1f5f9;
       transform: translateY(-2px);
     }
 }
-@media (hover: none) {
+@media (hover: none), (max-width: 768px) {
     .news-item:active {
       background-color: #f1f5f9;
       transform: translateY(-2px);
@@ -86,12 +86,12 @@ body {
   .news-item:not(:last-child) {
     border-bottom: 2px solid #4a5568;
   }
-  @media (hover: hover) {
+  @media (hover: hover) and (min-width: 769px) {
       .news-item:hover {
         background-color: #2d3748;
       }
   }
-  @media (hover: none) {
+  @media (hover: none), (max-width: 768px) {
       .news-item:active {
         background-color: #2d3748;
       }
@@ -108,12 +108,12 @@ body {
   font-size: 1.5rem;
   z-index: 20;
 }
-@media (hover: hover) {
+@media (hover: hover) and (min-width: 769px) {
     .clear-button:hover {
       color: #6b7280;
     }
 }
-@media (hover: none) {
+@media (hover: none), (max-width: 768px) {
     .clear-button:active {
       color: #6b7280;
     }
@@ -134,12 +134,12 @@ body {
     padding: 0.5rem;
     cursor: pointer;
 }
-@media (hover: hover) {
+@media (hover: hover) and (min-width: 769px) {
     .history-delete-button:hover {
       color: #ef4444;
     }
 }
-@media (hover: none) {
+@media (hover: none), (max-width: 768px) {
     .history-delete-button:active {
       color: #ef4444;
     }
@@ -155,13 +155,13 @@ body {
     transition-property: all;
     transition-duration: 300ms;
 }
-@media (hover: hover) {
+@media (hover: hover) and (min-width: 769px) {
     .link-item:hover {
         transform: translateY(-2px);
         background-color: #e2e8f0;
     }
 }
-@media (hover: none) {
+@media (hover: none), (max-width: 768px) {
     .link-item:active {
         transform: translateY(-2px);
         background-color: #e2e8f0;
@@ -173,12 +173,12 @@ body {
         background-color: #2d3748;
         box-shadow: none;
     }
-    @media (hover: hover) {
+    @media (hover: hover) and (min-width: 769px) {
         .link-item:hover {
             background-color: #4a5568;
         }
     }
-    @media (hover: none) {
+    @media (hover: none), (max-width: 768px) {
         .link-item:active {
             background-color: #4a5568;
         }
@@ -186,12 +186,8 @@ body {
 }
 
 @keyframes slideInFromTop {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(0);
-  }
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
 }
 
 #preloader {
@@ -272,9 +268,10 @@ body {
   flex-direction:column;
   max-height:80vh;
   position: relative;
+  overflow: hidden;
 }
 
-#eq-inner > .p-4.flex.items-center.justify-between {
+#eq-inner > div:first-child {
   position: sticky;
   top: 0;
   z-index: 10;
@@ -283,7 +280,7 @@ body {
   border-top-right-radius: 1.5rem;
 }
 @media (prefers-color-scheme: dark) {
-  #eq-inner > .p-4.flex.items-center.justify-between {
+  #eq-inner > div:first-child {
     background-color: #374151;
   }
 }
@@ -291,7 +288,7 @@ body {
 #eq-list {
   flex-grow: 1;
   overflow-y: auto;
-  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width:639px) {
@@ -307,11 +304,11 @@ body {
     width:100%;
     max-width:100%;
     max-height:none;
-    min-height:calc(100vh - 2rem);
+    min-height:100vh;
     border-radius:0;
     box-shadow:none;
   }
-  #eq-inner > .p-4.flex.items-center.justify-between {
+  #eq-inner > div:first-child {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
