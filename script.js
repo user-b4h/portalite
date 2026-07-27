@@ -518,10 +518,10 @@ function initApp() {
   searchWrapperObserver.observe(searchWrapper);
   stickyInput.addEventListener('click', () => { openMobileSearchOverlay(mainInput.value); });
 
-  fetchWeather();
-  fetchRoomTemp();
-  fetchNews();
   fetchAnniversaries();
+  fetchRoomTemp();
+  fetchWeather();
+  fetchNews();
   fetchTrendsData().then(() => {
     if (!mainSuggestions.classList.contains('hidden')) renderSearchHistory(mainSuggestions);
     if (!overlaySuggestions.classList.contains('hidden')) renderSearchHistory(overlaySuggestions);
