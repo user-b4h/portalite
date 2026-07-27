@@ -1,7 +1,7 @@
 function initApp() {
   const weatherContainer = document.getElementById('weather-container');
   const roomTempContainer = document.getElementById('room-temp-container');
-  const ROOM_TEMP_API_URL = 'https://nature-remo-proxy.user-x45.workers.dev/';
+  const ROOM_TEMP_API_URL = 'https://temp.user-x45.workers.dev/';
   const newsContainer = document.getElementById('news-container');
   const mainInput = document.getElementById('search-input-main');
   const mainSuggestions = document.getElementById('suggestions-container-main');
