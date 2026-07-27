@@ -1,5 +1,7 @@
 function initApp() {
   const weatherContainer = document.getElementById('weather-container');
+  const roomTempContainer = document.getElementById('room-temp-container');
+  const ROOM_TEMP_API_URL = 'https://nature-remo-proxy.user-x45.workers.dev/';
   const newsContainer = document.getElementById('news-container');
   const mainInput = document.getElementById('search-input-main');
   const mainSuggestions = document.getElementById('suggestions-container-main');
@@ -162,6 +164,24 @@ function initApp() {
         return true;
       }
     }, weatherContainer, '天気情報を取得中...', '天気情報の取得に失敗しました。', 2, 1500);
+  }
+
+  async function fetchRoomTemp() {
+    return fetchWithRetry(async () => {
+      const r = await fetch(ROOM_TEMP_API_URL);
+      const data = await r.json();
+      if (!data.success || !data.devices || data.devices.length === 0) throw new Error('room temp fetch failed');
+      roomTempContainer.innerHTML = '';
+      data.devices.forEach(device => {
+        const updated = device.updated_at ? new Date(device.updated_at) : null;
+        const timeLabel = updated ? `${String(updated.getHours()).padStart(2, '0')}:${String(updated.getMinutes()).padStart(2, '0')}時点` : '';
+        const el = document.createElement('div');
+        el.className = 'p-4 rounded-xl shadow-inner card';
+        el.innerHTML = `<p class="text-lg sm:text-xl font-bold">${device.name}</p><p class="text-3xl font-bold accent-text my-2">${device.temperature !== null ? device.temperature + '°C' : '--'}</p><p class="text-sm text-gray-500 dark:text-gray-400">${timeLabel}</p>`;
+        roomTempContainer.appendChild(el);
+      });
+      return true;
+    }, roomTempContainer, '室温情報を取得中...', '室温情報の取得に失敗しました。', 2, 1500);
   }
 
   async function fetchNews() {
@@ -499,6 +519,7 @@ function initApp() {
   stickyInput.addEventListener('click', () => { openMobileSearchOverlay(mainInput.value); });
 
   fetchWeather();
+  fetchRoomTemp();
   fetchNews();
   fetchAnniversaries();
   fetchTrendsData().then(() => {
