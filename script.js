@@ -527,6 +527,67 @@ function initApp() {
     if (!overlaySuggestions.classList.contains('hidden')) renderSearchHistory(overlaySuggestions);
   });
 
+  const qrScanButtonMain = document.getElementById('qr-scan-button-main');
+  const qrScanButtonOverlay = document.getElementById('qr-scan-button-overlay');
+  const qrOverlay = document.getElementById('qr-overlay');
+  const qrCancelButton = document.getElementById('qr-cancel-button');
+  const qrVideo = document.getElementById('qr-video');
+  const qrCanvas = document.getElementById('qr-canvas');
+  const qrStatus = document.getElementById('qr-status');
+  let qrStream = null;
+  let qrScanning = false;
+  function isLikelyUrl(text) {
+    try { new URL(text); return true; } catch { return /^[\w-]+(\.[\w-]+)+(\/[^\s]*)?$/i.test(text); }
+  }
+  function normalizeUrl(text) {
+    try { return new URL(text).href; } catch { return `https://${text}`; }
+  }
+  async function startQrScan() {
+    qrStatus.textContent = 'カメラを起動しています...';
+    qrOverlay.style.display = 'flex';
+    qrOverlay.classList.remove('hidden');
+    try {
+      qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      qrVideo.srcObject = qrStream;
+      await qrVideo.play();
+      qrScanning = true;
+      requestAnimationFrame(scanQrFrame);
+    } catch (error) {
+      qrStatus.textContent = 'カメラを起動できませんでした。';
+    }
+  }
+  function stopQrScan() {
+    qrScanning = false;
+    if (qrStream) { qrStream.getTracks().forEach(track => track.stop()); qrStream = null; }
+    qrOverlay.style.display = 'none';
+    qrOverlay.classList.add('hidden');
+  }
+  function scanQrFrame() {
+    if (!qrScanning) return;
+    if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
+      qrCanvas.width = qrVideo.videoWidth;
+      qrCanvas.height = qrVideo.videoHeight;
+      const ctx = qrCanvas.getContext('2d');
+      ctx.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
+      const imageData = ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+      const code = window.jsQR ? jsQR(imageData.data, imageData.width, imageData.height) : null;
+      if (code && code.data) {
+        qrStatus.textContent = '読み取りました。';
+        const result = code.data.trim();
+        stopQrScan();
+        if (isLikelyUrl(result)) window.location.href = normalizeUrl(result);
+        else doSearch(result);
+        return;
+      }
+    }
+    requestAnimationFrame(scanQrFrame);
+  }
+  if (qrScanButtonMain) qrScanButtonMain.addEventListener('click', startQrScan);
+  if (qrScanButtonOverlay) qrScanButtonOverlay.addEventListener('click', startQrScan);
+  qrCancelButton.addEventListener('click', stopQrScan);
+  qrOverlay.addEventListener('click', (e) => { if (e.target === qrOverlay) stopQrScan(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && qrOverlay.style.display === 'flex') stopQrScan(); });
+
   const kanjiButton = document.getElementById('kanji-check-button');
   const kanjiOverlay = document.getElementById('kanji-overlay');
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
