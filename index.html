@@ -17,6 +17,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
@@ -62,6 +63,9 @@
                    class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 hidden text-base sm:text-lg">
               </div>
             </div>
+            <button type="button" id="qr-scan-button-main" class="flex-shrink-0 accent-text text-2xl" aria-label="QRコードを読み取る">
+              <i class="fas fa-qrcode"></i>
+            </button>
           </div>
         </form>
       </div>
@@ -136,6 +140,9 @@
                  placeholder="検索キーワード..." autocomplete="off">
           <i id="clear-button-overlay" class="fas fa-times-circle clear-button hidden"></i>
         </div>
+        <button type="button" id="qr-scan-button-overlay" class="flex-shrink-0 accent-text text-2xl" aria-label="QRコードを読み取る">
+          <i class="fas fa-qrcode"></i>
+        </button>
       </form>
       <button id="cancel-button"
               class="flex-shrink-0 accent-text font-semibold text-lg ml-1">
@@ -171,6 +178,19 @@
         <button type="button" class="theme-swatch" data-theme="pink" style="background:#ec4899" aria-label="ピンク"></button>
         <button type="button" class="theme-swatch" data-theme="orange" style="background:#f97316" aria-label="オレンジ"></button>
         <button type="button" class="theme-swatch" data-theme="red" style="background:#ef4444" aria-label="レッド"></button>
+      </div>
+    </div>
+  </div>
+  <div id="qr-overlay" class="hidden">
+    <div id="qr-inner" class="rounded-3xl shadow-xl max-w-md w-[90%] bg-white dark:bg-gray-800 overflow-hidden">
+      <div class="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-600">
+        <h3 class="text-xl font-semibold">QRコードを読み取る</h3>
+        <button id="qr-cancel-button" class="accent-text font-semibold text-lg">閉じる</button>
+      </div>
+      <div class="p-4">
+        <video id="qr-video" class="w-full rounded-2xl bg-black" playsinline muted></video>
+        <canvas id="qr-canvas" class="hidden"></canvas>
+        <p id="qr-status" class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">カメラを起動しています...</p>
       </div>
     </div>
   </div>
