@@ -533,3 +533,6 @@ body {
   aspect-ratio: 1 / 1;
   object-fit: cover;
 }
+#kanji-cancel-button {
+  color: var(--accent);
+}
