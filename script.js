@@ -536,51 +536,80 @@ function initApp() {
   const qrStatus = document.getElementById('qr-status');
   let qrStream = null;
   let qrScanning = false;
+  let qrBarcodeDetector = null;
+  if ('BarcodeDetector' in window) {
+    try { qrBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] }); } catch { qrBarcodeDetector = null; }
+  }
   function isLikelyUrl(text) {
     try { new URL(text); return true; } catch { return /^[\w-]+(\.[\w-]+)+(\/[^\s]*)?$/i.test(text); }
   }
   function normalizeUrl(text) {
     try { return new URL(text).href; } catch { return `https://${text}`; }
   }
+  function handleQrResult(result) {
+    if (!result) return;
+    const value = result.trim();
+    if (!value) return;
+    stopQrScan();
+    if (isLikelyUrl(value)) window.location.href = normalizeUrl(value);
+    else doSearch(value);
+  }
   async function startQrScan() {
+    if (!window.isSecureContext) {
+      qrStatus.textContent = 'カメラの利用にはHTTPS接続が必要です。';
+      qrOverlay.style.display = 'flex';
+      qrOverlay.classList.remove('hidden');
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      qrStatus.textContent = 'このブラウザはカメラ機能に対応していません。';
+      qrOverlay.style.display = 'flex';
+      qrOverlay.classList.remove('hidden');
+      return;
+    }
     qrStatus.textContent = 'カメラを起動しています...';
     qrOverlay.style.display = 'flex';
     qrOverlay.classList.remove('hidden');
     try {
-      qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
       qrVideo.srcObject = qrStream;
-      await qrVideo.play();
-      qrScanning = true;
-      requestAnimationFrame(scanQrFrame);
+      qrVideo.onloadedmetadata = () => {
+        qrVideo.play().catch(() => {});
+        qrScanning = true;
+        qrStatus.textContent = 'QRコードにカメラを向けてください';
+        requestAnimationFrame(scanQrFrame);
+      };
     } catch (error) {
-      qrStatus.textContent = 'カメラを起動できませんでした。';
+      qrStatus.textContent = `カメラを起動できませんでした（${error.name || error.message || 'エラー'}）。`;
     }
   }
   function stopQrScan() {
     qrScanning = false;
     if (qrStream) { qrStream.getTracks().forEach(track => track.stop()); qrStream = null; }
+    qrVideo.onloadedmetadata = null;
+    qrVideo.srcObject = null;
     qrOverlay.style.display = 'none';
     qrOverlay.classList.add('hidden');
   }
-  function scanQrFrame() {
+  async function scanQrFrame() {
     if (!qrScanning) return;
-    if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
-      qrCanvas.width = qrVideo.videoWidth;
-      qrCanvas.height = qrVideo.videoHeight;
-      const ctx = qrCanvas.getContext('2d');
-      ctx.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
-      const imageData = ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
-      const code = window.jsQR ? jsQR(imageData.data, imageData.width, imageData.height) : null;
-      if (code && code.data) {
-        qrStatus.textContent = '読み取りました。';
-        const result = code.data.trim();
-        stopQrScan();
-        if (isLikelyUrl(result)) window.location.href = normalizeUrl(result);
-        else doSearch(result);
-        return;
+    if (qrVideo.readyState >= qrVideo.HAVE_CURRENT_DATA && qrVideo.videoWidth > 0) {
+      if (qrBarcodeDetector) {
+        try {
+          const barcodes = await qrBarcodeDetector.detect(qrVideo);
+          if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) { handleQrResult(barcodes[0].rawValue); return; }
+        } catch { qrBarcodeDetector = null; }
+      } else if (window.jsQR) {
+        qrCanvas.width = qrVideo.videoWidth;
+        qrCanvas.height = qrVideo.videoHeight;
+        const ctx = qrCanvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
+        const imageData = ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+        if (code && code.data) { handleQrResult(code.data); return; }
       }
     }
-    requestAnimationFrame(scanQrFrame);
+    if (qrScanning) requestAnimationFrame(scanQrFrame);
   }
   if (qrScanButtonMain) qrScanButtonMain.addEventListener('click', startQrScan);
   if (qrScanButtonOverlay) qrScanButtonOverlay.addEventListener('click', startQrScan);
