@@ -621,8 +621,8 @@ function initApp() {
     try {
       qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
     } catch (error) {
-      qrVideo.classList.add('hidden');
-      qrStatus.textContent = 'カメラへのアクセスが許可されていないため、QRコードを読み取れません。ブラウザの設定でカメラへのアクセスを許可してから、もう一度お試しください。';
+      stopQrScan();
+      alert('カメラへのアクセスが許可されていないため、QRコードを読み取れません。ブラウザの設定でカメラへのアクセスを許可してから、もう一度お試しください。');
       return;
     }
     const onReady = () => {
