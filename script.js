@@ -537,8 +537,21 @@ function initApp() {
   let qrStream = null;
   let qrScanning = false;
   let qrBarcodeDetector = null;
+  let qrJsQrLoadPromise = null;
   if ('BarcodeDetector' in window) {
     try { qrBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] }); } catch { qrBarcodeDetector = null; }
+  }
+  function loadJsQR() {
+    if (window.jsQR) return Promise.resolve();
+    if (qrJsQrLoadPromise) return qrJsQrLoadPromise;
+    qrJsQrLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js';
+      script.onload = () => resolve();
+      script.onerror = () => { qrJsQrLoadPromise = null; reject(new Error('jsQR load failed')); };
+      document.head.appendChild(script);
+    });
+    return qrJsQrLoadPromise;
   }
   function isLikelyUrl(text) {
     try { new URL(text); return true; } catch { return /^[\w-]+(\.[\w-]+)+(\/[^\s]*)?$/i.test(text); }
@@ -570,23 +583,32 @@ function initApp() {
     qrStatus.textContent = 'カメラを起動しています...';
     qrOverlay.style.display = 'flex';
     qrOverlay.classList.remove('hidden');
+    if (!qrBarcodeDetector) {
+      try { await loadJsQR(); } catch {
+        qrStatus.textContent = 'QR読み取りライブラリの読み込みに失敗しました。通信環境をご確認ください。';
+        return;
+      }
+    }
     try {
       qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
-      qrVideo.srcObject = qrStream;
-      qrVideo.onloadedmetadata = () => {
-        qrVideo.play().catch(() => {});
-        qrScanning = true;
-        qrStatus.textContent = 'QRコードにカメラを向けてください';
-        requestAnimationFrame(scanQrFrame);
-      };
     } catch (error) {
       qrStatus.textContent = `カメラを起動できませんでした（${error.name || error.message || 'エラー'}）。`;
+      return;
     }
+    const onReady = () => {
+      qrVideo.play().catch(() => {});
+      if (qrScanning) return;
+      qrScanning = true;
+      qrStatus.textContent = 'QRコードにカメラを向けてください';
+      requestAnimationFrame(scanQrFrame);
+    };
+    qrVideo.addEventListener('loadedmetadata', onReady, { once: true });
+    qrVideo.srcObject = qrStream;
+    if (qrVideo.readyState >= 1) onReady();
   }
   function stopQrScan() {
     qrScanning = false;
     if (qrStream) { qrStream.getTracks().forEach(track => track.stop()); qrStream = null; }
-    qrVideo.onloadedmetadata = null;
     qrVideo.srcObject = null;
     qrOverlay.style.display = 'none';
     qrOverlay.classList.add('hidden');
