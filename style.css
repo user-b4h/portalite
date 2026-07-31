@@ -399,6 +399,37 @@ body {
 .accent-text {
   color: var(--accent);
 }
+.accent-bg {
+  background-color: var(--accent);
+}
+.accent-bg:hover {
+  background-color: var(--accent-dark);
+}
+.qr-button {
+  position: absolute;
+  right: 2.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 1.25rem;
+  z-index: 20;
+  background: none;
+  border: none;
+}
+#qr-scan-button-sticky {
+  right: 0.75rem;
+}
+@media (hover: hover) {
+  .qr-button:hover {
+    color: #6b7280;
+  }
+}
+@media (hover: none) {
+  .qr-button:active {
+    color: #6b7280;
+  }
+}
 #search-input-main:focus,
 #search-input-overlay:focus,
 #kanji-textarea:focus {
