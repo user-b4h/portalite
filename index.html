@@ -36,8 +36,11 @@
       <div class="relative">
         <i class="fas fa-search search-icon"></i>
         <input id="search-input-sticky" type="search" placeholder="検索キーワードを入力..." readonly
-               class="w-full p-3 pl-9 pr-4 rounded-2xl border border-gray-300 text-base focus:outline-none cursor-pointer
+               class="w-full p-3 pl-9 pr-12 rounded-2xl border border-gray-300 text-base focus:outline-none cursor-pointer
                       dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400">
+        <button type="button" id="qr-scan-button-sticky" class="qr-button" aria-label="QRコードを読み取る">
+          <i class="fas fa-qrcode"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -54,17 +57,17 @@
             <div class="relative flex-grow min-w-0">
               <i class="fas fa-search search-icon"></i>
               <input id="search-input-main" type="search" placeholder="検索キーワードを入力..."
-                     class="w-full p-3 pl-9 pr-12 rounded-2xl border border-gray-300 text-base focus:outline-none
+                     class="w-full p-3 pl-9 pr-20 rounded-2xl border border-gray-300 text-base focus:outline-none
                             dark:bg-gray-800 dark:border-gray-500 dark:text-gray-100 dark:placeholder-gray-400"
                      autocomplete="off">
               <i id="clear-button-main" class="fas fa-times-circle clear-button hidden"></i>
+              <button type="button" id="qr-scan-button-main" class="qr-button" aria-label="QRコードを読み取る">
+                <i class="fas fa-qrcode"></i>
+              </button>
               <div id="suggestions-container-main"
                    class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 hidden text-base sm:text-lg">
               </div>
             </div>
-            <button type="button" id="qr-scan-button-main" class="flex-shrink-0 accent-text text-2xl" aria-label="QRコードを読み取る">
-              <i class="fas fa-qrcode"></i>
-            </button>
           </div>
         </form>
       </div>
@@ -139,9 +142,6 @@
                  placeholder="検索キーワード..." autocomplete="off">
           <i id="clear-button-overlay" class="fas fa-times-circle clear-button hidden"></i>
         </div>
-        <button type="button" id="qr-scan-button-overlay" class="flex-shrink-0 accent-text text-2xl" aria-label="QRコードを読み取る">
-          <i class="fas fa-qrcode"></i>
-        </button>
       </form>
       <button id="cancel-button"
               class="flex-shrink-0 accent-text font-semibold text-lg ml-1">
@@ -187,9 +187,19 @@
         <button id="qr-cancel-button" class="accent-text font-semibold text-lg">閉じる</button>
       </div>
       <div class="p-4">
-        <video id="qr-video" class="w-full rounded-2xl bg-black" autoplay playsinline muted></video>
-        <canvas id="qr-canvas" class="hidden"></canvas>
-        <p id="qr-status" class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">カメラを起動しています...</p>
+        <div id="qr-scan-section">
+          <video id="qr-video" class="w-full rounded-2xl bg-black" autoplay playsinline muted></video>
+          <canvas id="qr-canvas" class="hidden"></canvas>
+          <p id="qr-status" class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">カメラを起動しています...</p>
+        </div>
+        <div id="qr-result-section" class="hidden">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">読み取った内容</p>
+          <p id="qr-result-text" class="p-3 rounded-2xl border border-gray-300 dark:border-gray-600 break-all text-base mb-4"></p>
+          <div class="flex justify-end space-x-2">
+            <button id="qr-result-cancel" class="px-4 py-2 rounded-2xl border border-gray-300 dark:border-gray-600">キャンセル</button>
+            <button id="qr-result-open" class="px-4 py-2 rounded-2xl text-white font-semibold accent-bg">開く</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
