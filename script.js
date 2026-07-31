@@ -6,6 +6,7 @@ function initApp() {
   const mainInput = document.getElementById('search-input-main');
   const mainSuggestions = document.getElementById('suggestions-container-main');
   const mainClearButton = document.getElementById('clear-button-main');
+  const qrScanButtonMain = document.getElementById('qr-scan-button-main');
   const overlay = document.getElementById('search-overlay');
   const overlayInput = document.getElementById('search-input-overlay');
   const cancelButton = document.getElementById('cancel-button');
@@ -346,7 +347,7 @@ function initApp() {
       calcItem.innerHTML = `<i class="fas fa-equals text-gray-400 mr-2"></i><span>= ${calcResult}</span>`;
       calcItem.addEventListener('click', () => {
         if (container === overlaySuggestions) { overlayInput.value = String(calcResult); toggleClearButton(overlayInput.value, overlayClearButton); }
-        else { mainInput.value = String(calcResult); toggleClearButton(mainInput.value, mainClearButton); }
+        else { mainInput.value = String(calcResult); toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
         doSearch(String(calcResult));
       });
       container.appendChild(calcItem);
@@ -359,7 +360,7 @@ function initApp() {
           item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center justify-between group`;
           item.addEventListener('click', () => {
             if (container === overlaySuggestions) { overlayInput.value = s; toggleClearButton(overlayInput.value, overlayClearButton); }
-            else { mainInput.value = s; toggleClearButton(mainInput.value, mainClearButton); }
+            else { mainInput.value = s; toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
             doSearch(s);
           });
           const searchIcon = document.createElement('div');
@@ -375,7 +376,7 @@ function initApp() {
           item.innerHTML = `<i class="fas fa-search text-gray-400 mr-2"></i><span>${s}</span>`;
           item.addEventListener('click', () => {
             if (container === overlaySuggestions) { overlayInput.value = s; toggleClearButton(overlayInput.value, overlayClearButton); }
-            else { mainInput.value = s; toggleClearButton(mainInput.value, mainClearButton); }
+            else { mainInput.value = s; toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
             doSearch(s);
           });
         }
@@ -465,7 +466,15 @@ function initApp() {
     const suggestions = await fetchGoogleSuggestionsJSONP(q);
     renderSuggestions(suggestions, container, false, q, calcResult);
   }, 180);
-  function toggleClearButton(query, clearButton) { if (query.length > 0) clearButton.classList.remove('hidden'); else clearButton.classList.add('hidden'); }
+  function toggleClearButton(query, clearButton, qrButton) {
+    if (query.length > 0) {
+      clearButton.classList.remove('hidden');
+      if (qrButton) qrButton.classList.add('hidden');
+    } else {
+      clearButton.classList.add('hidden');
+      if (qrButton) qrButton.classList.remove('hidden');
+    }
+  }
   function openMobileSearchOverlay(query = '') {
     lastScrollPosition = window.scrollY;
     document.body.style.top = `-${lastScrollPosition}px`;
@@ -481,15 +490,15 @@ function initApp() {
   mainInput.addEventListener('focus', () => {
     if (window.innerWidth <= 768) openMobileSearchOverlay(mainInput.value);
     else { if (mainInput.value.trim() === '') renderSearchHistory(mainSuggestions); }
-    toggleClearButton(mainInput.value, mainClearButton);
+    toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain);
   });
-  mainInput.addEventListener('blur', () => { if (window.innerWidth > 768) { mainSuggestions.classList.add('hidden'); toggleClearButton(mainInput.value, mainClearButton); } });
-  mainInput.addEventListener('input', (e) => { onInput(e, mainSuggestions); toggleClearButton(mainInput.value, mainClearButton); });
+  mainInput.addEventListener('blur', () => { if (window.innerWidth > 768) { mainSuggestions.classList.add('hidden'); toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); } });
+  mainInput.addEventListener('input', (e) => { onInput(e, mainSuggestions); toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); });
   mainSuggestions.addEventListener('mousedown', (e) => { e.preventDefault(); });
   mainClearButton.addEventListener('click', () => {
     mainInput.value = '';
     if (window.innerWidth > 768) { mainInput.focus(); mainSuggestions.classList.add('hidden'); }
-    toggleClearButton(mainInput.value, mainClearButton);
+    toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain);
     renderSearchHistory(mainSuggestions);
   });
   overlayInput.addEventListener('focus', () => { if (overlayInput.value.trim() === '') renderSearchHistory(overlaySuggestions); toggleClearButton(overlayInput.value, overlayClearButton); });
@@ -506,8 +515,8 @@ function initApp() {
     document.body.style.top = '';
     window.scrollTo(0, lastScrollPosition);
   }
-  window.addEventListener('resize', () => { toggleClearButton(mainInput.value, mainClearButton); toggleClearButton(overlayInput.value, overlayClearButton); });
-  toggleClearButton(mainInput.value, mainClearButton);
+  window.addEventListener('resize', () => { toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); toggleClearButton(overlayInput.value, overlayClearButton); });
+  toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain);
 
   const searchWrapperObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -527,7 +536,6 @@ function initApp() {
     if (!overlaySuggestions.classList.contains('hidden')) renderSearchHistory(overlaySuggestions);
   });
 
-  const qrScanButtonMain = document.getElementById('qr-scan-button-main');
   const qrScanButtonSticky = document.getElementById('qr-scan-button-sticky');
   const qrOverlay = document.getElementById('qr-overlay');
   const qrCancelButton = document.getElementById('qr-cancel-button');
@@ -579,7 +587,7 @@ function initApp() {
     if (!qrPendingValue) return;
     const value = qrPendingValue;
     stopQrScan();
-    if (isLikelyUrl(value)) window.location.href = normalizeUrl(value);
+    if (isLikelyUrl(value)) window.open(normalizeUrl(value), '_blank', 'noopener,noreferrer');
     else doSearch(value);
   }
   async function startQrScan() {
