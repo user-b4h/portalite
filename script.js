@@ -528,14 +528,20 @@ function initApp() {
   });
 
   const qrScanButtonMain = document.getElementById('qr-scan-button-main');
-  const qrScanButtonOverlay = document.getElementById('qr-scan-button-overlay');
+  const qrScanButtonSticky = document.getElementById('qr-scan-button-sticky');
   const qrOverlay = document.getElementById('qr-overlay');
   const qrCancelButton = document.getElementById('qr-cancel-button');
+  const qrScanSection = document.getElementById('qr-scan-section');
+  const qrResultSection = document.getElementById('qr-result-section');
+  const qrResultText = document.getElementById('qr-result-text');
+  const qrResultCancel = document.getElementById('qr-result-cancel');
+  const qrResultOpen = document.getElementById('qr-result-open');
   const qrVideo = document.getElementById('qr-video');
   const qrCanvas = document.getElementById('qr-canvas');
   const qrStatus = document.getElementById('qr-status');
   let qrStream = null;
   let qrScanning = false;
+  let qrPendingValue = null;
   let qrBarcodeDetector = null;
   let qrJsQrLoadPromise = null;
   if ('BarcodeDetector' in window) {
@@ -563,11 +569,23 @@ function initApp() {
     if (!result) return;
     const value = result.trim();
     if (!value) return;
+    stopCamera();
+    qrPendingValue = value;
+    qrResultText.textContent = value;
+    qrScanSection.classList.add('hidden');
+    qrResultSection.classList.remove('hidden');
+  }
+  function openPendingResult() {
+    if (!qrPendingValue) return;
+    const value = qrPendingValue;
     stopQrScan();
     if (isLikelyUrl(value)) window.location.href = normalizeUrl(value);
     else doSearch(value);
   }
   async function startQrScan() {
+    qrPendingValue = null;
+    qrResultSection.classList.add('hidden');
+    qrScanSection.classList.remove('hidden');
     if (!window.isSecureContext) {
       qrStatus.textContent = 'カメラの利用にはHTTPS接続が必要です。';
       qrOverlay.style.display = 'flex';
@@ -606,10 +624,14 @@ function initApp() {
     qrVideo.srcObject = qrStream;
     if (qrVideo.readyState >= 1) onReady();
   }
-  function stopQrScan() {
+  function stopCamera() {
     qrScanning = false;
     if (qrStream) { qrStream.getTracks().forEach(track => track.stop()); qrStream = null; }
     qrVideo.srcObject = null;
+  }
+  function stopQrScan() {
+    stopCamera();
+    qrPendingValue = null;
     qrOverlay.style.display = 'none';
     qrOverlay.classList.add('hidden');
   }
@@ -633,9 +655,11 @@ function initApp() {
     }
     if (qrScanning) requestAnimationFrame(scanQrFrame);
   }
-  if (qrScanButtonMain) qrScanButtonMain.addEventListener('click', startQrScan);
-  if (qrScanButtonOverlay) qrScanButtonOverlay.addEventListener('click', startQrScan);
+  if (qrScanButtonMain) qrScanButtonMain.addEventListener('click', (e) => { e.stopPropagation(); startQrScan(); });
+  if (qrScanButtonSticky) qrScanButtonSticky.addEventListener('click', (e) => { e.stopPropagation(); startQrScan(); });
   qrCancelButton.addEventListener('click', stopQrScan);
+  qrResultCancel.addEventListener('click', stopQrScan);
+  qrResultOpen.addEventListener('click', openPendingResult);
   qrOverlay.addEventListener('click', (e) => { if (e.target === qrOverlay) stopQrScan(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && qrOverlay.style.display === 'flex') stopQrScan(); });
 
