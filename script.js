@@ -595,12 +595,14 @@ function initApp() {
     qrResultSection.classList.add('hidden');
     qrScanSection.classList.remove('hidden');
     if (!window.isSecureContext) {
+      qrVideo.classList.add('hidden');
       qrStatus.textContent = 'カメラの利用にはHTTPS接続が必要です。';
       qrOverlay.style.display = 'flex';
       qrOverlay.classList.remove('hidden');
       return;
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      qrVideo.classList.add('hidden');
       qrStatus.textContent = 'このブラウザはカメラ機能に対応していません。';
       qrOverlay.style.display = 'flex';
       qrOverlay.classList.remove('hidden');
@@ -615,10 +617,12 @@ function initApp() {
         return;
       }
     }
+    qrVideo.classList.remove('hidden');
     try {
       qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
     } catch (error) {
-      qrStatus.textContent = `カメラを起動できませんでした（${error.name || error.message || 'エラー'}）。`;
+      qrVideo.classList.add('hidden');
+      qrStatus.textContent = 'カメラへのアクセスが許可されていないため、QRコードを読み取れません。ブラウザの設定でカメラへのアクセスを許可してから、もう一度お試しください。';
       return;
     }
     const onReady = () => {
