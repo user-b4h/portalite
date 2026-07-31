@@ -250,11 +250,6 @@ body {
   #kanji-inner .border-b {
     border-color: #333333 !important;
   }
-  #kanji-inner button:not(.text-blue-500) {
-    border-color: #444444 !important;
-    color: #e5e7eb !important;
-  }
-}
 @media (max-width: 639px) {
   #kanji-overlay {
     align-items: flex-start;
@@ -532,7 +527,4 @@ body {
 #qr-video {
   aspect-ratio: 1 / 1;
   object-fit: cover;
-}
-#kanji-cancel-button {
-  color: var(--accent);
 }
