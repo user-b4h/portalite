@@ -38,11 +38,11 @@ function initApp() {
   applyTheme(localStorage.getItem(THEME_KEY) || 'blue');
 
   function showLoading(container, message = '読み込み中...') {
-    container.innerHTML = `<div class="flex flex-col items-center justify-center py-8"><div class="loading-spinner"></div><p class="mt-3 text-gray-500 dark:text-gray-400">${message}</p></div>`;
+    container.innerHTML = `<div class="flex flex-col items-center justify-center py-8"><div class="loading-spinner"></div><p class="mt-3 md-on-surface-variant">${message}</p></div>`;
   }
 
   function showError(container, message, retryCallback) {
-    container.innerHTML = `<div class="flex flex-col items-center justify-center py-8 text-red-500"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p class="text-center">${message}</p><button class="retry-button mt-3">再試行</button></div>`;
+    container.innerHTML = `<div class="flex flex-col items-center justify-center py-8 md-error-text"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p class="text-center">${message}</p><button class="retry-button mt-3">再試行</button></div>`;
     const retryBtn = container.querySelector('.retry-button');
     if (retryBtn && retryCallback) retryBtn.addEventListener('click', retryCallback);
   }
@@ -137,8 +137,8 @@ function initApp() {
           const weekday = weekdays[forecastDate.getDay()];
           const dateLabel = `${month}月${day}日(${weekday})`;
           const el = document.createElement('div');
-          el.className = 'p-4 rounded-xl shadow-inner card';
-          el.innerHTML = `<p class="text-lg sm:text-xl font-bold">${dateLabel}</p><img src="${iconUrl}" alt="${forecast.telop}" class="w-16 h-16 mx-auto my-2" onerror="this.src='https://placehold.co/64x64/CCCCCC/FFFFFF?text=No+Icon';"><p class="text-base text-gray-500 dark:text-gray-400 mb-2">${forecast.telop}</p><div class="flex justify-center items-center space-x-2 text-base"><span class="text-blue-500">最低: ${forecast.temperature.min?.celsius || '--'}°C</span><span class="text-red-500">最高: ${forecast.temperature.max?.celsius || '--'}°C</span></div>`;
+          el.className = 'md-tile';
+          el.innerHTML = `<p class="md-title-medium">${dateLabel}</p><img src="${iconUrl}" alt="${forecast.telop}" class="w-16 h-16 mx-auto my-2" onerror="this.src='https://placehold.co/64x64/CCCCCC/FFFFFF?text=No+Icon';"><p class="text-base md-on-surface-variant mb-2">${forecast.telop}</p><div class="flex justify-center items-center space-x-2 text-base"><span class="md-tertiary-text">最低: ${forecast.temperature.min?.celsius || '--'}°C</span><span class="md-error-text">最高: ${forecast.temperature.max?.celsius || '--'}°C</span></div>`;
           weatherContainer.appendChild(el);
         });
         return true;
@@ -158,8 +158,8 @@ function initApp() {
           const weekday = weekdays[forecastDate.getDay()];
           const dateLabel = `${month}月${day}日(${weekday})`;
           const el = document.createElement('div');
-          el.className = 'p-4 rounded-xl shadow-inner card';
-          el.innerHTML = `<p class="text-lg sm:text-xl font-bold">${dateLabel}</p><img src="${iconUrl}" alt="${forecast.telop}" class="w-16 h-16 mx-auto my-2" onerror="this.src='https://placehold.co/64x64/CCCCCC/FFFFFF?text=No+Icon';"><p class="text-base text-gray-500 dark:text-gray-400 mb-2">${forecast.telop}</p><div class="flex justify-center items-center space-x-2 text-base"><span class="text-blue-500">最低: ${forecast.temperature.min?.celsius || '--'}°C</span><span class="text-red-500">最高: ${forecast.temperature.max?.celsius || '--'}°C</span></div>`;
+          el.className = 'md-tile';
+          el.innerHTML = `<p class="md-title-medium">${dateLabel}</p><img src="${iconUrl}" alt="${forecast.telop}" class="w-16 h-16 mx-auto my-2" onerror="this.src='https://placehold.co/64x64/CCCCCC/FFFFFF?text=No+Icon';"><p class="text-base md-on-surface-variant mb-2">${forecast.telop}</p><div class="flex justify-center items-center space-x-2 text-base"><span class="md-tertiary-text">最低: ${forecast.temperature.min?.celsius || '--'}°C</span><span class="md-error-text">最高: ${forecast.temperature.max?.celsius || '--'}°C</span></div>`;
           weatherContainer.appendChild(el);
         });
         return true;
@@ -177,8 +177,8 @@ function initApp() {
         const updated = device.updated_at ? new Date(device.updated_at) : null;
         const timeLabel = updated ? `${String(updated.getHours()).padStart(2, '0')}:${String(updated.getMinutes()).padStart(2, '0')}時点` : '';
         const el = document.createElement('div');
-        el.className = 'p-4 rounded-xl shadow-inner card';
-        el.innerHTML = `<p class="text-lg sm:text-xl font-bold">${device.name}</p><p class="text-3xl font-bold accent-text my-2">${device.temperature !== null ? device.temperature + '°C' : '--'}</p><p class="text-sm text-gray-500 dark:text-gray-400">${timeLabel}</p>`;
+        el.className = 'md-tile';
+        el.innerHTML = `<p class="md-title-medium">${device.name}</p><p class="text-3xl font-bold accent-text my-2">${device.temperature !== null ? device.temperature + '°C' : '--'}</p><p class="text-sm md-on-surface-variant">${timeLabel}</p>`;
         roomTempContainer.appendChild(el);
       });
       return true;
@@ -231,7 +231,7 @@ function initApp() {
         innerWrapper.appendChild(ogpImageContainer);
         const textContent = document.createElement('div');
         textContent.className = 'news-text-content';
-        textContent.innerHTML = `<p class="font-semibold text-lg sm:text-xl">${item.title}</p><p class="text-base text-gray-600 dark:text-gray-300 mt-1 line-clamp-3">${item.description}</p><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${sourceText}${formattedDate}</p>`;
+        textContent.innerHTML = `<p class="md-title-medium">${item.title}</p><p class="text-base md-on-surface-variant mt-1 line-clamp-3">${item.description}</p><p class="text-sm md-on-surface-variant mt-1">${sourceText}${formattedDate}</p>`;
         innerWrapper.appendChild(textContent);
         a.appendChild(innerWrapper);
         newsContainer.appendChild(a);
@@ -326,13 +326,13 @@ function initApp() {
   }
 
   function renderTrends(items, trendsEl) {
-    trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンド</p>';
+    trendsEl.innerHTML = '<p class="text-sm md-on-surface-variant mb-2 pl-2">現在のトレンド</p>';
     items.forEach((item, index) => {
       if (item.title && item.link) {
         const trendItem = document.createElement('div');
-        trendItem.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center`;
-        if (index < items.length - 1) trendItem.classList.add('border-b', 'border-gray-200', 'dark:border-gray-600');
-        trendItem.innerHTML = `<i class="fas fa-chart-line text-gray-400 mr-2"></i><span>${item.title}</span>`;
+        trendItem.className = `p-2 cursor-pointer md-state-hover md-suggestion-item transition-colors duration-150 flex items-center`;
+        if (index < items.length - 1) trendItem.classList.add('md-outline-divider');
+        trendItem.innerHTML = `<i class="fas fa-chart-line md-on-surface-variant mr-2"></i><span>${item.title}</span>`;
         trendItem.addEventListener('click', () => { doSearch(item.title); });
         trendsEl.appendChild(trendItem);
       }
@@ -343,8 +343,8 @@ function initApp() {
     container.innerHTML = '';
     if (calcResult !== null) {
       const calcItem = document.createElement('div');
-      calcItem.className = 'p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center border-b border-gray-200 dark:border-gray-600 font-semibold';
-      calcItem.innerHTML = `<i class="fas fa-equals text-gray-400 mr-2"></i><span>= ${calcResult}</span>`;
+      calcItem.className = 'p-2 cursor-pointer md-state-hover md-suggestion-item transition-colors duration-150 flex items-center font-semibold';
+      calcItem.innerHTML = `<i class="fas fa-equals md-on-surface-variant mr-2"></i><span>= ${calcResult}</span>`;
       calcItem.addEventListener('click', () => {
         if (container === overlaySuggestions) { overlayInput.value = String(calcResult); toggleClearButton(overlayInput.value, overlayClearButton); }
         else { mainInput.value = String(calcResult); toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
@@ -357,7 +357,7 @@ function initApp() {
       filteredList.forEach((s, index) => {
         const item = document.createElement('div');
         if (isHistory) {
-          item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center justify-between group`;
+          item.className = `p-2 cursor-pointer md-state-hover md-suggestion-item transition-colors duration-150 flex items-center justify-between group`;
           item.addEventListener('click', () => {
             if (container === overlaySuggestions) { overlayInput.value = s; toggleClearButton(overlayInput.value, overlayClearButton); }
             else { mainInput.value = s; toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
@@ -365,22 +365,22 @@ function initApp() {
           });
           const searchIcon = document.createElement('div');
           searchIcon.className = 'flex items-center flex-grow';
-          searchIcon.innerHTML = `<i class="fas fa-history text-gray-400 mr-2"></i><span>${s}</span>`;
+          searchIcon.innerHTML = `<i class="fas fa-history md-on-surface-variant mr-2"></i><span>${s}</span>`;
           item.appendChild(searchIcon);
           const deleteButton = document.createElement('i');
           deleteButton.className = 'fas fa-times history-delete-button';
           deleteButton.addEventListener('click', (e) => { e.stopPropagation(); deleteSearchHistory(s); renderSearchHistory(container); });
           item.appendChild(deleteButton);
         } else {
-          item.className = `p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 flex items-center`;
-          item.innerHTML = `<i class="fas fa-search text-gray-400 mr-2"></i><span>${s}</span>`;
+          item.className = `p-2 cursor-pointer md-state-hover md-suggestion-item transition-colors duration-150 flex items-center`;
+          item.innerHTML = `<i class="fas fa-search md-on-surface-variant mr-2"></i><span>${s}</span>`;
           item.addEventListener('click', () => {
             if (container === overlaySuggestions) { overlayInput.value = s; toggleClearButton(overlayInput.value, overlayClearButton); }
             else { mainInput.value = s; toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
             doSearch(s);
           });
         }
-        if (index < filteredList.length - 1) item.classList.add('border-b', 'border-gray-200', 'dark:border-gray-600');
+        if (index < filteredList.length - 1) item.classList.add('md-outline-divider');
         container.appendChild(item);
       });
     }
@@ -389,7 +389,7 @@ function initApp() {
       clearButtonWrapper.className = 'mt-2 px-2';
       const clearButton = document.createElement('button');
       clearButton.id = 'clear-all-history-button';
-      clearButton.className = 'w-full p-2 text-sm text-center text-red-500 rounded-lg bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors';
+      clearButton.className = 'w-full p-2 text-sm text-center rounded-full transition-colors';
       clearButton.textContent = '検索履歴をすべて消去';
       clearButton.addEventListener('click', clearAllSearchHistory);
       clearButtonWrapper.appendChild(clearButton);
@@ -401,7 +401,7 @@ function initApp() {
       trendsEl.className = 'pt-2';
       container.appendChild(trendsEl);
       if (trendsData) renderTrends(trendsData.slice(0, 10), trendsEl);
-      else trendsEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mb-2 pl-2">現在のトレンドを取得中...</p>';
+      else trendsEl.innerHTML = '<p class="text-sm md-on-surface-variant mb-2 pl-2">現在のトレンドを取得中...</p>';
     }
     container.classList.remove('hidden');
     container.classList.add('no-pointer-events');
