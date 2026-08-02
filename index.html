@@ -14,7 +14,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://cdn.tailwindcss.com"></script>
   <script type="importmap">
     {
       "imports": {
@@ -31,7 +30,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="p-4 sm:p-8 flex flex-col items-center min-h-screen text-base sm:text-lg">
-  <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center">
+  <div id="preloader" class="fixed inset-0 z-max flex flex-col items-center justify-center">
     <img src="icon/icon.svg" alt="Portalite Logo" class="w-32 h-32 mb-4">
     <p class="md-typescale-title-large">Portalite</p>
   </div>
@@ -39,7 +38,7 @@
   <div id="sticky-search-bar">
     <div class="max-w-4xl mx-auto p-3">
       <md-outlined-text-field id="search-input-sticky" type="search" readonly class="md-search-field"
-        placeholder="検索キーワードを入力...">
+        label="検索キーワードを入力...">
         <md-icon slot="leading-icon"><i class="fas fa-search search-icon"></i></md-icon>
         <md-icon-button id="qr-scan-button-sticky" slot="trailing-icon" aria-label="QRコードを読み取る">
           <i class="fas fa-qrcode"></i>
@@ -59,10 +58,10 @@
       <div id="search-container-wrapper">
         <form action="#" id="search-form-main" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-main').value.trim());">
           <div class="input-group relative">
-            <md-outlined-text-field id="search-input-main" type="search" class="md-search-field w-full"
-              placeholder="検索キーワードを入力..." autocomplete="off">
+            <md-outlined-text-field id="search-input-main" type="search" class="md-search-field"
+              label="検索キーワードを入力..." autocomplete="off">
               <md-icon slot="leading-icon"><i class="fas fa-search search-icon"></i></md-icon>
-              <span slot="trailing-icon" class="flex items-center">
+              <span slot="trailing-icon" class="trailing-icon-group">
                 <md-icon-button id="clear-button-main" class="hidden" aria-label="クリア">
                   <i class="fas fa-times-circle"></i>
                 </md-icon-button>
@@ -83,32 +82,32 @@
       <h2 class="md-typescale-title-large mb-4">よく使う項目</h2>
       <md-list id="links-container">
         <md-list-item type="link" href="https://mypage.transit-jr.net/login/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-shoe-prints w-6 text-center md-accent-text mr-3" slot="start"></i>
-          <span class="md-typescale-body-large" slot="headline">あしあと帳。</span>
+          <i class="fas fa-shoe-prints md-accent-text" slot="start"></i>
+          <span slot="headline">あしあと帳。</span>
         </md-list-item>
         <md-list-item id="kanji-check-button" type="button" class="link-item">
-          <i class="fas fa-spell-check w-6 text-center md-accent-text mr-3" slot="start"></i>
-          <span class="md-typescale-body-large" slot="headline">漢字チェック</span>
+          <i class="fas fa-spell-check md-accent-text" slot="start"></i>
+          <span slot="headline">漢字チェック</span>
         </md-list-item>
         <md-list-item type="link" href="https://user-x45.github.io/lunch-menu/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-utensils w-6 text-center md-accent-text mr-3" slot="start"></i>
-          <span class="md-typescale-body-large" slot="headline">給食だより</span>
+          <i class="fas fa-utensils md-accent-text" slot="start"></i>
+          <span slot="headline">給食だより</span>
         </md-list-item>
         <md-list-item type="link" href="https://user-x45.github.io/calc/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-calculator w-6 text-center md-accent-text mr-3" slot="start"></i>
-          <span class="md-typescale-body-large" slot="headline">計算機</span>
+          <i class="fas fa-calculator md-accent-text" slot="start"></i>
+          <span slot="headline">計算機</span>
         </md-list-item>
         <md-list-item type="link" href="https://ekibus.city.sapporo.jp/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-bus w-6 text-center md-accent-text mr-3" slot="start"></i>
-          <span class="md-typescale-body-large" slot="headline">さっぽろえきバスナビ</span>
+          <i class="fas fa-bus md-accent-text" slot="start"></i>
+          <span slot="headline">さっぽろえきバスナビ</span>
         </md-list-item>
         <md-list-item type="link" href="https://www23.sapporo-c.ed.jp/houmei/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-school w-6 text-center md-accent-text mr-3" slot="start"></i>
-          <span class="md-typescale-body-large" slot="headline">市立豊明高等支援学校</span>
+          <i class="fas fa-school md-accent-text" slot="start"></i>
+          <span slot="headline">市立豊明高等支援学校</span>
         </md-list-item>
         <md-list-item type="link" href="https://transit.yahoo.co.jp/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-train-subway w-6 text-center md-accent-text mr-3" slot="start"></i>
-          <span class="md-typescale-body-large" slot="headline">Yahoo!路線情報</span>
+          <i class="fas fa-train-subway md-accent-text" slot="start"></i>
+          <span slot="headline">Yahoo!路線情報</span>
         </md-list-item>
       </md-list>
     </section>
@@ -154,8 +153,8 @@
     <div class="p-4 flex items-center space-x-2 md-outline-divider">
       <form action="#" id="search-form-overlay" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-overlay').value.trim());" class="relative flex-grow min-w-0 flex items-center space-x-2">
         <div class="relative flex-grow min-w-0">
-          <md-outlined-text-field id="search-input-overlay" type="search" class="md-search-field w-full"
-            placeholder="検索キーワード..." autocomplete="off">
+          <md-outlined-text-field id="search-input-overlay" type="search" class="md-search-field"
+            label="検索キーワード..." autocomplete="off">
             <md-icon slot="leading-icon"><i class="fas fa-search search-icon text-lg"></i></md-icon>
             <md-icon-button id="clear-button-overlay" slot="trailing-icon" class="hidden" aria-label="クリア">
               <i class="fas fa-times-circle"></i>
@@ -173,7 +172,7 @@
   <md-dialog id="kanji-overlay">
     <div slot="headline">漢字チェック</div>
     <div slot="content">
-      <textarea id="kanji-textarea" placeholder="ここに入力..." class="h-[25vh] text-4xl"></textarea>
+      <textarea id="kanji-textarea" placeholder="ここに入力..." class="text-4xl"></textarea>
     </div>
     <div slot="actions">
       <md-text-button id="kanji-clear-button">クリア</md-text-button>
