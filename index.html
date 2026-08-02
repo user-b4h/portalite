@@ -12,53 +12,67 @@
   <link rel="manifest" href="json/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "@material/web/": "https://esm.run/@material/web/"
+      }
+    }
+  </script>
+  <script type="module">
+    import '@material/web/all.js';
+    import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
+
+    document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="p-4 sm:p-8 flex flex-col items-center min-h-screen text-base sm:text-lg">
   <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center">
     <img src="icon/icon.svg" alt="Portalite Logo" class="w-32 h-32 mb-4">
-    <p class="md-title-large">Portalite</p>
+    <p class="md-typescale-title-large">Portalite</p>
   </div>
 
   <div id="sticky-search-bar">
     <div class="max-w-4xl mx-auto p-3">
-      <div class="relative">
-        <i class="fas fa-search search-icon"></i>
-        <input id="search-input-sticky" type="search" placeholder="検索キーワードを入力..." readonly
-               class="md-search-field w-full pl-11 pr-12 cursor-pointer">
-        <button type="button" id="qr-scan-button-sticky" class="qr-button" aria-label="QRコードを読み取る">
+      <md-outlined-text-field id="search-input-sticky" type="search" readonly class="md-search-field"
+        placeholder="検索キーワードを入力...">
+        <md-icon slot="leading-icon"><i class="fas fa-search search-icon"></i></md-icon>
+        <md-icon-button id="qr-scan-button-sticky" slot="trailing-icon" aria-label="QRコードを読み取る">
           <i class="fas fa-qrcode"></i>
-        </button>
-      </div>
+        </md-icon-button>
+      </md-outlined-text-field>
     </div>
   </div>
 
   <main id="main-content" class="hidden w-full max-w-4xl space-y-6 pointer-events-none">
     <header class="text-center py-2">
-      <h1 class="md-display-small md-accent-text mb-1">Portalite</h1>
-      <p class="md-body-large md-on-surface-variant">シンプルなポータルアプリ</p>
+      <h1 class="md-typescale-display-small md-accent-text mb-1">Portalite</h1>
+      <p class="md-typescale-body-large md-on-surface-variant">シンプルなポータルアプリ</p>
     </header>
 
     <section class="card p-6 relative">
-      <h2 class="md-section-title">ウェブを検索</h2>
+      <h2 class="md-typescale-title-large mb-4">ウェブを検索</h2>
       <div id="search-container-wrapper">
         <form action="#" id="search-form-main" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-main').value.trim());">
-          <div class="input-group flex space-x-2 items-center">
-            <div class="relative flex-grow min-w-0">
-              <i class="fas fa-search search-icon"></i>
-              <input id="search-input-main" type="search" placeholder="検索キーワードを入力..."
-                     class="md-search-field w-full pl-11 pr-20"
-                     autocomplete="off">
-              <i id="clear-button-main" class="fas fa-times-circle clear-button hidden"></i>
-              <button type="button" id="qr-scan-button-main" class="qr-button" aria-label="QRコードを読み取る">
-                <i class="fas fa-qrcode"></i>
-              </button>
-              <div id="suggestions-container-main"
-                   class="absolute z-10 w-full mt-2 shadow-lg hidden text-base sm:text-lg overflow-hidden">
-              </div>
+          <div class="input-group relative">
+            <md-outlined-text-field id="search-input-main" type="search" class="md-search-field w-full"
+              placeholder="検索キーワードを入力..." autocomplete="off">
+              <md-icon slot="leading-icon"><i class="fas fa-search search-icon"></i></md-icon>
+              <span slot="trailing-icon" class="flex items-center">
+                <md-icon-button id="clear-button-main" class="hidden" aria-label="クリア">
+                  <i class="fas fa-times-circle"></i>
+                </md-icon-button>
+                <md-icon-button id="qr-scan-button-main" aria-label="QRコードを読み取る">
+                  <i class="fas fa-qrcode"></i>
+                </md-icon-button>
+              </span>
+            </md-outlined-text-field>
+            <div id="suggestions-container-main"
+                 class="absolute z-10 w-full mt-2 shadow-lg hidden text-base sm:text-lg overflow-hidden">
             </div>
           </div>
         </form>
@@ -66,71 +80,71 @@
     </section>
 
     <section class="card p-6">
-      <h2 class="md-section-title">よく使う項目</h2>
-      <div id="links-container" class="space-y-3">
-        <a href="https://mypage.transit-jr.net/login/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-shoe-prints w-6 text-center md-accent-text mr-3"></i>
-          <span class="md-body-large">あしあと帳。</span>
-        </a>
-        <button id="kanji-check-button" type="button" class="link-item w-full text-left">
-          <i class="fas fa-spell-check w-6 text-center md-accent-text mr-3"></i>
-          <span class="md-body-large">漢字チェック</span>
-        </button>
-        <a href="https://user-x45.github.io/lunch-menu/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-utensils w-6 text-center md-accent-text mr-3"></i>
-          <span class="md-body-large">給食だより</span>
-        </a>
-        <a href="https://user-x45.github.io/calc/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-calculator w-6 text-center md-accent-text mr-3"></i>
-          <span class="md-body-large">計算機</span>
-        </a>
-        <a href="https://ekibus.city.sapporo.jp/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-bus w-6 text-center md-accent-text mr-3"></i>
-          <span class="md-body-large">さっぽろえきバスナビ</span>
-        </a>
-        <a href="https://www23.sapporo-c.ed.jp/houmei/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-school w-6 text-center md-accent-text mr-3"></i>
-          <span class="md-body-large">市立豊明高等支援学校</span>
-        </a>
-        <a href="https://transit.yahoo.co.jp/" target="_blank" rel="noopener noreferrer" class="link-item">
-          <i class="fas fa-train-subway w-6 text-center md-accent-text mr-3"></i>
-          <span class="md-body-large">Yahoo!路線情報</span>
-        </a>
-      </div>
+      <h2 class="md-typescale-title-large mb-4">よく使う項目</h2>
+      <md-list id="links-container">
+        <md-list-item type="link" href="https://mypage.transit-jr.net/login/" target="_blank" rel="noopener noreferrer" class="link-item">
+          <i class="fas fa-shoe-prints w-6 text-center md-accent-text mr-3" slot="start"></i>
+          <span class="md-typescale-body-large" slot="headline">あしあと帳。</span>
+        </md-list-item>
+        <md-list-item id="kanji-check-button" type="button" class="link-item">
+          <i class="fas fa-spell-check w-6 text-center md-accent-text mr-3" slot="start"></i>
+          <span class="md-typescale-body-large" slot="headline">漢字チェック</span>
+        </md-list-item>
+        <md-list-item type="link" href="https://user-x45.github.io/lunch-menu/" target="_blank" rel="noopener noreferrer" class="link-item">
+          <i class="fas fa-utensils w-6 text-center md-accent-text mr-3" slot="start"></i>
+          <span class="md-typescale-body-large" slot="headline">給食だより</span>
+        </md-list-item>
+        <md-list-item type="link" href="https://user-x45.github.io/calc/" target="_blank" rel="noopener noreferrer" class="link-item">
+          <i class="fas fa-calculator w-6 text-center md-accent-text mr-3" slot="start"></i>
+          <span class="md-typescale-body-large" slot="headline">計算機</span>
+        </md-list-item>
+        <md-list-item type="link" href="https://ekibus.city.sapporo.jp/" target="_blank" rel="noopener noreferrer" class="link-item">
+          <i class="fas fa-bus w-6 text-center md-accent-text mr-3" slot="start"></i>
+          <span class="md-typescale-body-large" slot="headline">さっぽろえきバスナビ</span>
+        </md-list-item>
+        <md-list-item type="link" href="https://www23.sapporo-c.ed.jp/houmei/" target="_blank" rel="noopener noreferrer" class="link-item">
+          <i class="fas fa-school w-6 text-center md-accent-text mr-3" slot="start"></i>
+          <span class="md-typescale-body-large" slot="headline">市立豊明高等支援学校</span>
+        </md-list-item>
+        <md-list-item type="link" href="https://transit.yahoo.co.jp/" target="_blank" rel="noopener noreferrer" class="link-item">
+          <i class="fas fa-train-subway w-6 text-center md-accent-text mr-3" slot="start"></i>
+          <span class="md-typescale-body-large" slot="headline">Yahoo!路線情報</span>
+        </md-list-item>
+      </md-list>
     </section>
 
     <section class="card p-6">
-      <h2 class="md-section-title">今日は何の日</h2>
-      <div id="anniversary-container" class="md-body-large space-y-2">
+      <h2 class="md-typescale-title-large mb-4">今日は何の日</h2>
+      <div id="anniversary-container" class="md-typescale-body-large space-y-2">
         <div class="text-center md-on-surface-variant">記念日情報を取得中...</div>
       </div>
     </section>
 
     <section class="card p-6">
-      <h2 class="md-section-title">自宅の室温</h2>
+      <h2 class="md-typescale-title-large mb-4">自宅の室温</h2>
       <div id="room-temp-container" class="grid sm:grid-cols-3 gap-4 text-center">
         <div class="text-center col-span-3 md-on-surface-variant">室温情報を取得中...</div>
       </div>
     </section>
 
     <section class="card p-6">
-      <h2 class="md-section-title">札幌の天気</h2>
+      <h2 class="md-typescale-title-large mb-4">札幌の天気</h2>
       <div id="weather-container" class="grid sm:grid-cols-3 gap-4 text-center">
         <div class="text-center col-span-3 md-on-surface-variant">天気情報を取得中...</div>
       </div>
     </section>
 
     <section class="card p-6">
-      <h2 class="md-section-title">エンタメニュース</h2>
+      <h2 class="md-typescale-title-large mb-4">エンタメニュース</h2>
       <div id="news-container" class="space-y-1">
         <div class="text-center md-on-surface-variant">ニュースを取得中...</div>
       </div>
     </section>
 
     <footer class="text-center md-on-surface-variant text-sm sm:text-base mt-4 pb-4">
-      <button id="customize-button" type="button" class="md-label-large mb-4">
+      <md-outlined-button id="customize-button" class="mb-4">
         <i class="fas fa-palette mr-2"></i>カスタマイズ
-      </button>
+      </md-outlined-button>
       <div class="text-xs mb-1">「QRコード」は、株式会社デンソーウェーブの登録商標です。</div>
       <div><span id="copyright-text"></span></div>
     </footer>
@@ -140,75 +154,67 @@
     <div class="p-4 flex items-center space-x-2 md-outline-divider">
       <form action="#" id="search-form-overlay" onsubmit="event.preventDefault(); doSearch(document.getElementById('search-input-overlay').value.trim());" class="relative flex-grow min-w-0 flex items-center space-x-2">
         <div class="relative flex-grow min-w-0">
-          <i class="fas fa-search search-icon text-lg"></i>
-          <input id="search-input-overlay" type="search"
-                 class="md-search-field w-full pl-11 pr-12 text-lg"
-                 placeholder="検索キーワード..." autocomplete="off">
-          <i id="clear-button-overlay" class="fas fa-times-circle clear-button hidden"></i>
+          <md-outlined-text-field id="search-input-overlay" type="search" class="md-search-field w-full"
+            placeholder="検索キーワード..." autocomplete="off">
+            <md-icon slot="leading-icon"><i class="fas fa-search search-icon text-lg"></i></md-icon>
+            <md-icon-button id="clear-button-overlay" slot="trailing-icon" class="hidden" aria-label="クリア">
+              <i class="fas fa-times-circle"></i>
+            </md-icon-button>
+          </md-outlined-text-field>
         </div>
       </form>
-      <button id="cancel-button" class="flex-shrink-0 md-label-large md-accent-text ml-1">
+      <md-text-button id="cancel-button" class="flex-shrink-0 ml-1">
         キャンセル
-      </button>
+      </md-text-button>
     </div>
     <div id="suggestions-container-overlay" class="flex-grow overflow-y-auto p-2 text-lg"></div>
   </div>
 
-  <div id="kanji-overlay" class="hidden">
-    <div id="kanji-inner" class="max-w-2xl w-[90%] sm:w-[90%] sm:max-w-2xl">
-      <div class="p-4 flex items-center justify-between md-dialog-header">
-        <h3 class="md-title-large">漢字チェック</h3>
-        <button id="kanji-cancel-button" class="md-dialog-close">閉じる</button>
-      </div>
-      <div class="flex-grow overflow-y-auto p-4">
-        <textarea id="kanji-textarea" placeholder="ここに入力..." class="h-[25vh] text-4xl"></textarea>
-        <div class="mt-3 flex items-center justify-end space-x-2">
-          <button id="kanji-clear-button" class="md-btn-outlined">クリア</button>
-        </div>
-      </div>
+  <md-dialog id="kanji-overlay">
+    <div slot="headline">漢字チェック</div>
+    <div slot="content">
+      <textarea id="kanji-textarea" placeholder="ここに入力..." class="h-[25vh] text-4xl"></textarea>
     </div>
-  </div>
+    <div slot="actions">
+      <md-text-button id="kanji-clear-button">クリア</md-text-button>
+      <md-text-button id="kanji-cancel-button">閉じる</md-text-button>
+    </div>
+  </md-dialog>
 
-  <div id="theme-overlay" class="hidden">
-    <div id="theme-inner">
-      <div class="p-4 flex items-center justify-between md-dialog-header">
-        <h3 class="md-title-large">テーマカラー</h3>
-        <button id="theme-cancel-button" class="md-dialog-close">閉じる</button>
-      </div>
-      <div class="p-6 grid grid-cols-3 gap-6" id="theme-swatches">
-        <button type="button" class="theme-swatch" data-theme="blue" style="background:#3b82f6" aria-label="ブルー"></button>
-        <button type="button" class="theme-swatch" data-theme="green" style="background:#10b981" aria-label="グリーン"></button>
-        <button type="button" class="theme-swatch" data-theme="purple" style="background:#8b5cf6" aria-label="パープル"></button>
-        <button type="button" class="theme-swatch" data-theme="pink" style="background:#ec4899" aria-label="ピンク"></button>
-        <button type="button" class="theme-swatch" data-theme="orange" style="background:#f97316" aria-label="オレンジ"></button>
-        <button type="button" class="theme-swatch" data-theme="red" style="background:#ef4444" aria-label="レッド"></button>
-      </div>
+  <md-dialog id="theme-overlay">
+    <div slot="headline">テーマカラー</div>
+    <div slot="content" class="grid grid-cols-3 gap-6" id="theme-swatches">
+      <button type="button" class="theme-swatch" data-theme="blue" style="background:#3b82f6" aria-label="ブルー"></button>
+      <button type="button" class="theme-swatch" data-theme="green" style="background:#10b981" aria-label="グリーン"></button>
+      <button type="button" class="theme-swatch" data-theme="purple" style="background:#8b5cf6" aria-label="パープル"></button>
+      <button type="button" class="theme-swatch" data-theme="pink" style="background:#ec4899" aria-label="ピンク"></button>
+      <button type="button" class="theme-swatch" data-theme="orange" style="background:#f97316" aria-label="オレンジ"></button>
+      <button type="button" class="theme-swatch" data-theme="red" style="background:#ef4444" aria-label="レッド"></button>
     </div>
-  </div>
+    <div slot="actions">
+      <md-text-button id="theme-cancel-button">閉じる</md-text-button>
+    </div>
+  </md-dialog>
 
-  <div id="qr-overlay" class="hidden">
-    <div id="qr-inner">
-      <div class="p-4 flex items-center justify-between md-dialog-header">
-        <h3 class="md-title-large">QRコードを読み取る</h3>
-        <button id="qr-cancel-button" class="md-dialog-close">閉じる</button>
+  <md-dialog id="qr-overlay">
+    <div slot="headline">QRコードを読み取る</div>
+    <div slot="content">
+      <div id="qr-scan-section">
+        <video id="qr-video" class="bg-black" autoplay playsinline muted></video>
+        <canvas id="qr-canvas" class="hidden"></canvas>
+        <p id="qr-status" class="text-center text-sm md-on-surface-variant mt-3">カメラを起動しています...</p>
       </div>
-      <div class="p-4">
-        <div id="qr-scan-section">
-          <video id="qr-video" class="w-full bg-black" autoplay playsinline muted></video>
-          <canvas id="qr-canvas" class="hidden"></canvas>
-          <p id="qr-status" class="text-center text-sm md-on-surface-variant mt-3">カメラを起動しています...</p>
-        </div>
-        <div id="qr-result-section" class="hidden">
-          <p class="text-sm md-on-surface-variant mb-2">読み取った内容</p>
-          <p id="qr-result-text" class="p-3 break-all text-base mb-4"></p>
-          <div class="flex justify-end space-x-2">
-            <button id="qr-result-cancel" class="md-btn-outlined">キャンセル</button>
-            <button id="qr-result-open" class="md-btn-filled">開く</button>
-          </div>
-        </div>
+      <div id="qr-result-section" class="hidden">
+        <p class="text-sm md-on-surface-variant mb-2">読み取った内容</p>
+        <p id="qr-result-text" class="p-3 break-all text-base"></p>
       </div>
     </div>
-  </div>
+    <div slot="actions">
+      <md-text-button id="qr-cancel-button">閉じる</md-text-button>
+      <md-text-button id="qr-result-cancel" class="hidden">キャンセル</md-text-button>
+      <md-filled-button id="qr-result-open" class="hidden">開く</md-filled-button>
+    </div>
+  </md-dialog>
 
   <script src="script.js"></script>
 </body>
