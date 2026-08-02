@@ -42,7 +42,7 @@ function initApp() {
   }
 
   function showError(container, message, retryCallback) {
-    container.innerHTML = `<div class="flex flex-col items-center justify-center py-8 md-error-text"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p class="text-center">${message}</p><button class="retry-button mt-3">再試行</button></div>`;
+    container.innerHTML = `<div class="flex flex-col items-center justify-center py-8 md-error-text"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p class="text-center">${message}</p><md-filled-button class="retry-button md-btn-error mt-3">再試行</md-filled-button></div>`;
     const retryBtn = container.querySelector('.retry-button');
     if (retryBtn && retryCallback) retryBtn.addEventListener('click', retryCallback);
   }
@@ -387,9 +387,9 @@ function initApp() {
     if (isHistory && filteredList.length > 0) {
       const clearButtonWrapper = document.createElement('div');
       clearButtonWrapper.className = 'mt-2 px-2';
-      const clearButton = document.createElement('button');
+      const clearButton = document.createElement('md-outlined-button');
       clearButton.id = 'clear-all-history-button';
-      clearButton.className = 'w-full p-2 text-sm text-center rounded-full transition-colors';
+      clearButton.className = 'w-full md-btn-error';
       clearButton.textContent = '検索履歴をすべて消去';
       clearButton.addEventListener('click', clearAllSearchHistory);
       clearButtonWrapper.appendChild(clearButton);
@@ -582,6 +582,9 @@ function initApp() {
     qrResultText.textContent = value;
     qrScanSection.classList.add('hidden');
     qrResultSection.classList.remove('hidden');
+    qrCancelButton.classList.add('hidden');
+    qrResultCancel.classList.remove('hidden');
+    qrResultOpen.classList.remove('hidden');
   }
   function openPendingResult() {
     if (!qrPendingValue) return;
@@ -594,23 +597,23 @@ function initApp() {
     qrPendingValue = null;
     qrResultSection.classList.add('hidden');
     qrScanSection.classList.remove('hidden');
+    qrResultCancel.classList.add('hidden');
+    qrResultOpen.classList.add('hidden');
+    qrCancelButton.classList.remove('hidden');
     if (!window.isSecureContext) {
       qrVideo.classList.add('hidden');
       qrStatus.textContent = 'カメラの利用にはHTTPS接続が必要です。';
-      qrOverlay.style.display = 'flex';
-      qrOverlay.classList.remove('hidden');
+      qrOverlay.show();
       return;
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       qrVideo.classList.add('hidden');
       qrStatus.textContent = 'このブラウザはカメラ機能に対応していません。';
-      qrOverlay.style.display = 'flex';
-      qrOverlay.classList.remove('hidden');
+      qrOverlay.show();
       return;
     }
     qrStatus.textContent = 'カメラを起動しています...';
-    qrOverlay.style.display = 'flex';
-    qrOverlay.classList.remove('hidden');
+    qrOverlay.show();
     if (!qrBarcodeDetector) {
       try { await loadJsQR(); } catch {
         qrStatus.textContent = 'QR読み取りライブラリの読み込みに失敗しました。通信環境をご確認ください。';
@@ -644,8 +647,7 @@ function initApp() {
   function stopQrScan() {
     stopCamera();
     qrPendingValue = null;
-    qrOverlay.style.display = 'none';
-    qrOverlay.classList.add('hidden');
+    qrOverlay.close();
   }
   async function scanQrFrame() {
     if (!qrScanning) return;
@@ -672,48 +674,32 @@ function initApp() {
   qrCancelButton.addEventListener('click', stopQrScan);
   qrResultCancel.addEventListener('click', stopQrScan);
   qrResultOpen.addEventListener('click', openPendingResult);
-  qrOverlay.addEventListener('click', (e) => { if (e.target === qrOverlay) stopQrScan(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && qrOverlay.style.display === 'flex') stopQrScan(); });
+  qrOverlay.addEventListener('closed', stopCamera);
 
   const kanjiButton = document.getElementById('kanji-check-button');
   const kanjiOverlay = document.getElementById('kanji-overlay');
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
   const kanjiTextarea = document.getElementById('kanji-textarea');
   const kanjiClearButton = document.getElementById('kanji-clear-button');
-  let lastScrollPositionKanji = 0;
   function openKanjiOverlay() {
-    lastScrollPositionKanji = window.scrollY;
-    document.body.style.top = `-${lastScrollPositionKanji}px`;
-    document.body.classList.add('no-scroll');
-    kanjiOverlay.style.display = 'flex';
-    kanjiOverlay.classList.remove('hidden');
-    kanjiTextarea.focus();
+    kanjiOverlay.show();
   }
   function closeKanjiOverlay() {
-    kanjiOverlay.style.display = 'none';
-    kanjiTextarea.value = '';
-    document.body.classList.remove('no-scroll');
-    document.body.style.top = '';
-    window.scrollTo(0, lastScrollPositionKanji);
+    kanjiOverlay.close();
   }
+  kanjiOverlay.addEventListener('closed', () => { kanjiTextarea.value = ''; });
+  kanjiOverlay.addEventListener('opened', () => { kanjiTextarea.focus(); });
   kanjiButton.addEventListener('click', openKanjiOverlay);
   kanjiCancelButton.addEventListener('click', closeKanjiOverlay);
   kanjiClearButton.addEventListener('click', () => { kanjiTextarea.value = ''; kanjiTextarea.focus(); });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && kanjiOverlay.style.display === 'flex') closeKanjiOverlay();
-    if (e.key === 'Escape' && themeOverlay.style.display === 'flex') closeThemeOverlay();
-  });
   function openThemeOverlay() {
-    themeOverlay.style.display = 'flex';
-    themeOverlay.classList.remove('hidden');
+    themeOverlay.show();
   }
   function closeThemeOverlay() {
-    themeOverlay.style.display = 'none';
-    themeOverlay.classList.add('hidden');
+    themeOverlay.close();
   }
   customizeButton.addEventListener('click', openThemeOverlay);
   themeCancelButton.addEventListener('click', closeThemeOverlay);
-  themeOverlay.addEventListener('click', (e) => { if (e.target === themeOverlay) closeThemeOverlay(); });
   themeSwatches.forEach(sw => {
     sw.addEventListener('click', () => { applyTheme(sw.dataset.theme); closeThemeOverlay(); });
   });
