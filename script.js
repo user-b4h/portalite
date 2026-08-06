@@ -551,54 +551,21 @@ function initApp() {
   let qrScanning = false;
   let qrPendingValue = null;
   let qrBarcodeDetector = null;
-  let qrScanControls = null;
-  let qrZXingLoadPromise = null;
-  let qrZXingReader = null;
-  const QR_DESIRED_FORMATS = ['qr_code', 'ean_13', 'ean_8', 'code_128', 'code_39', 'code_93', 'codabar', 'itf', 'upc_a', 'upc_e', 'pdf417', 'aztec', 'data_matrix'];
+  let qrJsQrLoadPromise = null;
   if ('BarcodeDetector' in window) {
-    (async () => {
-      try {
-        const supported = await BarcodeDetector.getSupportedFormats();
-        const formats = QR_DESIRED_FORMATS.filter(f => supported.includes(f));
-        qrBarcodeDetector = new BarcodeDetector({ formats: formats.length ? formats : ['qr_code'] });
-      } catch { qrBarcodeDetector = null; }
-    })();
+    try { qrBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] }); } catch { qrBarcodeDetector = null; }
   }
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
+  function loadJsQR() {
+    if (window.jsQR) return Promise.resolve();
+    if (qrJsQrLoadPromise) return qrJsQrLoadPromise;
+    qrJsQrLoadPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = src;
+      script.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error('script load failed: ' + src));
+      script.onerror = () => { qrJsQrLoadPromise = null; reject(new Error('jsQR load failed')); };
       document.head.appendChild(script);
     });
-  }
-  function loadZXing() {
-    if (window.ZXingBrowser && window.ZXing) return Promise.resolve();
-    if (qrZXingLoadPromise) return qrZXingLoadPromise;
-    qrZXingLoadPromise = (async () => {
-      try {
-        await loadScript('https://cdn.jsdelivr.net/npm/@zxing/[email protected]/umd/index.min.js');
-        await loadScript('https://cdn.jsdelivr.net/npm/@zxing/[email protected]/umd/index.min.js');
-      } catch (error) {
-        qrZXingLoadPromise = null;
-        throw error;
-      }
-    })();
-    return qrZXingLoadPromise;
-  }
-  function getZXingReader() {
-    if (qrZXingReader) return qrZXingReader;
-    const hints = new Map();
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-      ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
-      ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.CODE_93,
-      ZXing.BarcodeFormat.CODABAR, ZXing.BarcodeFormat.ITF, ZXing.BarcodeFormat.UPC_A,
-      ZXing.BarcodeFormat.UPC_E, ZXing.BarcodeFormat.PDF_417, ZXing.BarcodeFormat.AZTEC,
-      ZXing.BarcodeFormat.DATA_MATRIX
-    ]);
-    qrZXingReader = new ZXingBrowser.BrowserMultiFormatReader(hints);
-    return qrZXingReader;
+    return qrJsQrLoadPromise;
   }
   function isLikelyUrl(text) {
     try { new URL(text); return true; } catch { return /^[\w-]+(\.[\w-]+)+(\/[^\s]*)?$/i.test(text); }
@@ -644,50 +611,33 @@ function initApp() {
     qrStatus.textContent = 'カメラを起動しています...';
     qrOverlay.style.display = 'flex';
     qrOverlay.classList.remove('hidden');
-    qrVideo.classList.remove('hidden');
-    if (qrBarcodeDetector) {
-      try {
-        qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
-      } catch (error) {
-        stopQrScan();
-        alert('カメラへのアクセスが許可されていないため、QR・バーコードを読み取れません。ブラウザの設定でカメラへのアクセスを許可してから、もう一度お試しください。');
+    if (!qrBarcodeDetector) {
+      try { await loadJsQR(); } catch {
+        qrStatus.textContent = 'QR読み取りライブラリの読み込みに失敗しました。通信環境をご確認ください。';
         return;
       }
-      const onReady = () => {
-        qrVideo.play().catch(() => {});
-        if (qrScanning) return;
-        qrScanning = true;
-        qrStatus.textContent = 'QRコード・バーコードにカメラを向けてください';
-        requestAnimationFrame(scanQrFrame);
-      };
-      qrVideo.addEventListener('loadedmetadata', onReady, { once: true });
-      qrVideo.srcObject = qrStream;
-      if (qrVideo.readyState >= 1) onReady();
-      return;
     }
+    qrVideo.classList.remove('hidden');
     try {
-      await loadZXing();
-    } catch {
-      qrStatus.textContent = '読み取りライブラリの読み込みに失敗しました。通信環境をご確認ください。';
-      return;
-    }
-    qrScanning = true;
-    qrStatus.textContent = 'QRコード・バーコードにカメラを向けてください';
-    try {
-      qrScanControls = await getZXingReader().decodeFromConstraints(
-        { video: { facingMode: { ideal: 'environment' } }, audio: false },
-        qrVideo,
-        (result) => { if (result) handleQrResult(result.getText()); }
-      );
+      qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
     } catch (error) {
-      qrScanning = false;
       stopQrScan();
-      alert('カメラへのアクセスが許可されていないため、QR・バーコードを読み取れません。ブラウザの設定でカメラへのアクセスを許可してから、もう一度お試しください。');
+      alert('カメラへのアクセスが許可されていないため、QRコードを読み取れません。ブラウザの設定でカメラへのアクセスを許可してから、もう一度お試しください。');
+      return;
     }
+    const onReady = () => {
+      qrVideo.play().catch(() => {});
+      if (qrScanning) return;
+      qrScanning = true;
+      qrStatus.textContent = 'QRコードにカメラを向けてください';
+      requestAnimationFrame(scanQrFrame);
+    };
+    qrVideo.addEventListener('loadedmetadata', onReady, { once: true });
+    qrVideo.srcObject = qrStream;
+    if (qrVideo.readyState >= 1) onReady();
   }
   function stopCamera() {
     qrScanning = false;
-    if (qrScanControls) { try { qrScanControls.stop(); } catch {} qrScanControls = null; }
     if (qrStream) { qrStream.getTracks().forEach(track => track.stop()); qrStream = null; }
     qrVideo.srcObject = null;
   }
@@ -698,12 +648,22 @@ function initApp() {
     qrOverlay.classList.add('hidden');
   }
   async function scanQrFrame() {
-    if (!qrScanning || !qrBarcodeDetector) return;
+    if (!qrScanning) return;
     if (qrVideo.readyState >= qrVideo.HAVE_CURRENT_DATA && qrVideo.videoWidth > 0) {
-      try {
-        const barcodes = await qrBarcodeDetector.detect(qrVideo);
-        if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) { handleQrResult(barcodes[0].rawValue); return; }
-      } catch { qrBarcodeDetector = null; return; }
+      if (qrBarcodeDetector) {
+        try {
+          const barcodes = await qrBarcodeDetector.detect(qrVideo);
+          if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) { handleQrResult(barcodes[0].rawValue); return; }
+        } catch { qrBarcodeDetector = null; }
+      } else if (window.jsQR) {
+        qrCanvas.width = qrVideo.videoWidth;
+        qrCanvas.height = qrVideo.videoHeight;
+        const ctx = qrCanvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
+        const imageData = ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+        if (code && code.data) { handleQrResult(code.data); return; }
+      }
     }
     if (qrScanning) requestAnimationFrame(scanQrFrame);
   }
