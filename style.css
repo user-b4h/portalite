@@ -191,6 +191,16 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 @media (hover: hover) { .qr-button:hover { color: var(--md-primary); } }
 @media (hover: none)  { .qr-button:active { color: var(--md-primary); } }
 
+.ai-button {
+  position: absolute; right: 2.9rem; top: 50%; transform: translateY(-50%);
+  color: var(--md-on-surface-variant);
+  cursor: pointer; font-size: 1.15rem; z-index: 20;
+  background: none; border: none;
+}
+#ai-ask-button-main { right: 4.9rem; }
+@media (hover: hover) { .ai-button:hover { color: var(--md-primary); } }
+@media (hover: none)  { .ai-button:active { color: var(--md-primary); } }
+
 .card {
   background: var(--md-surface-container-low);
   border-radius: var(--md-shape-xl);
