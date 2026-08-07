@@ -707,6 +707,12 @@ function initApp() {
   if (aiAskButtonSticky) aiAskButtonSticky.addEventListener('click', (e) => { e.stopPropagation(); openAiOverlay(); });
   aiCancelButton.addEventListener('click', closeAiOverlay);
   aiSubmitButton.addEventListener('click', submitAiQuestion);
+  aiTextarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      submitAiQuestion();
+    }
+  });
   aiOverlay.addEventListener('click', (e) => { if (e.target === aiOverlay) closeAiOverlay(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && aiOverlay.style.display === 'flex') closeAiOverlay(); });
 
