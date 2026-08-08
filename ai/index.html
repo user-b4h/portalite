@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portalite AI</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <h1>Portalite AI</h1>
+    <p>続行するには Google アカウントでログインしてください</p>
+    <div id="google-signin-button"></div>
+    <p id="login-error" class="login-error"></p>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Portalite AI</span>
+      <button id="new-chat-btn" class="new-chat-btn">＋ 新しいチャット</button>
+    </div>
+    <div id="history-list" class="history-list"></div>
+    <div class="sidebar-footer">
+      <span id="user-email"></span>
+      <button id="logout-btn">ログアウト</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="menu-btn" class="menu-btn">☰</button>
+      <span class="topbar-title">Portalite AI</span>
+    </header>
+    <div id="messages" class="messages"></div>
+    <form id="chat-form" class="chat-form">
+      <textarea id="chat-input" placeholder="メッセージを入力..." rows="1"></textarea>
+      <button type="submit" id="send-btn">送信</button>
+    </form>
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
