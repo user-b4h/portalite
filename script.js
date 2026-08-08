@@ -700,7 +700,7 @@ function initApp() {
   function submitAiQuestion() {
     const question = aiTextarea.value.trim();
     if (!question) return;
-    window.open(`https://duck.ai/chat?ia=chat&duckai=1&home=1&prompt=1&q=${encodeURIComponent(question)}`, '_blank');
+    window.open(`https://portalite.f5.si/ai/?q${encodeURIComponent(question)}`, '_blank');
     closeAiOverlay();
   }
   if (aiAskButtonMain) aiAskButtonMain.addEventListener('click', (e) => { e.stopPropagation(); openAiOverlay(); });
