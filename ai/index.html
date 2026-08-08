@@ -1,45 +1,69 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portalite AI</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Portalite AI | Geminiとチャット</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="style.css">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body>
+<body class="h-screen w-screen overflow-hidden text-base">
+
 <div id="login-screen" class="login-screen">
-  <div class="login-box">
-    <h1>Portalite AI</h1>
-    <p>続行するには Google アカウントでログインしてください</p>
-    <div id="google-signin-button"></div>
-    <p id="login-error" class="login-error"></p>
+  <div class="card login-box p-8">
+    <p class="md-display-small md-accent-text text-center mb-1">Portalite AI</p>
+    <p class="md-body-large md-on-surface-variant text-center mb-6">Geminiと会話できるチャットアプリ</p>
+    <p class="md-body-medium md-on-surface-variant text-center mb-4">続行するには許可されたGoogleアカウントでログインしてください</p>
+    <div id="google-signin-button" class="flex justify-center"></div>
+    <p id="login-error" class="md-error-text text-center text-sm mt-4"></p>
   </div>
 </div>
 
 <div id="app" class="app hidden">
   <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
   <aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-      <span class="sidebar-title">Portalite AI</span>
-      <button id="new-chat-btn" class="new-chat-btn">＋ 新しいチャット</button>
+    <div class="p-4 space-y-3">
+      <div class="flex items-center space-x-2 px-1">
+        <i class="fas fa-sparkles md-accent-text"></i>
+        <span class="md-title-medium">Portalite AI</span>
+      </div>
+      <button id="new-chat-btn" class="md-btn-filled w-full">
+        <i class="fas fa-plus mr-2"></i>新しいチャット
+      </button>
     </div>
-    <div id="history-list" class="history-list"></div>
+    <div id="history-list" class="history-list px-2"></div>
     <div class="sidebar-footer">
-      <span id="user-email"></span>
-      <button id="logout-btn">ログアウト</button>
+      <span id="user-email" class="md-body-medium md-on-surface-variant truncate"></span>
+      <button id="logout-btn" class="md-btn-outlined flex-shrink-0">
+        <i class="fas fa-right-from-bracket mr-1"></i>ログアウト
+      </button>
     </div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <button id="menu-btn" class="menu-btn">☰</button>
-      <span class="topbar-title">Portalite AI</span>
+      <button id="menu-btn" class="menu-btn" aria-label="メニュー">
+        <i class="fas fa-bars"></i>
+      </button>
+      <span class="md-title-medium">Portalite AI</span>
     </header>
+
     <div id="messages" class="messages"></div>
+
     <form id="chat-form" class="chat-form">
-      <textarea id="chat-input" placeholder="メッセージを入力..." rows="1"></textarea>
-      <button type="submit" id="send-btn">送信</button>
+      <div class="relative flex-grow min-w-0">
+        <textarea id="chat-input" placeholder="メッセージを入力..." rows="1" class="chat-textarea"></textarea>
+      </div>
+      <button type="submit" id="send-btn" class="send-btn" aria-label="送信">
+        <i class="fas fa-paper-plane"></i>
+      </button>
     </form>
   </main>
 </div>
