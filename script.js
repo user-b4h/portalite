@@ -675,47 +675,6 @@ function initApp() {
   qrOverlay.addEventListener('click', (e) => { if (e.target === qrOverlay) stopQrScan(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && qrOverlay.style.display === 'flex') stopQrScan(); });
 
-  const aiAskButtonMain = document.getElementById('ai-ask-button-main');
-  const aiAskButtonSticky = document.getElementById('ai-ask-button-sticky');
-  const aiOverlay = document.getElementById('ai-overlay');
-  const aiCancelButton = document.getElementById('ai-cancel-button');
-  const aiTextarea = document.getElementById('ai-textarea');
-  const aiSubmitButton = document.getElementById('ai-submit-button');
-  let lastScrollPositionAi = 0;
-  function openAiOverlay() {
-    lastScrollPositionAi = window.scrollY;
-    document.body.style.top = `-${lastScrollPositionAi}px`;
-    document.body.classList.add('no-scroll');
-    aiOverlay.style.display = 'flex';
-    aiOverlay.classList.remove('hidden');
-    aiTextarea.focus();
-  }
-  function closeAiOverlay() {
-    aiOverlay.style.display = 'none';
-    aiTextarea.value = '';
-    document.body.classList.remove('no-scroll');
-    document.body.style.top = '';
-    window.scrollTo(0, lastScrollPositionAi);
-  }
-  function submitAiQuestion() {
-    const question = aiTextarea.value.trim();
-    if (!question) return;
-    window.open(`https://ai.portalite.f5.si/?q=${encodeURIComponent(question)}`, '_blank');
-    closeAiOverlay();
-  }
-  if (aiAskButtonMain) aiAskButtonMain.addEventListener('click', (e) => { e.stopPropagation(); openAiOverlay(); });
-  if (aiAskButtonSticky) aiAskButtonSticky.addEventListener('click', (e) => { e.stopPropagation(); openAiOverlay(); });
-  aiCancelButton.addEventListener('click', closeAiOverlay);
-  aiSubmitButton.addEventListener('click', submitAiQuestion);
-  aiTextarea.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      submitAiQuestion();
-    }
-  });
-  aiOverlay.addEventListener('click', (e) => { if (e.target === aiOverlay) closeAiOverlay(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && aiOverlay.style.display === 'flex') closeAiOverlay(); });
-
   const kanjiButton = document.getElementById('kanji-check-button');
   const kanjiOverlay = document.getElementById('kanji-overlay');
   const kanjiCancelButton = document.getElementById('kanji-cancel-button');
