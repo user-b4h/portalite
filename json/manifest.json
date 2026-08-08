@@ -1,7 +1,7 @@
 {
   "name": "Portalite",
   "description": "Portaliteは、ウェブ検索、天気予報、最新ニュースを一つの画面で手軽に確認できる便利なポータルアプリです。シンプルで使いやすいデザインで、PCとスマホどちらでも快適にご利用いただけます。",
-  "start_url": "/",
+  "start_url": "/index.html",
   "lang": "ja",
   "theme_color": "#3aabd2",
   "display": "standalone",
