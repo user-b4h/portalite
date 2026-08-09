@@ -485,3 +485,19 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 .bottom-menu-item.active { color: var(--md-primary); }
 @media (hover: hover) { .bottom-menu-item:hover { color: var(--md-primary); } }
 @media (hover: none)  { .bottom-menu-item:active { color: var(--md-primary); } }
+
+@media (min-width: 768px) {
+  #bottom-menu-bar {
+    top: 0; left: 0; bottom: 0; width: 6rem; height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    box-shadow: 1px 0 3px 0 rgba(0,0,0,.10), 1px 0 2px 0 rgba(0,0,0,.06);
+    padding-bottom: 0;
+    padding-top: env(safe-area-inset-top, 0);
+  }
+  .bottom-menu-item {
+    flex: none;
+    padding: 1rem .5rem;
+  }
+}
