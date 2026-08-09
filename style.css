@@ -472,16 +472,16 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
   align-items: center;
   justify-content: center;
   gap: .15rem;
-  padding: .35rem .25rem .3rem;
+  padding: .4rem .25rem .25rem;
   background: none;
   border: none;
   color: var(--md-on-surface-variant);
-  font-size: .7rem;
+  font-size: .65rem;
   font-weight: 600;
   cursor: pointer;
   transition: color 150ms var(--md-motion-standard), background-color 150ms var(--md-motion-standard);
 }
-.bottom-menu-item i { font-size: 1.05rem; }
+.bottom-menu-item i { font-size: .95rem; }
 .bottom-menu-item.active { color: var(--md-primary); }
 @media (hover: hover) { .bottom-menu-item:hover { color: var(--md-primary); } }
 @media (hover: none)  { .bottom-menu-item:active { color: var(--md-primary); } }
