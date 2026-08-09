@@ -748,8 +748,8 @@ function initApp() {
       if (action === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
       else if (action === 'search') openMobileSearchOverlay();
       else if (action === 'kanji') openKanjiOverlay();
-      else if (action === 'qr') startQrScan();
-      else if (action === 'theme') openThemeOverlay();
+      else if (action === 'weather') weatherContainer.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else if (action === 'news') newsContainer.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 }
