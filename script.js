@@ -167,6 +167,8 @@ function initApp() {
     }, weatherContainer, '天気情報を取得中...', '天気情報の取得に失敗しました。', 2, 1500);
   }
 
+  const AIRCON_MODE_LABELS = { auto: '自動', blow: '送風', cool: '冷房', dry: '除湿', warm: '暖房' };
+
   async function fetchRoomTemp() {
     return fetchWithRetry(async () => {
       const r = await fetch(ROOM_TEMP_API_URL);
@@ -181,6 +183,18 @@ function initApp() {
         el.innerHTML = `<p class="md-title-medium">${device.name}</p><p class="text-3xl font-bold accent-text my-2">${device.temperature !== null ? device.temperature + '°C' : '--'}</p><p class="text-sm md-on-surface-variant">${timeLabel}</p>`;
         roomTempContainer.appendChild(el);
       });
+      if (Array.isArray(data.aircons)) {
+        data.aircons.forEach(aircon => {
+          const el = document.createElement('div');
+          el.className = 'md-tile';
+          const statusLabel = aircon.on ? 'オン' : 'オフ';
+          const modeLabel = aircon.on ? (AIRCON_MODE_LABELS[aircon.mode] ?? aircon.mode ?? '--') : '';
+          const tempLabel = aircon.on && aircon.temp !== null && aircon.temp !== '' ? `${aircon.temp}°C` : '';
+          const detailLabel = aircon.on ? [modeLabel, tempLabel].filter(Boolean).join(' / ') : '';
+          el.innerHTML = `<p class="md-title-medium">${aircon.name}</p><p class="text-3xl font-bold accent-text my-2">${statusLabel}</p><p class="text-sm md-on-surface-variant">${detailLabel}</p>`;
+          roomTempContainer.appendChild(el);
+        });
+      }
       return true;
     }, roomTempContainer, '室温情報を取得中...', '室温情報の取得に失敗しました。', 2, 1500);
   }
