@@ -740,6 +740,18 @@ function initApp() {
   const overlayForm = document.getElementById('search-form-overlay');
   if (mainForm) mainForm.addEventListener('submit', handleSearchSubmit);
   if (overlayForm) overlayForm.addEventListener('submit', handleSearchSubmit);
+
+  const bottomMenuItems = document.querySelectorAll('.bottom-menu-item');
+  bottomMenuItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const action = item.dataset.bottomAction;
+      if (action === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+      else if (action === 'search') openMobileSearchOverlay();
+      else if (action === 'kanji') openKanjiOverlay();
+      else if (action === 'qr') startQrScan();
+      else if (action === 'theme') openThemeOverlay();
+    });
+  });
 }
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
