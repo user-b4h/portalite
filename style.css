@@ -196,6 +196,7 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
   border-radius: var(--md-shape-xl);
   box-shadow: var(--md-elev-1);
   transition: background-color .3s var(--md-motion-standard);
+  scroll-margin-top: 96px;
 }
 
 .md-section-title {
