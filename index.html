@@ -17,7 +17,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="p-4 sm:p-8 flex flex-col items-center min-h-screen text-base sm:text-lg">
+<body class="p-4 sm:p-8 pb-24 flex flex-col items-center min-h-screen text-base sm:text-lg">
   <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center">
     <img src="icon/icon.svg" alt="Portalite Logo" class="w-32 h-32 mb-4">
     <p class="md-title-large">Portalite</p>
@@ -135,6 +135,29 @@
       <div><span id="copyright-text"></span></div>
     </footer>
   </main>
+
+  <nav id="bottom-menu-bar">
+    <button type="button" class="bottom-menu-item" data-bottom-action="home">
+      <i class="fas fa-house"></i>
+      <span>ホーム</span>
+    </button>
+    <button type="button" class="bottom-menu-item" data-bottom-action="search">
+      <i class="fas fa-search"></i>
+      <span>検索</span>
+    </button>
+    <button type="button" class="bottom-menu-item" data-bottom-action="kanji">
+      <i class="fas fa-spell-check"></i>
+      <span>漢字</span>
+    </button>
+    <button type="button" class="bottom-menu-item" data-bottom-action="qr">
+      <i class="fas fa-qrcode"></i>
+      <span>QR</span>
+    </button>
+    <button type="button" class="bottom-menu-item" data-bottom-action="theme">
+      <i class="fas fa-palette"></i>
+      <span>テーマ</span>
+    </button>
+  </nav>
 
   <div id="search-overlay" class="hidden">
     <div class="p-4 flex items-center space-x-2 md-outline-divider">
