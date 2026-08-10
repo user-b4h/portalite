@@ -134,18 +134,18 @@ function initApp() {
 
   async function fetchWeather() {
     return fetchWithRetry(async () => {
-      const sapporoCoords = { name: '札幌', lat: 43.0618, lon: 141.3545 };
-      let cityLabel = sapporoCoords.name;
-      let lat = sapporoCoords.lat;
-      let lon = sapporoCoords.lon;
+      const cityCoordsResponse = await fetch('json/city_coords.json');
+      const cityCoords = await cityCoordsResponse.json();
+      const sapporoEntry = cityCoords.find(([title]) => title === '札幌');
+      let cityLabel = sapporoEntry ? sapporoEntry[0] : '札幌';
+      let lat = sapporoEntry ? sapporoEntry[1] : 43.0618;
+      let lon = sapporoEntry ? sapporoEntry[2] : 141.3545;
       try {
         const position = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
         });
         const userLat = position.coords.latitude;
         const userLon = position.coords.longitude;
-        const cityCoordsResponse = await fetch('json/city_coords.json');
-        const cityCoords = await cityCoordsResponse.json();
         let closestCity = null;
         let minDistance = Infinity;
         const DISTANCE_THRESHOLD_KM = 200;
@@ -163,11 +163,12 @@ function initApp() {
         }
         if (closestCity && minDistance <= DISTANCE_THRESHOLD_KM) {
           cityLabel = closestCity.name;
-          lat = userLat;
-          lon = userLon;
+          lat = closestCity.lat;
+          lon = closestCity.lon;
         }
       } catch {
       }
+
       const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7`;
       const r = await fetch(weatherApiUrl);
       const data = await r.json();
@@ -181,7 +182,7 @@ function initApp() {
       const currentInfo = getWeatherInfo(current.weather_code, current.is_day === 1);
       const currentEl = document.createElement('div');
       currentEl.className = 'weather-current';
-      currentEl.innerHTML = `<i class="fas ${currentInfo.icon} weather-current-icon" style="color:${currentInfo.color}"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
+      currentEl.innerHTML = `<div class="weather-current-city">${cityLabel}</div><i class="fas ${currentInfo.icon} weather-current-icon" style="color:${currentInfo.color}"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
       weatherContainer.appendChild(currentEl);
 
       const now = new Date();
@@ -205,7 +206,7 @@ function initApp() {
       data.daily.time.forEach((dateStr, i) => {
         const dayDate = new Date(dateStr);
         const dayInfo = getWeatherInfo(data.daily.weather_code[i], true);
-        const dateLabel = i === 0 ? '今日' : `${dayDate.getMonth() + 1}月${dayDate.getDate()}日(${weekdays[dayDate.getDay()]})`;
+        const dateLabel = i === 0 ? '今日' : `${dayDate.getDate()}日（${weekdays[dayDate.getDay()]}）`;
         const row = document.createElement('div');
         row.className = 'weather-daily-item';
         row.innerHTML = `<span class="weather-daily-date">${dateLabel}</span><i class="fas ${dayInfo.icon} weather-daily-icon" style="color:${dayInfo.color}"></i><span class="weather-daily-label">${dayInfo.label}</span><span class="weather-daily-temps"><span class="md-tertiary-text">${Math.round(data.daily.temperature_2m_min[i])}°C</span> / <span class="md-error-text">${Math.round(data.daily.temperature_2m_max[i])}°C</span></span>`;
