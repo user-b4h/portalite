@@ -237,6 +237,7 @@ function initApp() {
         a.href = item.link;
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
+        a.referrerPolicy = 'no-referrer';
         a.className = 'news-item block transition-colors duration-300';
         const innerWrapper = document.createElement('div');
         innerWrapper.className = 'news-item-inner';
@@ -256,6 +257,7 @@ function initApp() {
             img.src = imageUrl;
             img.alt = item.title;
             img.className = 'news-ogp-image';
+            img.referrerPolicy = 'no-referrer';
             img.onerror = () => { if (ogpImageContainer.parentNode) ogpImageContainer.remove(); };
             ogpImageContainer.appendChild(img);
           } else {
