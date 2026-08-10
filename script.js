@@ -97,39 +97,39 @@ function initApp() {
   }
 
   const WMO_WEATHER = {
-    0: { label: '快晴', icon: 'fa-sun', night: 'fa-moon', color: '#f5a623', nightColor: '#6366f1' },
-    1: { label: '晴れ', icon: 'fa-sun', night: 'fa-moon', color: '#f5a623', nightColor: '#6366f1' },
-    2: { label: '一部曇り', icon: 'fa-cloud-sun', night: 'fa-cloud-moon', color: '#f2994a', nightColor: '#818cf8' },
-    3: { label: '曇り', icon: 'fa-cloud', night: 'fa-cloud', color: '#9098a8', nightColor: '#9098a8' },
-    45: { label: '霧', icon: 'fa-smog', night: 'fa-smog', color: '#b0b8c1', nightColor: '#b0b8c1' },
-    48: { label: '霧氷', icon: 'fa-smog', night: 'fa-smog', color: '#b0b8c1', nightColor: '#b0b8c1' },
-    51: { label: '弱い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#6fb1e0', nightColor: '#6fb1e0' },
-    53: { label: '霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#6fb1e0', nightColor: '#6fb1e0' },
-    55: { label: '強い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#6fb1e0', nightColor: '#6fb1e0' },
-    56: { label: '着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#6fb1e0', nightColor: '#6fb1e0' },
-    57: { label: '強い着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#6fb1e0', nightColor: '#6fb1e0' },
-    61: { label: '弱い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#3b82f6', nightColor: '#3b82f6' },
-    63: { label: '雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#3b82f6', nightColor: '#3b82f6' },
-    65: { label: '強い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#3b82f6', nightColor: '#3b82f6' },
-    66: { label: '着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#3b82f6', nightColor: '#3b82f6' },
-    67: { label: '強い着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#3b82f6', nightColor: '#3b82f6' },
-    71: { label: '弱い雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#5fd0e8', nightColor: '#5fd0e8' },
-    73: { label: '雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#5fd0e8', nightColor: '#5fd0e8' },
-    75: { label: '強い雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#5fd0e8', nightColor: '#5fd0e8' },
-    77: { label: '霧雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#5fd0e8', nightColor: '#5fd0e8' },
-    80: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#3b82f6', nightColor: '#3b82f6' },
-    81: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#3b82f6', nightColor: '#3b82f6' },
-    82: { label: '激しいにわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
-    85: { label: 'にわか雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#5fd0e8', nightColor: '#5fd0e8' },
-    86: { label: '激しいにわか雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#38bdf8', nightColor: '#38bdf8' },
-    95: { label: '雷雨', icon: 'fa-bolt', night: 'fa-bolt', color: '#a855f7', nightColor: '#a855f7' },
-    96: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt', color: '#9333ea', nightColor: '#9333ea' },
-    99: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt', color: '#9333ea', nightColor: '#9333ea' }
+    0: { label: '快晴', icon: 'fa-sun', night: 'fa-moon' },
+    1: { label: '晴れ', icon: 'fa-sun', night: 'fa-moon' },
+    2: { label: '一部曇り', icon: 'fa-cloud-sun', night: 'fa-cloud-moon' },
+    3: { label: '曇り', icon: 'fa-cloud', night: 'fa-cloud' },
+    45: { label: '霧', icon: 'fa-smog', night: 'fa-smog' },
+    48: { label: '霧氷', icon: 'fa-smog', night: 'fa-smog' },
+    51: { label: '弱い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    53: { label: '霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    55: { label: '強い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    56: { label: '着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    57: { label: '強い着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    61: { label: '弱い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    63: { label: '雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    65: { label: '強い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    66: { label: '着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    67: { label: '強い着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    71: { label: '弱い雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    73: { label: '雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    75: { label: '強い雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    77: { label: '霧雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    80: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    81: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    82: { label: '激しいにわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    85: { label: 'にわか雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    86: { label: '激しいにわか雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    95: { label: '雷雨', icon: 'fa-bolt', night: 'fa-bolt' },
+    96: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt' },
+    99: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt' }
   };
 
   function getWeatherInfo(code, isDay) {
-    const entry = WMO_WEATHER[code] || { label: '不明', icon: 'fa-question', night: 'fa-question', color: '#9098a8', nightColor: '#9098a8' };
-    return { label: entry.label, icon: isDay ? entry.icon : entry.night, color: isDay ? entry.color : entry.nightColor };
+    const entry = WMO_WEATHER[code] || { label: '不明', icon: 'fa-question', night: 'fa-question' };
+    return { label: entry.label, icon: isDay ? entry.icon : entry.night };
   }
 
   async function fetchWeather() {
