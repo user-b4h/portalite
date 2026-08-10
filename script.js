@@ -1,821 +1,572 @@
-function initApp() {
-  const weatherContainer = document.getElementById('weather-container');
-  const roomTempContainer = document.getElementById('room-temp-container');
-  const ROOM_TEMP_API_URL = 'https://temp.user-x45.workers.dev/';
-  const newsContainer = document.getElementById('news-container');
-  const mainInput = document.getElementById('search-input-main');
-  const mainSuggestions = document.getElementById('suggestions-container-main');
-  const mainClearButton = document.getElementById('clear-button-main');
-  const qrScanButtonMain = document.getElementById('qr-scan-button-main');
-  const overlay = document.getElementById('search-overlay');
-  const overlayInput = document.getElementById('search-input-overlay');
-  const cancelButton = document.getElementById('cancel-button');
-  const overlaySuggestions = document.getElementById('suggestions-container-overlay');
-  const overlayClearButton = document.getElementById('clear-button-overlay');
-  const stickySearchBar = document.getElementById('sticky-search-bar');
-  const stickyInput = document.getElementById('search-input-sticky');
-  const searchWrapper = document.getElementById('search-container-wrapper');
-  const newsRssUrl = 'https://feed.mdpr.jp/rss/export/mdpr-entertainment.xml';
-  const HISTORY_KEY = 'search-history';
-  const HISTORY_LIMIT = 20;
-  const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
-  const CORS_PROXY = 'https://cors-proxy.user-x45.workers.dev/?url=';
-  let trendsData = null;
-  let lastScrollPosition = 0;
-  const copyrightText = document.getElementById('copyright-text');
-  const currentYear = new Date().getFullYear();
-  copyrightText.textContent = `© 2025 - ${currentYear} Portalite`;
-  const THEME_KEY = 'portalite-theme';
-  const customizeButton = document.getElementById('customize-button');
-  const themeOverlay = document.getElementById('theme-overlay');
-  const themeCancelButton = document.getElementById('theme-cancel-button');
-  const themeSwatches = document.querySelectorAll('.theme-swatch');
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(THEME_KEY, theme);
-    themeSwatches.forEach(sw => sw.classList.toggle('selected', sw.dataset.theme === theme));
-  }
-  applyTheme(localStorage.getItem(THEME_KEY) || 'blue');
+@charset "UTF-8";
 
-  function showLoading(container, message = '読み込み中...') {
-    container.innerHTML = `<div class="flex flex-col items-center justify-center py-8"><div class="loading-spinner"></div><p class="mt-3 md-on-surface-variant">${message}</p></div>`;
-  }
+:root {
+  --md-hue: 228;
+  --md-tertiary-hue: 288;
+  --md-sat: 62%;
+  --md-neutral-sat: 10%;
 
-  function showError(container, message, retryCallback) {
-    container.innerHTML = `<div class="flex flex-col items-center justify-center py-8 md-error-text"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p class="text-center">${message}</p><button class="retry-button mt-3">再試行</button></div>`;
-    const retryBtn = container.querySelector('.retry-button');
-    if (retryBtn && retryCallback) retryBtn.addEventListener('click', retryCallback);
-  }
+  --md-primary: hsl(var(--md-hue) var(--md-sat) 42%);
+  --md-on-primary: hsl(var(--md-hue) var(--md-sat) 100%);
+  --md-primary-container: hsl(var(--md-hue) var(--md-sat) 91%);
+  --md-on-primary-container: hsl(var(--md-hue) var(--md-sat) 15%);
 
-  async function fetchWithRetry(fn, container, loadingMsg, errorMsg, maxRetries = 2, retryDelay = 1000) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        showLoading(container, loadingMsg);
-        const result = await fn();
-        if (result === false) throw new Error('fetch failed');
-        return true;
-      } catch (error) {
-        if (attempt === maxRetries) {
-          showError(container, errorMsg, () => fetchWithRetry(fn, container, loadingMsg, errorMsg, maxRetries, retryDelay));
-          return false;
-        }
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-      }
-    }
-    return false;
-  }
+  --md-secondary-container: hsl(var(--md-hue) 24% 90%);
+  --md-on-secondary-container: hsl(var(--md-hue) 18% 22%);
 
-  async function fetchOgpImageWithRetry(url, maxRetries = 2, retryDelay = 800) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const res = await fetch('https://ogp-scanner.kunon.jp/v2/ogp_info', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url })
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error('OGP fetch failed');
-        const ogImage = data.result?.ogp?.['og:image']?.[0];
-        const twitterImage = data.result?.twitter?.['twitter:image']?.[0];
-        const imageUrl = ogImage || twitterImage || null;
-        if (imageUrl) {
-          await new Promise((resolve, reject) => {
-            const testImg = new Image();
-            testImg.onload = () => resolve();
-            testImg.onerror = () => reject(new Error('Image load failed'));
-            testImg.src = imageUrl;
-          });
-          return imageUrl;
-        }
-        throw new Error('No image found');
-      } catch (error) {
-        if (attempt === maxRetries) return null;
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-      }
-    }
-    return null;
-  }
+  --md-tertiary: hsl(var(--md-tertiary-hue) 32% 45%);
+  --md-tertiary-container: hsl(var(--md-tertiary-hue) 40% 91%);
+  --md-on-tertiary-container: hsl(var(--md-tertiary-hue) 30% 18%);
 
-  const WMO_WEATHER = {
-    0: { label: '快晴', icon: 'fa-sun', night: 'fa-moon' },
-    1: { label: '晴れ', icon: 'fa-sun', night: 'fa-moon' },
-    2: { label: '一部曇り', icon: 'fa-cloud-sun', night: 'fa-cloud-moon' },
-    3: { label: '曇り', icon: 'fa-cloud', night: 'fa-cloud' },
-    45: { label: '霧', icon: 'fa-smog', night: 'fa-smog' },
-    48: { label: '霧氷', icon: 'fa-smog', night: 'fa-smog' },
-    51: { label: '弱い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    53: { label: '霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    55: { label: '強い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    56: { label: '着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    57: { label: '強い着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    61: { label: '弱い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    63: { label: '雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    65: { label: '強い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    66: { label: '着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    67: { label: '強い着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    71: { label: '弱い雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    73: { label: '雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    75: { label: '強い雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    77: { label: '霧雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    80: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    81: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    82: { label: '激しいにわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    85: { label: 'にわか雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    86: { label: '激しいにわか雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    95: { label: '雷雨', icon: 'fa-bolt', night: 'fa-bolt' },
-    96: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt' },
-    99: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt' }
-  };
+  --md-error: hsl(5 74% 42%);
+  --md-on-error: hsl(5 74% 100%);
+  --md-error-container: hsl(5 90% 92%);
+  --md-on-error-container: hsl(5 74% 20%);
 
-  function getWeatherInfo(code, isDay) {
-    const entry = WMO_WEATHER[code] || { label: '不明', icon: 'fa-question', night: 'fa-question' };
-    return { label: entry.label, icon: isDay ? entry.icon : entry.night };
-  }
+  --md-surface: hsl(var(--md-hue) var(--md-neutral-sat) 99%);
+  --md-surface-dim: hsl(var(--md-hue) var(--md-neutral-sat) 89%);
+  --md-surface-container-lowest: hsl(var(--md-hue) var(--md-neutral-sat) 100%);
+  --md-surface-container-low: hsl(var(--md-hue) var(--md-neutral-sat) 97%);
+  --md-surface-container: hsl(var(--md-hue) var(--md-neutral-sat) 95%);
+  --md-surface-container-high: hsl(var(--md-hue) var(--md-neutral-sat) 92%);
+  --md-surface-container-highest: hsl(var(--md-hue) var(--md-neutral-sat) 89%);
 
-  async function fetchWeather() {
-    return fetchWithRetry(async () => {
-      const sapporoCoords = { name: '札幌', lat: 43.0618, lon: 141.3545 };
-      let cityLabel = sapporoCoords.name;
-      let lat = sapporoCoords.lat;
-      let lon = sapporoCoords.lon;
-      try {
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
-        });
-        const userLat = position.coords.latitude;
-        const userLon = position.coords.longitude;
-        const cityCoordsResponse = await fetch('json/city_coords.json');
-        const cityCoords = await cityCoordsResponse.json();
-        let closestCity = null;
-        let minDistance = Infinity;
-        const DISTANCE_THRESHOLD_KM = 200;
-        function haversineDistance(lat1, lon1, lat2, lon2) {
-          const R = 6371;
-          const dLat = (lat2 - lat1) * Math.PI / 180;
-          const dLon = (lon2 - lon1) * Math.PI / 180;
-          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-          return R * c;
-        }
-        for (const cityId in cityCoords) {
-          const city = cityCoords[cityId];
-          const distance = haversineDistance(userLat, userLon, city.lat, city.lon);
-          if (distance < minDistance) { minDistance = distance; closestCity = { name: city.title, lat: city.lat, lon: city.lon }; }
-        }
-        if (closestCity && minDistance <= DISTANCE_THRESHOLD_KM) {
-          cityLabel = closestCity.name;
-          lat = userLat;
-          lon = userLon;
-        }
-      } catch {
-      }
-      const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7`;
-      const r = await fetch(weatherApiUrl);
-      const data = await r.json();
-      weatherContainer.className = 'space-y-5';
-      weatherContainer.innerHTML = '';
-      document.querySelector('#weather-container').previousElementSibling.textContent = `${cityLabel}の天気`;
+  --md-on-surface: hsl(var(--md-hue) calc(var(--md-neutral-sat) + 8%) 12%);
+  --md-on-surface-variant: hsl(var(--md-hue) 8% 36%);
+  --md-outline: hsl(var(--md-hue) 8% 47%);
+  --md-outline-variant: hsl(var(--md-hue) 12% 84%);
 
-      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  --md-scrim: hsl(0 0% 0%);
+  --md-shadow: hsl(var(--md-hue) 30% 10%);
 
-      const current = data.current;
-      const currentInfo = getWeatherInfo(current.weather_code, current.is_day === 1);
-      const currentEl = document.createElement('div');
-      currentEl.className = 'weather-current';
-      currentEl.innerHTML = `<i class="fas ${currentInfo.icon} weather-current-icon"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
-      weatherContainer.appendChild(currentEl);
+  --md-shape-xs: 4px;
+  --md-shape-sm: 8px;
+  --md-shape-md: 12px;
+  --md-shape-lg: 16px;
+  --md-shape-xl: 28px;
+  --md-shape-full: 999px;
 
-      const now = new Date();
-      const hourlyStartIndex = data.hourly.time.findIndex(t => new Date(t) >= now);
-      const startIdx = hourlyStartIndex === -1 ? 0 : hourlyStartIndex;
-      const hourlyEl = document.createElement('div');
-      hourlyEl.className = 'weather-hourly-scroll';
-      for (let i = startIdx; i < startIdx + 24 && i < data.hourly.time.length; i++) {
-        const hourDate = new Date(data.hourly.time[i]);
-        const hourInfo = getWeatherInfo(data.hourly.weather_code[i], hourDate.getHours() >= 6 && hourDate.getHours() < 18);
-        const hourLabel = i === startIdx ? '現在' : `${hourDate.getHours()}時`;
-        const card = document.createElement('div');
-        card.className = 'weather-hourly-item';
-        card.innerHTML = `<p class="weather-hourly-time">${hourLabel}</p><i class="fas ${hourInfo.icon} weather-hourly-icon"></i><p class="weather-hourly-temp">${Math.round(data.hourly.temperature_2m[i])}°C</p>`;
-        hourlyEl.appendChild(card);
-      }
-      weatherContainer.appendChild(hourlyEl);
+  --md-elev-1: 0 1px 2px 0 rgba(0,0,0,.12), 0 1px 3px 1px rgba(0,0,0,.08);
+  --md-elev-2: 0 1px 2px 0 rgba(0,0,0,.14), 0 2px 6px 2px rgba(0,0,0,.10);
+  --md-elev-3: 0 1px 3px 0 rgba(0,0,0,.16), 0 4px 8px 3px rgba(0,0,0,.10);
 
-      const dailyEl = document.createElement('div');
-      dailyEl.className = 'weather-daily-list';
-      data.daily.time.forEach((dateStr, i) => {
-        const dayDate = new Date(dateStr);
-        const dayInfo = getWeatherInfo(data.daily.weather_code[i], true);
-        const dateLabel = i === 0 ? '今日' : `${dayDate.getMonth() + 1}月${dayDate.getDate()}日(${weekdays[dayDate.getDay()]})`;
-        const row = document.createElement('div');
-        row.className = 'weather-daily-item';
-        row.innerHTML = `<span class="weather-daily-date">${dateLabel}</span><i class="fas ${dayInfo.icon} weather-daily-icon"></i><span class="weather-daily-label">${dayInfo.label}</span><span class="weather-daily-temps"><span class="md-tertiary-text">${Math.round(data.daily.temperature_2m_min[i])}°C</span> / <span class="md-error-text">${Math.round(data.daily.temperature_2m_max[i])}°C</span></span>`;
-        dailyEl.appendChild(row);
-      });
-      weatherContainer.appendChild(dailyEl);
-
-      return true;
-    }, weatherContainer, '天気情報を取得中...', '天気情報の取得に失敗しました。', 2, 1500);
-  }
-
-  const AIRCON_MODE_LABELS = { auto: '自動', blow: '送風', cool: '冷房', dry: '除湿', warm: '暖房' };
-
-  async function fetchRoomTemp() {
-    return fetchWithRetry(async () => {
-      const r = await fetch(ROOM_TEMP_API_URL);
-      const data = await r.json();
-      if (!data.success || !data.devices || data.devices.length === 0) throw new Error('room temp fetch failed');
-      roomTempContainer.innerHTML = '';
-      data.devices.forEach(device => {
-        const updated = device.updated_at ? new Date(device.updated_at) : null;
-        const timeLabel = updated ? `${String(updated.getHours()).padStart(2, '0')}:${String(updated.getMinutes()).padStart(2, '0')}時点` : '';
-        const el = document.createElement('div');
-        el.className = 'md-tile';
-        el.innerHTML = `<p class="md-title-medium">${device.name}</p><p class="text-3xl font-bold accent-text my-2">${device.temperature !== null ? device.temperature + '°C' : '--'}</p><p class="text-sm md-on-surface-variant">${timeLabel}</p>`;
-        roomTempContainer.appendChild(el);
-      });
-      if (Array.isArray(data.aircons)) {
-        data.aircons.forEach(aircon => {
-          const el = document.createElement('div');
-          el.className = 'md-tile';
-          const statusLabel = aircon.on ? 'オン' : 'オフ';
-          const modeLabel = aircon.on ? (AIRCON_MODE_LABELS[aircon.mode] ?? aircon.mode ?? '--') : '';
-          const tempLabel = aircon.on && aircon.temp !== null && aircon.temp !== '' ? `${aircon.temp}°C` : '';
-          const detailLabel = aircon.on ? [modeLabel, tempLabel].filter(Boolean).join(' / ') : '';
-          el.innerHTML = `<p class="md-title-medium">${aircon.name}</p><p class="text-3xl font-bold accent-text my-2">${statusLabel}</p><p class="text-sm md-on-surface-variant">${detailLabel}</p>`;
-          roomTempContainer.appendChild(el);
-        });
-      }
-      return true;
-    }, roomTempContainer, '室温情報を取得中...', '室温情報の取得に失敗しました。', 2, 1500);
-  }
-
-  async function fetchNews() {
-    return fetchWithRetry(async () => {
-      const r = await fetch(`${CORS_PROXY}${encodeURIComponent(newsRssUrl)}`);
-      const txt = await r.text();
-      const xml = new DOMParser().parseFromString(txt, 'text/xml');
-      let items = Array.from(xml.querySelectorAll('item')).map(item => {
-        let title = item.querySelector('title')?.textContent;
-        const link = item.querySelector('link')?.textContent;
-        const pubDate = item.querySelector('pubDate')?.textContent;
-        let source = item.querySelector('source')?.textContent;
-        let description = item.querySelector('description')?.textContent || '';
-        if (title) {
-          const lastParenMatch = title.match(/\(([^()]+)\)$/);
-          if (lastParenMatch) { source = lastParenMatch[1]; title = title.substring(0, lastParenMatch.index).trim(); }
-        }
-        if (title && source) { const suffix = ` - ${source}`; if (title.endsWith(suffix)) title = title.substring(0, title.length - suffix.length); }
-        description = description.replace(/^【[^】]*＝\d{4}\/\d{1,2}\/\d{1,2}】/, '').trim();
-        return { title, link, pubDate, source, description };
-      }).filter(item => item.title && item.link && item.pubDate);
-      items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-      items = items.slice(0, 20);
-      newsContainer.innerHTML = '';
-      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-      for (const item of items) {
-        let formattedDate = '';
-        if (item.pubDate) {
-          const d = new Date(item.pubDate);
-          const month = d.getMonth() + 1;
-          const day = d.getDate();
-          const weekday = weekdays[d.getDay()];
-          const hours = String(d.getHours()).padStart(2, '0');
-          const minutes = String(d.getMinutes()).padStart(2, '0');
-          formattedDate = `${month}月${day}日(${weekday}) ${hours}:${minutes}`;
-        }
-        const a = document.createElement('a');
-        a.href = item.link;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.referrerPolicy = 'no-referrer';
-        a.className = 'news-item block transition-colors duration-300';
-        const innerWrapper = document.createElement('div');
-        innerWrapper.className = 'news-item-inner';
-        const ogpImageContainer = document.createElement('div');
-        ogpImageContainer.className = 'news-ogp-image-container';
-        innerWrapper.appendChild(ogpImageContainer);
-        const textContent = document.createElement('div');
-        textContent.className = 'news-text-content';
-        textContent.innerHTML = `<p class="md-title-medium">${item.title}</p><p class="text-base md-on-surface-variant mt-1 line-clamp-3">${item.description}</p><p class="text-sm md-on-surface-variant mt-1">${formattedDate}</p>`;
-        innerWrapper.appendChild(textContent);
-        a.appendChild(innerWrapper);
-        newsContainer.appendChild(a);
-        (async () => {
-          const imageUrl = await fetchOgpImageWithRetry(item.link, 2, 800);
-          if (imageUrl) {
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.alt = item.title;
-            img.className = 'news-ogp-image';
-            img.referrerPolicy = 'no-referrer';
-            img.onerror = () => { if (ogpImageContainer.parentNode) ogpImageContainer.remove(); };
-            ogpImageContainer.appendChild(img);
-          } else {
-            if (ogpImageContainer.parentNode) ogpImageContainer.remove();
-          }
-        })();
-      }
-      return true;
-    }, newsContainer, 'ニュースを取得中...', 'ニュースの取得に失敗しました。', 2, 1500);
-  }
-
-  async function fetchAnniversaries() {
-    return fetchWithRetry(async () => {
-      const response = await fetch('json/anniversary.json');
-      const data = await response.json();
-      const today = new Date();
-      const month = today.getMonth() + 1;
-      const day = today.getDate();
-      const monthKey = `${month}月`;
-      const dayKey = `${day}日`;
-      const anniversaryContainer = document.getElementById('anniversary-container');
-      anniversaryContainer.innerHTML = '';
-      if (data[monthKey] && data[monthKey][dayKey]) {
-        const anniversaries = data[monthKey][dayKey];
-        const ul = document.createElement('ul');
-        ul.className = 'list-disc list-inside';
-        anniversaries.forEach(anniversary => { const li = document.createElement('li'); li.textContent = anniversary; ul.appendChild(li); });
-        anniversaryContainer.appendChild(ul);
-      } else {
-        anniversaryContainer.innerHTML = '<div class="text-center">今日は特別な記念日はありません。</div>';
-      }
-      return true;
-    }, document.getElementById('anniversary-container'), '記念日情報を取得中...', '記念日情報の取得に失敗しました。', 2, 1000);
-  }
-
-  function jsonp(url, params = {}, timeout = 5000) {
-    return new Promise((resolve, reject) => {
-      const callbackName = 'jsonp_cb_' + Date.now();
-      params.callback = callbackName;
-      const query = Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
-      const fullUrl = url + (url.includes('?') ? '&' : '?') + query;
-      const script = document.createElement('script');
-      script.src = fullUrl;
-      let timer = setTimeout(() => { cleanup(); reject(new Error('JSONP timeout')); }, timeout);
-      function cleanup() {
-        clearTimeout(timer);
-        try { delete window[callbackName]; } catch { window[callbackName] = undefined; }
-        if (script.parentNode) script.parentNode.removeChild(script);
-      }
-      window[callbackName] = (data) => { cleanup(); resolve(data); };
-      script.onerror = () => { cleanup(); reject(new Error('JSONP script error')); };
-      document.body.appendChild(script);
-    });
-  }
-
-  async function fetchGoogleSuggestionsJSONP(query) {
-    if (!query) return [];
-    const url = 'https://suggestqueries.google.com/complete/search';
-    try {
-      const data = await jsonp(url, { client: 'firefox', hl: 'ja', q: query }, 4000);
-      if (Array.isArray(data) && Array.isArray(data[1])) return data[1].map(item => typeof item === 'string' ? item : (Array.isArray(item) ? item[0] : String(item)));
-      return [];
-    } catch { return []; }
-  }
-
-  async function fetchTrendsData() {
-    try {
-      const response = await fetch(`${CORS_PROXY}${encodeURIComponent(TRENDS_URL)}`);
-      if (!response.ok) throw new Error('Network response was not ok');
-      const text = await response.text();
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(text, 'text/xml');
-      trendsData = Array.from(xmlDoc.querySelectorAll('item')).slice(0, 10).map(item => ({ title: item.querySelector('title')?.textContent, link: item.querySelector('link')?.textContent }));
-      updateTrendsDisplay(overlaySuggestions);
-      updateTrendsDisplay(mainSuggestions);
-    } catch (error) { trendsData = null; }
-  }
-
-  function updateTrendsDisplay(container) {
-    let trendsEl = container.querySelector('#trends-container');
-    if (trendsEl && trendsData) renderTrends(trendsData.slice(0, 10), trendsEl);
-  }
-
-  function renderTrends(items, trendsEl) {
-    trendsEl.innerHTML = '<p class="text-sm md-on-surface-variant mb-2 pl-2">現在のトレンド</p>';
-    items.forEach((item, index) => {
-      if (item.title && item.link) {
-        const trendItem = document.createElement('div');
-        trendItem.className = `p-2 cursor-pointer md-state-hover md-suggestion-item transition-colors duration-150 flex items-center`;
-        if (index < items.length - 1) trendItem.classList.add('md-outline-divider');
-        trendItem.innerHTML = `<i class="fas fa-chart-line md-on-surface-variant mr-2"></i><span>${item.title}</span>`;
-        trendItem.addEventListener('click', () => { doSearch(item.title); });
-        trendsEl.appendChild(trendItem);
-      }
-    });
-  }
-
-  function renderSuggestions(list, container, isHistory = false, query = '', calcResult = null) {
-    container.innerHTML = '';
-    if (calcResult !== null) {
-      const calcItem = document.createElement('div');
-      calcItem.className = 'p-2 cursor-pointer md-state-hover md-suggestion-item transition-colors duration-150 flex items-center font-semibold';
-      calcItem.innerHTML = `<i class="fas fa-equals md-on-surface-variant mr-2"></i><span>= ${calcResult}</span>`;
-      calcItem.addEventListener('click', () => {
-        if (container === overlaySuggestions) { overlayInput.value = String(calcResult); toggleClearButton(overlayInput.value, overlayClearButton); }
-        else { mainInput.value = String(calcResult); toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
-        doSearch(String(calcResult));
-      });
-      container.appendChild(calcItem);
-    }
-    const filteredList = calcResult !== null ? list.filter(s => s.trim() !== `= ${calcResult}`) : list;
-    if (filteredList && filteredList.length > 0) {
-      filteredList.forEach((s, index) => {
-        const item = document.createElement('div');
-        if (isHistory) {
-          item.className = `p-2 cursor-pointer md-state-hover md-suggestion-item transition-colors duration-150 flex items-center justify-between group`;
-          item.addEventListener('click', () => {
-            if (container === overlaySuggestions) { overlayInput.value = s; toggleClearButton(overlayInput.value, overlayClearButton); }
-            else { mainInput.value = s; toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
-            doSearch(s);
-          });
-          const searchIcon = document.createElement('div');
-          searchIcon.className = 'flex items-center flex-grow';
-          searchIcon.innerHTML = `<i class="fas fa-history md-on-surface-variant mr-2"></i><span>${s}</span>`;
-          item.appendChild(searchIcon);
-          const deleteButton = document.createElement('i');
-          deleteButton.className = 'fas fa-times history-delete-button';
-          deleteButton.addEventListener('click', (e) => { e.stopPropagation(); deleteSearchHistory(s); renderSearchHistory(container); });
-          item.appendChild(deleteButton);
-        } else {
-          item.className = `p-2 cursor-pointer md-state-hover md-suggestion-item transition-colors duration-150 flex items-center`;
-          item.innerHTML = `<i class="fas fa-search md-on-surface-variant mr-2"></i><span>${s}</span>`;
-          item.addEventListener('click', () => {
-            if (container === overlaySuggestions) { overlayInput.value = s; toggleClearButton(overlayInput.value, overlayClearButton); }
-            else { mainInput.value = s; toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); }
-            doSearch(s);
-          });
-        }
-        if (index < filteredList.length - 1) item.classList.add('md-outline-divider');
-        container.appendChild(item);
-      });
-    }
-    if (isHistory && filteredList.length > 0) {
-      const clearButtonWrapper = document.createElement('div');
-      clearButtonWrapper.className = 'mt-2 px-2';
-      const clearButton = document.createElement('button');
-      clearButton.id = 'clear-all-history-button';
-      clearButton.className = 'w-full p-2 text-sm text-center rounded-full transition-colors';
-      clearButton.textContent = '検索履歴をすべて消去';
-      clearButton.addEventListener('click', clearAllSearchHistory);
-      clearButtonWrapper.appendChild(clearButton);
-      container.appendChild(clearButtonWrapper);
-    }
-    if (query === '') {
-      const trendsEl = document.createElement('div');
-      trendsEl.id = 'trends-container';
-      trendsEl.className = 'pt-2';
-      container.appendChild(trendsEl);
-      if (trendsData) renderTrends(trendsData.slice(0, 10), trendsEl);
-      else trendsEl.innerHTML = '<p class="text-sm md-on-surface-variant mb-2 pl-2">現在のトレンドを取得中...</p>';
-    }
-    container.classList.remove('hidden');
-    container.classList.add('no-pointer-events');
-    setTimeout(() => { container.classList.remove('no-pointer-events'); }, 100);
-  }
-
-  function getSearchHistory() {
-    try { const history = localStorage.getItem(HISTORY_KEY); return history ? JSON.parse(history) : []; } catch { return []; }
-  }
-  function saveSearchHistory(query) {
-    if (!query) return;
-    let history = getSearchHistory();
-    history = history.filter(item => item !== query);
-    history.unshift(query);
-    if (history.length > HISTORY_LIMIT) history = history.slice(0, HISTORY_LIMIT);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  }
-  function deleteSearchHistory(queryToDelete) {
-    let history = getSearchHistory();
-    history = history.filter(item => item !== queryToDelete);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  }
-  function clearAllSearchHistory() {
-    if (window.confirm("検索履歴をすべて消去してよろしいですか？")) {
-      localStorage.removeItem(HISTORY_KEY);
-      renderSearchHistory(mainSuggestions);
-      renderSearchHistory(overlaySuggestions);
-      mainSuggestions.classList.add('hidden');
-      overlaySuggestions.classList.add('hidden');
-    }
-  }
-  function renderSearchHistory(container) {
-    const history = getSearchHistory();
-    const inputElement = (container === mainSuggestions) ? mainInput : overlayInput;
-    renderSuggestions(history, container, true, inputElement.value.trim());
-  }
-  function doSearch(q) {
-    if (!q) return;
-    saveSearchHistory(q);
-    window.open(`https://search.yahoo.co.jp/search?p=${encodeURIComponent(q)}`, '_blank');
-    closeOverlay();
-    mainSuggestions.classList.add('hidden');
-  }
-  function debounce(fn, wait = 200) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); }; }
-  function evaluateCalculation(query) {
-    let sanitized = query.trim().replace(/=+$/, '').trim();
-    sanitized = sanitized.replace(/×/g, '*').replace(/÷/g, '/').replace(/,/g, '');
-    if (!sanitized) return null;
-    if (!/^[0-9+\-*/().\s]+$/.test(sanitized)) return null;
-    if (!/[+\-*/]/.test(sanitized.replace(/^-/, ''))) return null;
-    if (/[+\-*/.]{2,}|[+\-*/.]$/.test(sanitized)) return null;
-    try {
-      const result = Function(`"use strict";return (${sanitized})`)();
-      if (typeof result !== 'number' || !isFinite(result)) return null;
-      return Number.isInteger(result) ? result : Math.round(result * 1e6) / 1e6;
-    } catch { return null; }
-  }
-  const onInput = debounce(async (evt, container) => {
-    const q = evt.target.value.trim();
-    if (!q) { renderSearchHistory(container); return; }
-    const calcResult = evaluateCalculation(q);
-    const suggestions = await fetchGoogleSuggestionsJSONP(q);
-    renderSuggestions(suggestions, container, false, q, calcResult);
-  }, 180);
-  function toggleClearButton(query, clearButton, qrButton) {
-    if (query.length > 0) {
-      clearButton.classList.remove('hidden');
-      if (qrButton) qrButton.classList.add('hidden');
-    } else {
-      clearButton.classList.add('hidden');
-      if (qrButton) qrButton.classList.remove('hidden');
-    }
-  }
-  function openMobileSearchOverlay(query = '') {
-    lastScrollPosition = window.scrollY;
-    document.body.style.top = `-${lastScrollPosition}px`;
-    document.body.classList.add('no-scroll');
-    overlay.style.display = 'flex';
-    overlay.classList.remove('hidden');
-    overlayInput.value = query;
-    if (query) onInput({ target: { value: query } }, overlaySuggestions);
-    else renderSearchHistory(overlaySuggestions);
-    toggleClearButton(overlayInput.value, overlayClearButton);
-    overlayInput.focus();
-  }
-  mainInput.addEventListener('focus', () => {
-    if (window.innerWidth <= 768) openMobileSearchOverlay(mainInput.value);
-    else { if (mainInput.value.trim() === '') renderSearchHistory(mainSuggestions); }
-    toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain);
-  });
-  mainInput.addEventListener('blur', () => { if (window.innerWidth > 768) { mainSuggestions.classList.add('hidden'); toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); } });
-  mainInput.addEventListener('input', (e) => { onInput(e, mainSuggestions); toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); });
-  mainSuggestions.addEventListener('mousedown', (e) => { e.preventDefault(); });
-  mainClearButton.addEventListener('click', () => {
-    mainInput.value = '';
-    if (window.innerWidth > 768) { mainInput.focus(); mainSuggestions.classList.add('hidden'); }
-    toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain);
-    renderSearchHistory(mainSuggestions);
-  });
-  overlayInput.addEventListener('focus', () => { if (overlayInput.value.trim() === '') renderSearchHistory(overlaySuggestions); toggleClearButton(overlayInput.value, overlayClearButton); });
-  overlayInput.addEventListener('input', (e) => { onInput(e, overlaySuggestions); toggleClearButton(overlayInput.value, overlayClearButton); });
-  overlaySuggestions.addEventListener('mousedown', (e) => { e.preventDefault(); });
-  cancelButton.addEventListener('click', closeOverlay);
-  overlayClearButton.addEventListener('click', () => { overlayInput.value = ''; overlayInput.focus(); renderSearchHistory(overlaySuggestions); overlayClearButton.classList.add('hidden'); });
-  function closeOverlay() {
-    overlay.style.display = 'none';
-    mainInput.value = '';
-    mainSuggestions.innerHTML = '';
-    mainClearButton.classList.add('hidden');
-    document.body.classList.remove('no-scroll');
-    document.body.style.top = '';
-    window.scrollTo(0, lastScrollPosition);
-  }
-  window.addEventListener('resize', () => { toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain); toggleClearButton(overlayInput.value, overlayClearButton); });
-  toggleClearButton(mainInput.value, mainClearButton, qrScanButtonMain);
-
-  const searchWrapperObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting && entry.boundingClientRect.top < 0) stickySearchBar.classList.add('visible');
-      else stickySearchBar.classList.remove('visible');
-    });
-  }, { threshold: 0 });
-  searchWrapperObserver.observe(searchWrapper);
-  stickyInput.addEventListener('click', () => { openMobileSearchOverlay(mainInput.value); });
-
-  fetchAnniversaries();
-  fetchRoomTemp();
-  fetchWeather();
-  fetchNews();
-  fetchTrendsData().then(() => {
-    if (!mainSuggestions.classList.contains('hidden')) renderSearchHistory(mainSuggestions);
-    if (!overlaySuggestions.classList.contains('hidden')) renderSearchHistory(overlaySuggestions);
-  });
-
-  const qrScanButtonSticky = document.getElementById('qr-scan-button-sticky');
-  const qrOverlay = document.getElementById('qr-overlay');
-  const qrCancelButton = document.getElementById('qr-cancel-button');
-  const qrScanSection = document.getElementById('qr-scan-section');
-  const qrResultSection = document.getElementById('qr-result-section');
-  const qrResultText = document.getElementById('qr-result-text');
-  const qrResultCancel = document.getElementById('qr-result-cancel');
-  const qrResultOpen = document.getElementById('qr-result-open');
-  const qrVideo = document.getElementById('qr-video');
-  const qrCanvas = document.getElementById('qr-canvas');
-  const qrStatus = document.getElementById('qr-status');
-  let qrStream = null;
-  let qrScanning = false;
-  let qrPendingValue = null;
-  let qrBarcodeDetector = null;
-  let qrJsQrLoadPromise = null;
-  if ('BarcodeDetector' in window) {
-    try { qrBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] }); } catch { qrBarcodeDetector = null; }
-  }
-  function loadJsQR() {
-    if (window.jsQR) return Promise.resolve();
-    if (qrJsQrLoadPromise) return qrJsQrLoadPromise;
-    qrJsQrLoadPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
-      script.onload = () => resolve();
-      script.onerror = () => { qrJsQrLoadPromise = null; reject(new Error('jsQR load failed')); };
-      document.head.appendChild(script);
-    });
-    return qrJsQrLoadPromise;
-  }
-  function isLikelyUrl(text) {
-    try { new URL(text); return true; } catch { return /^[\w-]+(\.[\w-]+)+(\/[^\s]*)?$/i.test(text); }
-  }
-  function normalizeUrl(text) {
-    try { return new URL(text).href; } catch { return `https://${text}`; }
-  }
-  function handleQrResult(result) {
-    if (!result) return;
-    const value = result.trim();
-    if (!value) return;
-    stopCamera();
-    qrPendingValue = value;
-    qrResultText.textContent = value;
-    qrScanSection.classList.add('hidden');
-    qrResultSection.classList.remove('hidden');
-  }
-  function openPendingResult() {
-    if (!qrPendingValue) return;
-    const value = qrPendingValue;
-    stopQrScan();
-    if (isLikelyUrl(value)) window.open(normalizeUrl(value), '_blank', 'noopener,noreferrer');
-    else doSearch(value);
-  }
-  async function startQrScan() {
-    qrPendingValue = null;
-    qrResultSection.classList.add('hidden');
-    qrScanSection.classList.remove('hidden');
-    if (!window.isSecureContext) {
-      qrVideo.classList.add('hidden');
-      qrStatus.textContent = 'カメラの利用にはHTTPS接続が必要です。';
-      qrOverlay.style.display = 'flex';
-      qrOverlay.classList.remove('hidden');
-      return;
-    }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      qrVideo.classList.add('hidden');
-      qrStatus.textContent = 'このブラウザはカメラ機能に対応していません。';
-      qrOverlay.style.display = 'flex';
-      qrOverlay.classList.remove('hidden');
-      return;
-    }
-    qrStatus.textContent = 'カメラを起動しています...';
-    qrOverlay.style.display = 'flex';
-    qrOverlay.classList.remove('hidden');
-    if (!qrBarcodeDetector) {
-      try { await loadJsQR(); } catch {
-        qrStatus.textContent = 'QR読み取りライブラリの読み込みに失敗しました。通信環境をご確認ください。';
-        return;
-      }
-    }
-    qrVideo.classList.remove('hidden');
-    try {
-      qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
-    } catch (error) {
-      stopQrScan();
-      alert('カメラへのアクセスが許可されていないため、QRコードを読み取れません。ブラウザの設定でカメラへのアクセスを許可してから、もう一度お試しください。');
-      return;
-    }
-    const onReady = () => {
-      qrVideo.play().catch(() => {});
-      if (qrScanning) return;
-      qrScanning = true;
-      qrStatus.textContent = 'QRコードにカメラを向けてください';
-      requestAnimationFrame(scanQrFrame);
-    };
-    qrVideo.addEventListener('loadedmetadata', onReady, { once: true });
-    qrVideo.srcObject = qrStream;
-    if (qrVideo.readyState >= 1) onReady();
-  }
-  function stopCamera() {
-    qrScanning = false;
-    if (qrStream) { qrStream.getTracks().forEach(track => track.stop()); qrStream = null; }
-    qrVideo.srcObject = null;
-  }
-  function stopQrScan() {
-    stopCamera();
-    qrPendingValue = null;
-    qrOverlay.style.display = 'none';
-    qrOverlay.classList.add('hidden');
-  }
-  async function scanQrFrame() {
-    if (!qrScanning) return;
-    if (qrVideo.readyState >= qrVideo.HAVE_CURRENT_DATA && qrVideo.videoWidth > 0) {
-      if (qrBarcodeDetector) {
-        try {
-          const barcodes = await qrBarcodeDetector.detect(qrVideo);
-          if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) { handleQrResult(barcodes[0].rawValue); return; }
-        } catch { qrBarcodeDetector = null; }
-      } else if (window.jsQR) {
-        qrCanvas.width = qrVideo.videoWidth;
-        qrCanvas.height = qrVideo.videoHeight;
-        const ctx = qrCanvas.getContext('2d', { willReadFrequently: true });
-        ctx.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
-        const imageData = ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
-        if (code && code.data) { handleQrResult(code.data); return; }
-      }
-    }
-    if (qrScanning) requestAnimationFrame(scanQrFrame);
-  }
-  if (qrScanButtonMain) qrScanButtonMain.addEventListener('click', (e) => { e.stopPropagation(); startQrScan(); });
-  if (qrScanButtonSticky) qrScanButtonSticky.addEventListener('click', (e) => { e.stopPropagation(); startQrScan(); });
-  qrCancelButton.addEventListener('click', stopQrScan);
-  qrResultCancel.addEventListener('click', stopQrScan);
-  qrResultOpen.addEventListener('click', openPendingResult);
-  qrOverlay.addEventListener('click', (e) => { if (e.target === qrOverlay) stopQrScan(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && qrOverlay.style.display === 'flex') stopQrScan(); });
-
-  const kanjiButton = document.getElementById('kanji-check-button');
-  const kanjiOverlay = document.getElementById('kanji-overlay');
-  const kanjiCancelButton = document.getElementById('kanji-cancel-button');
-  const kanjiTextarea = document.getElementById('kanji-textarea');
-  const kanjiClearButton = document.getElementById('kanji-clear-button');
-  let lastScrollPositionKanji = 0;
-  function openKanjiOverlay() {
-    lastScrollPositionKanji = window.scrollY;
-    document.body.style.top = `-${lastScrollPositionKanji}px`;
-    document.body.classList.add('no-scroll');
-    kanjiOverlay.style.display = 'flex';
-    kanjiOverlay.classList.remove('hidden');
-    kanjiTextarea.focus();
-  }
-  function closeKanjiOverlay() {
-    kanjiOverlay.style.display = 'none';
-    kanjiTextarea.value = '';
-    document.body.classList.remove('no-scroll');
-    document.body.style.top = '';
-    window.scrollTo(0, lastScrollPositionKanji);
-  }
-  kanjiButton.addEventListener('click', openKanjiOverlay);
-  kanjiCancelButton.addEventListener('click', closeKanjiOverlay);
-  kanjiClearButton.addEventListener('click', () => { kanjiTextarea.value = ''; kanjiTextarea.focus(); });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && kanjiOverlay.style.display === 'flex') closeKanjiOverlay();
-    if (e.key === 'Escape' && themeOverlay.style.display === 'flex') closeThemeOverlay();
-  });
-  function openThemeOverlay() {
-    themeOverlay.style.display = 'flex';
-    themeOverlay.classList.remove('hidden');
-  }
-  function closeThemeOverlay() {
-    themeOverlay.style.display = 'none';
-    themeOverlay.classList.add('hidden');
-  }
-  customizeButton.addEventListener('click', openThemeOverlay);
-  themeCancelButton.addEventListener('click', closeThemeOverlay);
-  themeOverlay.addEventListener('click', (e) => { if (e.target === themeOverlay) closeThemeOverlay(); });
-  themeSwatches.forEach(sw => {
-    sw.addEventListener('click', () => { applyTheme(sw.dataset.theme); closeThemeOverlay(); });
-  });
-  function handleSearchSubmit(event) {
-    event.preventDefault();
-    const inputElement = event.target.querySelector('input[type="search"]');
-    if (inputElement) doSearch(inputElement.value.trim());
-  }
-  const mainForm = document.getElementById('search-form-main');
-  const overlayForm = document.getElementById('search-form-overlay');
-  if (mainForm) mainForm.addEventListener('submit', handleSearchSubmit);
-  if (overlayForm) overlayForm.addEventListener('submit', handleSearchSubmit);
-
-  const bottomMenuItems = document.querySelectorAll('.bottom-menu-item');
-  bottomMenuItems.forEach(item => {
-    item.addEventListener('click', () => {
-      const action = item.dataset.bottomAction;
-      if (action === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
-      else if (action === 'search') openMobileSearchOverlay();
-      else if (action === 'kanji') openKanjiOverlay();
-      else if (action === 'weather') weatherContainer.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else if (action === 'news') newsContainer.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
+  --md-motion-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-motion-emphasized: cubic-bezier(0.3, 0, 0, 1);
 }
-document.addEventListener('DOMContentLoaded', () => {
-  initApp();
-  const preloader = document.getElementById('preloader');
-  const mainContent = document.getElementById('main-content');
-  setTimeout(() => {
-    preloader.style.opacity = '0';
-    preloader.addEventListener('transitionend', () => {
-      preloader.style.display = 'none';
-      mainContent.classList.remove('hidden');
-      mainContent.style.pointerEvents = 'auto';
-    }, { once: true });
-  }, 500);
-});
+
+[data-theme="blue"]   { --md-hue: 228; --md-tertiary-hue: 288; }
+[data-theme="green"]  { --md-hue: 152; --md-tertiary-hue: 210; }
+[data-theme="purple"] { --md-hue: 262; --md-tertiary-hue: 322; }
+[data-theme="pink"]   { --md-hue: 336; --md-tertiary-hue: 20;  }
+[data-theme="orange"] { --md-hue: 28;  --md-tertiary-hue: 340; }
+[data-theme="red"]    { --md-hue: 6;   --md-tertiary-hue: 40;  }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md-primary: hsl(var(--md-hue) 68% 80%);
+    --md-on-primary: hsl(var(--md-hue) 68% 22%);
+    --md-primary-container: hsl(var(--md-hue) 50% 30%);
+    --md-on-primary-container: hsl(var(--md-hue) 68% 92%);
+
+    --md-secondary-container: hsl(var(--md-hue) 16% 30%);
+    --md-on-secondary-container: hsl(var(--md-hue) 20% 90%);
+
+    --md-tertiary: hsl(var(--md-tertiary-hue) 38% 80%);
+    --md-tertiary-container: hsl(var(--md-tertiary-hue) 30% 32%);
+    --md-on-tertiary-container: hsl(var(--md-tertiary-hue) 40% 92%);
+
+    --md-error: hsl(5 90% 84%);
+    --md-on-error: hsl(5 74% 22%);
+    --md-error-container: hsl(5 60% 30%);
+    --md-on-error-container: hsl(5 90% 92%);
+
+    --md-surface: hsl(var(--md-hue) 10% 9%);
+    --md-surface-dim: hsl(var(--md-hue) 10% 9%);
+    --md-surface-container-lowest: hsl(var(--md-hue) 12% 6%);
+    --md-surface-container-low: hsl(var(--md-hue) 10% 12%);
+    --md-surface-container: hsl(var(--md-hue) 10% 15%);
+    --md-surface-container-high: hsl(var(--md-hue) 10% 19%);
+    --md-surface-container-highest: hsl(var(--md-hue) 10% 24%);
+
+    --md-on-surface: hsl(var(--md-hue) 10% 92%);
+    --md-on-surface-variant: hsl(var(--md-hue) 8% 76%);
+    --md-outline: hsl(var(--md-hue) 8% 58%);
+    --md-outline-variant: hsl(var(--md-hue) 10% 32%);
+  }
+}
+
+* {
+  font-family: "BIZ UDPGothic", "HiraginoSans-W2", "Hiragino Kaku Gothic ProN", Meiryo, "メイリオ", sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  transition: background-color .3s var(--md-motion-standard);
+}
+
+::-webkit-scrollbar { width: 12px; }
+::-webkit-scrollbar-track { background: var(--md-surface); border-radius: var(--md-shape-full); }
+::-webkit-scrollbar-thumb { background-color: var(--md-outline-variant); border-radius: var(--md-shape-full); border: 3px solid var(--md-surface); }
+::-webkit-scrollbar-thumb:hover { background-color: var(--md-outline); }
+body { scrollbar-width: thin; scrollbar-color: var(--md-outline-variant) var(--md-surface); }
+
+input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+.md-display-small { font-size: 2.5rem; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+.md-headline-small { font-size: 1.5rem; line-height: 1.35; font-weight: 700; }
+.md-title-large { font-size: 1.375rem; line-height: 1.3; font-weight: 700; }
+.md-title-medium { font-size: 1rem; line-height: 1.4; font-weight: 700; letter-spacing: .01em; }
+.md-body-large { font-size: 1rem; line-height: 1.5; font-weight: 400; }
+.md-body-medium { font-size: .875rem; line-height: 1.45; font-weight: 400; }
+.md-label-large { font-size: .9375rem; line-height: 1.3; font-weight: 600; letter-spacing: .01em; }
+.md-label-medium { font-size: .8125rem; line-height: 1.3; font-weight: 600; letter-spacing: .02em; }
+
+.md-on-surface-variant { color: var(--md-on-surface-variant); }
+.md-outline-divider { border-bottom: 1px solid var(--md-outline-variant); }
+.md-accent-text { color: var(--md-primary); }
+.md-error-text { color: var(--md-error); }
+.md-tertiary-text { color: var(--md-tertiary); }
+
+.md-state-hover {
+  transition: background-color 150ms var(--md-motion-standard);
+}
+@media (hover: hover) {
+  .md-state-hover:hover { background-color: color-mix(in srgb, var(--md-on-surface) 8%, transparent); }
+}
+@media (hover: none) {
+  .md-state-hover:active { background-color: color-mix(in srgb, var(--md-on-surface) 8%, transparent); }
+}
+
+#sticky-search-bar {
+  position: fixed;
+  top: 0; left: 0; width: 100%;
+  z-index: 9000;
+  background: var(--md-surface-container);
+  box-shadow: var(--md-elev-2);
+  transform: translateY(calc(-100% - 20px));
+  transition: transform .25s var(--md-motion-standard);
+  pointer-events: none;
+}
+#sticky-search-bar.visible { transform: translateY(0); pointer-events: auto; }
+
+.md-search-field {
+  width: 100%;
+  height: 56px;
+  border-radius: var(--md-shape-full);
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow 150ms var(--md-motion-standard), border-color 150ms var(--md-motion-standard);
+}
+.md-search-field::placeholder { color: var(--md-on-surface-variant); }
+.md-search-field:focus {
+  border-color: var(--md-primary);
+  box-shadow: 0 0 0 1px var(--md-primary);
+}
+
+.search-icon {
+  position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+  color: var(--md-on-surface-variant);
+  pointer-events: none;
+}
+.clear-button {
+  position: absolute; right: .9rem; top: 50%; transform: translateY(-50%);
+  color: var(--md-on-surface-variant);
+  cursor: pointer; font-size: 1.4rem; z-index: 20;
+}
+@media (hover: hover) { .clear-button:hover { color: var(--md-on-surface); } }
+@media (hover: none)  { .clear-button:active { color: var(--md-on-surface); } }
+
+.qr-button {
+  position: absolute; right: .9rem; top: 50%; transform: translateY(-50%);
+  color: var(--md-on-surface-variant);
+  cursor: pointer; font-size: 1.15rem; z-index: 20;
+  background: none; border: none;
+}
+#clear-button-main { right: 2.9rem; }
+@media (hover: hover) { .qr-button:hover { color: var(--md-primary); } }
+@media (hover: none)  { .qr-button:active { color: var(--md-primary); } }
+
+.card {
+  background: var(--md-surface-container-low);
+  border-radius: var(--md-shape-xl);
+  box-shadow: var(--md-elev-1);
+  transition: background-color .3s var(--md-motion-standard);
+  scroll-margin-top: 96px;
+}
+
+.md-section-title {
+  font-size: 1.375rem;
+  line-height: 1.3;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--md-on-surface);
+}
+
+.link-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background-color: var(--md-surface-container);
+  border-radius: var(--md-shape-md);
+  transition: background-color 200ms var(--md-motion-standard), transform 200ms var(--md-motion-standard);
+  color: var(--md-on-surface);
+}
+@media (hover: hover) {
+  .link-item:hover { background-color: var(--md-secondary-container); }
+}
+@media (hover: none) {
+  .link-item:active { background-color: var(--md-secondary-container); }
+}
+
+.md-tile {
+  padding: 1rem;
+  border-radius: var(--md-shape-lg);
+  background: var(--md-surface-container);
+  box-shadow: none;
+  border: 1px solid var(--md-outline-variant);
+}
+
+.weather-current {
+  padding: 1.5rem 1rem;
+  border-radius: var(--md-shape-lg);
+  background: var(--md-surface-container);
+  border: 1px solid var(--md-outline-variant);
+  text-align: center;
+}
+.weather-current-icon { font-size: 3rem; color: var(--md-accent); }
+.weather-current-temp { font-size: 2.5rem; font-weight: 700; margin-top: .75rem; }
+.weather-current-label { font-size: 1rem; color: var(--md-on-surface-variant); margin-top: .35rem; }
+
+.weather-hourly-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: .75rem;
+  padding-bottom: .5rem;
+}
+.weather-hourly-item {
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+  padding: .75rem .5rem;
+  border-radius: var(--md-shape-md);
+  background: var(--md-surface-container);
+  border: 1px solid var(--md-outline-variant);
+  text-align: center;
+}
+.weather-hourly-time { font-size: .85rem; color: var(--md-on-surface-variant); }
+.weather-hourly-icon { font-size: 1.5rem; color: var(--md-accent); margin: .4rem 0; }
+.weather-hourly-temp { font-size: .95rem; font-weight: 600; }
+
+.weather-daily-list {
+  border-radius: var(--md-shape-lg);
+  background: var(--md-surface-container);
+  border: 1px solid var(--md-outline-variant);
+  overflow: hidden;
+}
+.weather-daily-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem 1rem;
+}
+.weather-daily-item:not(:last-child) { border-bottom: 1px solid var(--md-outline-variant); }
+.weather-daily-date { flex: 0 0 5.5rem; text-align: left; font-size: .95rem; }
+.weather-daily-icon { flex: 0 0 1.5rem; color: var(--md-accent); text-align: center; }
+.weather-daily-label { flex: 1; text-align: left; font-size: .9rem; color: var(--md-on-surface-variant); }
+.weather-daily-temps { flex: 0 0 auto; font-size: .95rem; }
+
+
+.news-item {
+  padding: 1rem;
+  border-radius: var(--md-shape-md);
+  transition: background-color 200ms var(--md-motion-standard);
+}
+.news-item:not(:last-child) { border-bottom: 1px solid var(--md-outline-variant); }
+@media (hover: hover) { .news-item:hover { background-color: var(--md-surface-container); } }
+@media (hover: none)  { .news-item:active { background-color: var(--md-surface-container); } }
+
+.news-item-inner { display: flex; flex-direction: column; }
+.news-ogp-image-container {
+  width: 100%; overflow: hidden; border-radius: var(--md-shape-md);
+  margin-bottom: .75rem; display: flex; justify-content: center;
+}
+.news-text-content { flex: 1; min-width: 0; }
+.news-ogp-image {
+  display: block; width: 100%; height: auto; max-height: 200px;
+  object-fit: cover; border-radius: var(--md-shape-md);
+}
+@media (min-width: 640px) {
+  .news-item-inner { flex-direction: row; align-items: flex-start; gap: 1rem; }
+  .news-ogp-image-container { flex-shrink: 0; width: 200px; margin-bottom: 0; justify-content: flex-start; }
+  .news-ogp-image { width: 200px; max-width: 200px; max-height: 150px; object-fit: cover; }
+}
+
+#search-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--md-surface);
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+}
+
+#suggestions-container-main, #suggestions-container-overlay {
+  background: var(--md-surface-container);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-shape-lg);
+}
+.md-suggestion-item {
+  border-radius: var(--md-shape-sm);
+  margin: 2px 4px;
+  width: calc(100% - 8px);
+}
+.history-delete-button {
+  color: var(--md-on-surface-variant);
+  margin-left: auto;
+  padding: .5rem;
+  cursor: pointer;
+  border-radius: var(--md-shape-full);
+}
+@media (hover: hover) { .history-delete-button:hover { color: var(--md-error); } }
+@media (hover: none)  { .history-delete-button:active { color: var(--md-error); } }
+
+#clear-all-history-button {
+  background-color: var(--md-error-container);
+  color: var(--md-on-error-container);
+  border-radius: var(--md-shape-full);
+}
+@media (hover: hover) { #clear-all-history-button:hover { filter: brightness(0.96); } }
+
+.loading-spinner {
+  display: inline-block;
+  width: 2rem; height: 2rem;
+  border: 3px solid var(--md-outline-variant);
+  border-radius: 50%;
+  border-top-color: var(--md-primary);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.md-btn-filled {
+  background-color: var(--md-primary);
+  color: var(--md-on-primary);
+  border-radius: var(--md-shape-full);
+  padding: .625rem 1.5rem;
+  font-weight: 600;
+  font-size: .9375rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--md-elev-1);
+  transition: box-shadow 150ms var(--md-motion-standard), filter 150ms var(--md-motion-standard);
+}
+@media (hover: hover) { .md-btn-filled:hover { box-shadow: var(--md-elev-2); } }
+
+.retry-button {
+  margin-top: .5rem;
+  padding: .4rem 1.1rem;
+  background-color: var(--md-error-container);
+  color: var(--md-on-error-container);
+  border-radius: var(--md-shape-full);
+  font-size: .8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-block;
+  border: none;
+}
+@media (hover: hover) { .retry-button:hover { filter: brightness(0.96); } }
+
+.accent-text { color: var(--md-primary); }
+.accent-bg { background-color: var(--md-primary); color: var(--md-on-primary); }
+@media (hover: hover) { .accent-bg:hover { filter: brightness(1.08); } }
+
+#customize-button {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  border: none;
+  border-radius: var(--md-shape-full);
+  cursor: pointer;
+  padding: .625rem 1.5rem;
+  font-weight: 600;
+  transition: filter 150ms var(--md-motion-standard);
+}
+@media (hover: hover) { #customize-button:hover { filter: brightness(0.95); } }
+
+#kanji-overlay, #theme-overlay, #qr-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  display: none; align-items: center; justify-content: center;
+  background-color: color-mix(in srgb, var(--md-scrim) 42%, transparent);
+  z-index: 10000;
+}
+#kanji-inner, #theme-inner, #qr-inner {
+  background-color: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  border-radius: var(--md-shape-xl);
+  box-shadow: var(--md-elev-3);
+}
+#kanji-inner {
+  display: flex; flex-direction: column; max-height: 80vh;
+}
+#theme-inner { width: 90%; max-width: 24rem; }
+#qr-inner { max-width: 28rem; width: 90%; overflow: hidden; }
+
+.md-dialog-header {
+  border-bottom: 1px solid var(--md-outline-variant);
+}
+.md-dialog-close {
+  color: var(--md-primary);
+  font-weight: 600;
+}
+
+#kanji-textarea {
+  resize: none;
+  width: 100%;
+  padding: .75rem;
+  border-radius: var(--md-shape-lg);
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container-low);
+  color: var(--md-on-surface);
+  outline: none;
+}
+#kanji-textarea::placeholder { color: var(--md-on-surface-variant); }
+#kanji-textarea:focus {
+  border-color: var(--md-primary);
+  box-shadow: 0 0 0 1px var(--md-primary);
+}
+.md-btn-outlined {
+  padding: .5rem 1.25rem;
+  border-radius: var(--md-shape-full);
+  border: 1px solid var(--md-outline);
+  background: transparent;
+  color: var(--md-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+@media (hover: hover) { .md-btn-outlined:hover { background: color-mix(in srgb, var(--md-primary) 8%, transparent); } }
+
+@media (max-width: 639px) {
+  #kanji-overlay {
+    align-items: flex-start;
+    background-color: var(--md-surface);
+  }
+  #kanji-inner {
+    width: 100%; max-width: 100%; max-height: none;
+    min-height: calc(100vh - 2rem);
+    border-radius: 0; box-shadow: none;
+  }
+}
+
+.theme-swatch {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--md-shape-full);
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: transform 150ms var(--md-motion-standard), border-color 150ms var(--md-motion-standard);
+  position: relative;
+}
+@media (hover: hover) { .theme-swatch:hover { transform: scale(1.08); } }
+.theme-swatch.selected { border-color: var(--md-on-surface); }
+.theme-swatch.selected::after {
+  content: "\f00c";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+  font-size: 1.1rem;
+}
+
+#qr-video {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--md-shape-lg);
+}
+#qr-result-text {
+  background: var(--md-surface-container-low);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-shape-lg);
+  color: var(--md-on-surface);
+}
+
+.no-pointer-events { pointer-events: none; }
+.no-scroll { position: fixed; width: 100%; overflow-y: hidden; }
+
+#preloader {
+  transition: opacity .5s ease-out;
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+}
+
+#bottom-menu-bar {
+  position: fixed;
+  bottom: 0; left: 0; width: 100%;
+  z-index: 9000;
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  background: var(--md-surface-container);
+  box-shadow: 0 -1px 3px 0 rgba(0,0,0,.10), 0 -1px 2px 0 rgba(0,0,0,.06);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.bottom-menu-item {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .2rem;
+  padding: .55rem .25rem .5rem;
+  background: none;
+  border: none;
+  color: var(--md-on-surface-variant);
+  font-size: .7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 150ms var(--md-motion-standard), background-color 150ms var(--md-motion-standard);
+}
+.bottom-menu-item i { font-size: 1.15rem; }
+.bottom-menu-item.active { color: var(--md-primary); }
+@media (hover: hover) { .bottom-menu-item:hover { color: var(--md-primary); } }
+@media (hover: none)  { .bottom-menu-item:active { color: var(--md-primary); } }
+
+@media (min-width: 768px) {
+  #bottom-menu-bar {
+    top: 0; left: 0; bottom: 0; width: 6rem; height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    box-shadow: 1px 0 3px 0 rgba(0,0,0,.10), 1px 0 2px 0 rgba(0,0,0,.06);
+    padding-bottom: 0;
+    padding-top: env(safe-area-inset-top, 0);
+  }
+  .bottom-menu-item {
+    flex: none;
+    padding: 1rem .5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  #main-content {
+    max-width: 76rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+  #main-content > * { margin-top: 0 !important; }
+  #main-content > header,
+  #main-content > section:nth-of-type(1),
+  #main-content > section:nth-of-type(2),
+  #main-content > footer {
+    grid-column: 1 / -1;
+  }
+  .weather-hourly-scroll { flex-wrap: wrap; overflow-x: visible; }
+  .weather-hourly-item { min-width: 5.5rem; }
+}
