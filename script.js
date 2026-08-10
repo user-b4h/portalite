@@ -97,39 +97,39 @@ function initApp() {
   }
 
   const WMO_WEATHER = {
-    0: { label: '快晴', icon: 'fa-sun', night: 'fa-moon' },
-    1: { label: '晴れ', icon: 'fa-sun', night: 'fa-moon' },
-    2: { label: '一部曇り', icon: 'fa-cloud-sun', night: 'fa-cloud-moon' },
-    3: { label: '曇り', icon: 'fa-cloud', night: 'fa-cloud' },
-    45: { label: '霧', icon: 'fa-smog', night: 'fa-smog' },
-    48: { label: '霧氷', icon: 'fa-smog', night: 'fa-smog' },
-    51: { label: '弱い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    53: { label: '霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    55: { label: '強い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    56: { label: '着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    57: { label: '強い着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
-    61: { label: '弱い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    63: { label: '雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    65: { label: '強い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    66: { label: '着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    67: { label: '強い着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    71: { label: '弱い雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    73: { label: '雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    75: { label: '強い雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    77: { label: '霧雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    80: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    81: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    82: { label: '激しいにわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
-    85: { label: 'にわか雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    86: { label: '激しいにわか雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
-    95: { label: '雷雨', icon: 'fa-bolt', night: 'fa-bolt' },
-    96: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt' },
-    99: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt' }
+    0: { label: '快晴', icon: 'fa-sun', night: 'fa-moon', color: '#f59e0b', nightColor: '#94a3b8' },
+    1: { label: '晴れ', icon: 'fa-sun', night: 'fa-moon', color: '#f59e0b', nightColor: '#94a3b8' },
+    2: { label: '一部曇り', icon: 'fa-cloud-sun', night: 'fa-cloud-moon', color: '#f59e0b', nightColor: '#94a3b8' },
+    3: { label: '曇り', icon: 'fa-cloud', night: 'fa-cloud', color: '#94a3b8', nightColor: '#94a3b8' },
+    45: { label: '霧', icon: 'fa-smog', night: 'fa-smog', color: '#9ca3af', nightColor: '#9ca3af' },
+    48: { label: '霧氷', icon: 'fa-smog', night: 'fa-smog', color: '#9ca3af', nightColor: '#9ca3af' },
+    51: { label: '弱い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#3b82f6', nightColor: '#3b82f6' },
+    53: { label: '霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#3b82f6', nightColor: '#3b82f6' },
+    55: { label: '強い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#3b82f6', nightColor: '#3b82f6' },
+    56: { label: '着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#3b82f6', nightColor: '#3b82f6' },
+    57: { label: '強い着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain', color: '#3b82f6', nightColor: '#3b82f6' },
+    61: { label: '弱い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
+    63: { label: '雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
+    65: { label: '強い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
+    66: { label: '着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
+    67: { label: '強い着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
+    71: { label: '弱い雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#38bdf8', nightColor: '#38bdf8' },
+    73: { label: '雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#38bdf8', nightColor: '#38bdf8' },
+    75: { label: '強い雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#38bdf8', nightColor: '#38bdf8' },
+    77: { label: '霧雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#38bdf8', nightColor: '#38bdf8' },
+    80: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
+    81: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
+    82: { label: '激しいにわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy', color: '#2563eb', nightColor: '#2563eb' },
+    85: { label: 'にわか雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#38bdf8', nightColor: '#38bdf8' },
+    86: { label: '激しいにわか雪', icon: 'fa-snowflake', night: 'fa-snowflake', color: '#38bdf8', nightColor: '#38bdf8' },
+    95: { label: '雷雨', icon: 'fa-bolt', night: 'fa-bolt', color: '#a855f7', nightColor: '#a855f7' },
+    96: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt', color: '#a855f7', nightColor: '#a855f7' },
+    99: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt', color: '#a855f7', nightColor: '#a855f7' }
   };
 
   function getWeatherInfo(code, isDay) {
-    const entry = WMO_WEATHER[code] || { label: '不明', icon: 'fa-question', night: 'fa-question' };
-    return { label: entry.label, icon: isDay ? entry.icon : entry.night };
+    const entry = WMO_WEATHER[code] || { label: '不明', icon: 'fa-question', night: 'fa-question', color: '#94a3b8', nightColor: '#94a3b8' };
+    return { label: entry.label, icon: isDay ? entry.icon : entry.night, color: isDay ? entry.color : entry.nightColor };
   }
 
   async function fetchWeather() {
@@ -181,7 +181,7 @@ function initApp() {
       const currentInfo = getWeatherInfo(current.weather_code, current.is_day === 1);
       const currentEl = document.createElement('div');
       currentEl.className = 'weather-current';
-      currentEl.innerHTML = `<i class="fas ${currentInfo.icon} weather-current-icon"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
+      currentEl.innerHTML = `<i class="fas ${currentInfo.icon} weather-current-icon" style="color:${currentInfo.color}"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
       weatherContainer.appendChild(currentEl);
 
       const now = new Date();
@@ -195,7 +195,7 @@ function initApp() {
         const hourLabel = i === startIdx ? '現在' : `${hourDate.getHours()}時`;
         const card = document.createElement('div');
         card.className = 'weather-hourly-item';
-        card.innerHTML = `<p class="weather-hourly-time">${hourLabel}</p><i class="fas ${hourInfo.icon} weather-hourly-icon"></i><p class="weather-hourly-temp">${Math.round(data.hourly.temperature_2m[i])}°C</p>`;
+        card.innerHTML = `<p class="weather-hourly-time">${hourLabel}</p><i class="fas ${hourInfo.icon} weather-hourly-icon" style="color:${hourInfo.color}"></i><p class="weather-hourly-temp">${Math.round(data.hourly.temperature_2m[i])}°C</p>`;
         hourlyEl.appendChild(card);
       }
       weatherContainer.appendChild(hourlyEl);
@@ -208,7 +208,7 @@ function initApp() {
         const dateLabel = i === 0 ? '今日' : `${dayDate.getMonth() + 1}月${dayDate.getDate()}日(${weekdays[dayDate.getDay()]})`;
         const row = document.createElement('div');
         row.className = 'weather-daily-item';
-        row.innerHTML = `<span class="weather-daily-date">${dateLabel}</span><i class="fas ${dayInfo.icon} weather-daily-icon"></i><span class="weather-daily-label">${dayInfo.label}</span><span class="weather-daily-temps"><span class="md-tertiary-text">${Math.round(data.daily.temperature_2m_min[i])}°C</span> / <span class="md-error-text">${Math.round(data.daily.temperature_2m_max[i])}°C</span></span>`;
+        row.innerHTML = `<span class="weather-daily-date">${dateLabel}</span><i class="fas ${dayInfo.icon} weather-daily-icon" style="color:${dayInfo.color}"></i><span class="weather-daily-label">${dayInfo.label}</span><span class="weather-daily-temps"><span class="md-tertiary-text">${Math.round(data.daily.temperature_2m_min[i])}°C</span> / <span class="md-error-text">${Math.round(data.daily.temperature_2m_max[i])}°C</span></span>`;
         dailyEl.appendChild(row);
       });
       weatherContainer.appendChild(dailyEl);
