@@ -209,12 +209,13 @@ function initApp() {
         const link = item.querySelector('link')?.textContent;
         const pubDate = item.querySelector('pubDate')?.textContent;
         let source = item.querySelector('source')?.textContent;
-        const description = item.querySelector('description')?.textContent || '';
+        let description = item.querySelector('description')?.textContent || '';
         if (title) {
           const lastParenMatch = title.match(/\(([^()]+)\)$/);
           if (lastParenMatch) { source = lastParenMatch[1]; title = title.substring(0, lastParenMatch.index).trim(); }
         }
         if (title && source) { const suffix = ` - ${source}`; if (title.endsWith(suffix)) title = title.substring(0, title.length - suffix.length); }
+        description = description.replace(/^【[^】]*＝\d{4}\/\d{1,2}\/\d{1,2}】/, '').trim();
         return { title, link, pubDate, source, description };
       }).filter(item => item.title && item.link && item.pubDate);
       items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
@@ -232,7 +233,6 @@ function initApp() {
           const minutes = String(d.getMinutes()).padStart(2, '0');
           formattedDate = `${month}月${day}日(${weekday}) ${hours}:${minutes}`;
         }
-        const sourceText = item.source ? `<span class="font-medium">${item.source}</span> / ` : '';
         const a = document.createElement('a');
         a.href = item.link;
         a.target = '_blank';
@@ -245,7 +245,7 @@ function initApp() {
         innerWrapper.appendChild(ogpImageContainer);
         const textContent = document.createElement('div');
         textContent.className = 'news-text-content';
-        textContent.innerHTML = `<p class="md-title-medium">${item.title}</p><p class="text-base md-on-surface-variant mt-1 line-clamp-3">${item.description}</p><p class="text-sm md-on-surface-variant mt-1">${sourceText}${formattedDate}</p>`;
+        textContent.innerHTML = `<p class="md-title-medium">${item.title}</p><p class="text-base md-on-surface-variant mt-1 line-clamp-3">${item.description}</p><p class="text-sm md-on-surface-variant mt-1">${formattedDate}</p>`;
         innerWrapper.appendChild(textContent);
         a.appendChild(innerWrapper);
         newsContainer.appendChild(a);
