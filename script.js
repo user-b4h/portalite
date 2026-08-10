@@ -15,7 +15,7 @@ function initApp() {
   const stickySearchBar = document.getElementById('sticky-search-bar');
   const stickyInput = document.getElementById('search-input-sticky');
   const searchWrapper = document.getElementById('search-container-wrapper');
-  const newsRssUrl = 'https://news.ceek.jp/search.cgi?category_id=entertainment&feed=1';
+  const newsRssUrl = 'https://feed.mdpr.jp/rss/export/mdpr-entertainment.xml';
   const HISTORY_KEY = 'search-history';
   const HISTORY_LIMIT = 20;
   const TRENDS_URL = 'https://trends.google.com/trending/rss?geo=JP';
