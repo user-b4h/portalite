@@ -96,8 +96,48 @@ function initApp() {
     return null;
   }
 
+  const WMO_WEATHER = {
+    0: { label: '快晴', icon: 'fa-sun', night: 'fa-moon' },
+    1: { label: '晴れ', icon: 'fa-sun', night: 'fa-moon' },
+    2: { label: '一部曇り', icon: 'fa-cloud-sun', night: 'fa-cloud-moon' },
+    3: { label: '曇り', icon: 'fa-cloud', night: 'fa-cloud' },
+    45: { label: '霧', icon: 'fa-smog', night: 'fa-smog' },
+    48: { label: '霧氷', icon: 'fa-smog', night: 'fa-smog' },
+    51: { label: '弱い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    53: { label: '霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    55: { label: '強い霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    56: { label: '着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    57: { label: '強い着氷性の霧雨', icon: 'fa-cloud-rain', night: 'fa-cloud-rain' },
+    61: { label: '弱い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    63: { label: '雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    65: { label: '強い雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    66: { label: '着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    67: { label: '強い着氷性の雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    71: { label: '弱い雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    73: { label: '雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    75: { label: '強い雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    77: { label: '霧雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    80: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    81: { label: 'にわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    82: { label: '激しいにわか雨', icon: 'fa-cloud-showers-heavy', night: 'fa-cloud-showers-heavy' },
+    85: { label: 'にわか雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    86: { label: '激しいにわか雪', icon: 'fa-snowflake', night: 'fa-snowflake' },
+    95: { label: '雷雨', icon: 'fa-bolt', night: 'fa-bolt' },
+    96: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt' },
+    99: { label: '雷雨(ひょう)', icon: 'fa-bolt', night: 'fa-bolt' }
+  };
+
+  function getWeatherInfo(code, isDay) {
+    const entry = WMO_WEATHER[code] || { label: '不明', icon: 'fa-question', night: 'fa-question' };
+    return { label: entry.label, icon: isDay ? entry.icon : entry.night };
+  }
+
   async function fetchWeather() {
     return fetchWithRetry(async () => {
+      const sapporoCoords = { name: '札幌', lat: 43.0618, lon: 141.3545 };
+      let cityLabel = sapporoCoords.name;
+      let lat = sapporoCoords.lat;
+      let lon = sapporoCoords.lon;
       try {
         const position = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
@@ -120,50 +160,61 @@ function initApp() {
         for (const cityId in cityCoords) {
           const city = cityCoords[cityId];
           const distance = haversineDistance(userLat, userLon, city.lat, city.lon);
-          if (distance < minDistance) { minDistance = distance; closestCity = { id: cityId, name: city.title, lat: city.lat, lon: city.lon }; }
+          if (distance < minDistance) { minDistance = distance; closestCity = { name: city.title, lat: city.lat, lon: city.lon }; }
         }
-        if (!closestCity || minDistance > DISTANCE_THRESHOLD_KM) throw new Error('Distance too far');
-        const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${closestCity.id}`;
-        const r = await fetch(weatherApiUrl);
-        const data = await r.json();
-        weatherContainer.innerHTML = '';
-        const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-        document.querySelector('#weather-container').previousElementSibling.textContent = `${closestCity.name}の天気`;
-        data.forecasts.slice(0, 3).forEach(forecast => {
-          const iconUrl = forecast.image.url;
-          const forecastDate = new Date(forecast.date);
-          const month = forecastDate.getMonth() + 1;
-          const day = forecastDate.getDate();
-          const weekday = weekdays[forecastDate.getDay()];
-          const dateLabel = `${month}月${day}日(${weekday})`;
-          const el = document.createElement('div');
-          el.className = 'md-tile';
-          el.innerHTML = `<p class="md-title-medium">${dateLabel}</p><img src="${iconUrl}" alt="${forecast.telop}" class="w-16 h-16 mx-auto my-2" onerror="this.src='https://placehold.co/64x64/CCCCCC/FFFFFF?text=No+Icon';"><p class="text-base md-on-surface-variant mb-2">${forecast.telop}</p><div class="flex justify-center items-center space-x-2 text-base"><span class="md-tertiary-text">最低: ${forecast.temperature.min?.celsius || '--'}°C</span><span class="md-error-text">最高: ${forecast.temperature.max?.celsius || '--'}°C</span></div>`;
-          weatherContainer.appendChild(el);
-        });
-        return true;
+        if (closestCity && minDistance <= DISTANCE_THRESHOLD_KM) {
+          cityLabel = closestCity.name;
+          lat = userLat;
+          lon = userLon;
+        }
       } catch {
-        const sapporoCityId = '016010';
-        const weatherApiUrl = `https://weather.tsukumijima.net/api/forecast?city=${sapporoCityId}`;
-        const r = await fetch(weatherApiUrl);
-        const data = await r.json();
-        weatherContainer.innerHTML = '';
-        const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-        document.querySelector('#weather-container').previousElementSibling.textContent = `札幌の天気`;
-        data.forecasts.slice(0, 3).forEach(forecast => {
-          const iconUrl = forecast.image.url;
-          const forecastDate = new Date(forecast.date);
-          const month = forecastDate.getMonth() + 1;
-          const day = forecastDate.getDate();
-          const weekday = weekdays[forecastDate.getDay()];
-          const dateLabel = `${month}月${day}日(${weekday})`;
-          const el = document.createElement('div');
-          el.className = 'md-tile';
-          el.innerHTML = `<p class="md-title-medium">${dateLabel}</p><img src="${iconUrl}" alt="${forecast.telop}" class="w-16 h-16 mx-auto my-2" onerror="this.src='https://placehold.co/64x64/CCCCCC/FFFFFF?text=No+Icon';"><p class="text-base md-on-surface-variant mb-2">${forecast.telop}</p><div class="flex justify-center items-center space-x-2 text-base"><span class="md-tertiary-text">最低: ${forecast.temperature.min?.celsius || '--'}°C</span><span class="md-error-text">最高: ${forecast.temperature.max?.celsius || '--'}°C</span></div>`;
-          weatherContainer.appendChild(el);
-        });
-        return true;
       }
+      const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7`;
+      const r = await fetch(weatherApiUrl);
+      const data = await r.json();
+      weatherContainer.className = 'space-y-5';
+      weatherContainer.innerHTML = '';
+      document.querySelector('#weather-container').previousElementSibling.textContent = `${cityLabel}の天気`;
+
+      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+
+      const current = data.current;
+      const currentInfo = getWeatherInfo(current.weather_code, current.is_day === 1);
+      const currentEl = document.createElement('div');
+      currentEl.className = 'weather-current';
+      currentEl.innerHTML = `<i class="fas ${currentInfo.icon} weather-current-icon"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
+      weatherContainer.appendChild(currentEl);
+
+      const now = new Date();
+      const hourlyStartIndex = data.hourly.time.findIndex(t => new Date(t) >= now);
+      const startIdx = hourlyStartIndex === -1 ? 0 : hourlyStartIndex;
+      const hourlyEl = document.createElement('div');
+      hourlyEl.className = 'weather-hourly-scroll';
+      for (let i = startIdx; i < startIdx + 24 && i < data.hourly.time.length; i++) {
+        const hourDate = new Date(data.hourly.time[i]);
+        const hourInfo = getWeatherInfo(data.hourly.weather_code[i], hourDate.getHours() >= 6 && hourDate.getHours() < 18);
+        const hourLabel = i === startIdx ? '現在' : `${hourDate.getHours()}時`;
+        const card = document.createElement('div');
+        card.className = 'weather-hourly-item';
+        card.innerHTML = `<p class="weather-hourly-time">${hourLabel}</p><i class="fas ${hourInfo.icon} weather-hourly-icon"></i><p class="weather-hourly-temp">${Math.round(data.hourly.temperature_2m[i])}°C</p>`;
+        hourlyEl.appendChild(card);
+      }
+      weatherContainer.appendChild(hourlyEl);
+
+      const dailyEl = document.createElement('div');
+      dailyEl.className = 'weather-daily-list';
+      data.daily.time.forEach((dateStr, i) => {
+        const dayDate = new Date(dateStr);
+        const dayInfo = getWeatherInfo(data.daily.weather_code[i], true);
+        const dateLabel = i === 0 ? '今日' : `${dayDate.getMonth() + 1}月${dayDate.getDate()}日(${weekdays[dayDate.getDay()]})`;
+        const row = document.createElement('div');
+        row.className = 'weather-daily-item';
+        row.innerHTML = `<span class="weather-daily-date">${dateLabel}</span><i class="fas ${dayInfo.icon} weather-daily-icon"></i><span class="weather-daily-label">${dayInfo.label}</span><span class="weather-daily-temps"><span class="md-tertiary-text">${Math.round(data.daily.temperature_2m_min[i])}°C</span> / <span class="md-error-text">${Math.round(data.daily.temperature_2m_max[i])}°C</span></span>`;
+        dailyEl.appendChild(row);
+      });
+      weatherContainer.appendChild(dailyEl);
+
+      return true;
     }, weatherContainer, '天気情報を取得中...', '天気情報の取得に失敗しました。', 2, 1500);
   }
 
