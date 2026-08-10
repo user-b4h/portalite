@@ -239,8 +239,8 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
   text-align: center;
 }
 .weather-current-icon { font-size: 3rem; color: var(--md-accent); }
-.weather-current-temp { font-size: 2.5rem; font-weight: 700; margin-top: .25rem; }
-.weather-current-label { font-size: 1rem; color: var(--md-on-surface-variant); margin-top: .25rem; }
+.weather-current-temp { font-size: 2.5rem; font-weight: 700; margin-top: .75rem; }
+.weather-current-label { font-size: 1rem; color: var(--md-on-surface-variant); margin-top: .35rem; }
 
 .weather-hourly-scroll {
   display: flex;
@@ -550,4 +550,23 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
     flex: none;
     padding: 1rem .5rem;
   }
+}
+
+@media (min-width: 1024px) {
+  #main-content {
+    max-width: 76rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+  #main-content > * { margin-top: 0 !important; }
+  #main-content > header,
+  #main-content > section:nth-of-type(1),
+  #main-content > section:nth-of-type(2),
+  #main-content > footer {
+    grid-column: 1 / -1;
+  }
+  .weather-hourly-scroll { flex-wrap: wrap; overflow-x: visible; }
+  .weather-hourly-item { min-width: 5.5rem; }
 }
