@@ -182,7 +182,7 @@ function initApp() {
       const currentInfo = getWeatherInfo(current.weather_code, current.is_day === 1);
       const currentEl = document.createElement('div');
       currentEl.className = 'weather-current';
-      currentEl.innerHTML = `<div class="weather-current-city">${cityLabel}</div><i class="fas ${currentInfo.icon} weather-current-icon" style="color:${currentInfo.color}"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
+      currentEl.innerHTML = `<i class="fas ${currentInfo.icon} weather-current-icon" style="color:${currentInfo.color}"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
       weatherContainer.appendChild(currentEl);
 
       const now = new Date();
