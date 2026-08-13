@@ -127,6 +127,10 @@
   --md-outline-variant: hsl(var(--md-hue) 10% 32%);
 }
 
+html[data-font-size="small"] { font-size: 87.5%; }
+html[data-font-size="large"] { font-size: 112.5%; }
+html[data-font-size="xlarge"] { font-size: 125%; }
+
 * {
   font-family: "BIZ UDPGothic", "HiraginoSans-W2", "Hiragino Kaku Gothic ProN", Meiryo, "メイリオ", sans-serif;
   box-sizing: border-box;
@@ -504,6 +508,30 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 .color-mode-option i { font-size: 1.25rem; }
 @media (hover: hover) { .color-mode-option:hover { border-color: var(--md-primary); } }
 .color-mode-option.selected {
+  border-color: var(--md-primary);
+  color: var(--md-primary);
+  background: var(--md-primary-container);
+}
+
+.font-size-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: .9rem .5rem;
+  border-radius: var(--md-shape-lg);
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container-low);
+  color: var(--md-on-surface-variant);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 150ms var(--md-motion-standard), color 150ms var(--md-motion-standard), background-color 150ms var(--md-motion-standard);
+}
+.font-size-option .font-size-preview { font-size: 1.25rem; font-weight: 700; }
+@media (hover: hover) { .font-size-option:hover { border-color: var(--md-primary); } }
+.font-size-option.selected {
   border-color: var(--md-primary);
   color: var(--md-primary);
   background: var(--md-primary-container);
