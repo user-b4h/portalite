@@ -3,7 +3,7 @@
 :root {
   --md-hue: 228;
   --md-tertiary-hue: 288;
-  --md-sat: 62%;
+  --md-sat: 88%;
   --md-neutral-sat: 10%;
 
   --md-primary: hsl(var(--md-hue) var(--md-sat) 42%);
