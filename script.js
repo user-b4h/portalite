@@ -44,6 +44,20 @@ function initApp() {
   }
   applyColorMode(localStorage.getItem(COLOR_MODE_KEY) || 'system');
 
+  const FONT_SIZE_KEY = 'portalite-font-size';
+  const FONT_SIZE_DEFAULT = 'default';
+  const fontSizeOptions = document.querySelectorAll('.font-size-option');
+  function applyFontSize(size) {
+    if (size === 'default') document.documentElement.removeAttribute('data-font-size');
+    else document.documentElement.setAttribute('data-font-size', size);
+    localStorage.setItem(FONT_SIZE_KEY, size);
+    fontSizeOptions.forEach(opt => opt.classList.toggle('selected', opt.dataset.fontSize === size));
+  }
+  applyFontSize(localStorage.getItem(FONT_SIZE_KEY) || FONT_SIZE_DEFAULT);
+  fontSizeOptions.forEach(opt => {
+    opt.addEventListener('click', () => { applyFontSize(opt.dataset.fontSize); });
+  });
+
   function showLoading(container, message = '読み込み中...') {
     container.innerHTML = `<div class="flex flex-col items-center justify-center py-8"><div class="loading-spinner"></div><p class="mt-3 md-on-surface-variant">${message}</p></div>`;
   }
