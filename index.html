@@ -128,9 +128,6 @@
     </section>
 
     <footer class="text-center md-on-surface-variant text-sm sm:text-base mt-4 pb-4">
-      <button id="customize-button" type="button" class="md-label-large mb-4">
-        <i class="fas fa-palette mr-2"></i>カスタマイズ
-      </button>
       <div class="text-xs mb-1">「QRコード」は、株式会社デンソーウェーブの登録商標です。</div>
       <div><span id="copyright-text"></span></div>
     </footer>
@@ -145,10 +142,6 @@
       <i class="fas fa-search"></i>
       <span>検索</span>
     </button>
-    <button type="button" class="bottom-menu-item" data-bottom-action="kanji">
-      <i class="fas fa-spell-check"></i>
-      <span>漢字</span>
-    </button>
     <button type="button" class="bottom-menu-item" data-bottom-action="weather">
       <i class="fas fa-cloud-sun"></i>
       <span>天気</span>
@@ -156,6 +149,10 @@
     <button type="button" class="bottom-menu-item" data-bottom-action="news">
       <i class="fas fa-newspaper"></i>
       <span>ニュース</span>
+    </button>
+    <button type="button" class="bottom-menu-item" data-bottom-action="settings">
+      <i class="fas fa-gear"></i>
+      <span>設定</span>
     </button>
   </nav>
 
@@ -192,19 +189,41 @@
     </div>
   </div>
 
-  <div id="theme-overlay" class="hidden">
-    <div id="theme-inner">
+  <div id="settings-overlay" class="hidden">
+    <div id="settings-inner">
       <div class="p-4 flex items-center justify-between md-dialog-header">
-        <h3 class="md-title-large">テーマカラー</h3>
-        <button id="theme-cancel-button" class="md-dialog-close">閉じる</button>
+        <h3 class="md-title-large">設定</h3>
+        <button id="settings-cancel-button" class="md-dialog-close">閉じる</button>
       </div>
-      <div class="p-6 grid grid-cols-3 gap-6" id="theme-swatches">
-        <button type="button" class="theme-swatch" data-theme="blue" style="background:#3b82f6" aria-label="ブルー"></button>
-        <button type="button" class="theme-swatch" data-theme="green" style="background:#10b981" aria-label="グリーン"></button>
-        <button type="button" class="theme-swatch" data-theme="purple" style="background:#8b5cf6" aria-label="パープル"></button>
-        <button type="button" class="theme-swatch" data-theme="pink" style="background:#ec4899" aria-label="ピンク"></button>
-        <button type="button" class="theme-swatch" data-theme="orange" style="background:#f97316" aria-label="オレンジ"></button>
-        <button type="button" class="theme-swatch" data-theme="red" style="background:#ef4444" aria-label="レッド"></button>
+      <div class="p-6 space-y-6">
+        <div>
+          <p class="md-label-large md-on-surface-variant mb-3">カラーモード</p>
+          <div class="grid grid-cols-3 gap-3">
+            <button type="button" class="color-mode-option" data-color-mode="system">
+              <i class="fas fa-circle-half-stroke"></i>
+              <span>システム</span>
+            </button>
+            <button type="button" class="color-mode-option" data-color-mode="light">
+              <i class="fas fa-sun"></i>
+              <span>ライト</span>
+            </button>
+            <button type="button" class="color-mode-option" data-color-mode="dark">
+              <i class="fas fa-moon"></i>
+              <span>ダーク</span>
+            </button>
+          </div>
+        </div>
+        <div>
+          <p class="md-label-large md-on-surface-variant mb-3">テーマカラー</p>
+          <div class="grid grid-cols-6 gap-4" id="theme-swatches">
+            <button type="button" class="theme-swatch" data-theme="blue" style="background:#3b82f6" aria-label="ブルー"></button>
+            <button type="button" class="theme-swatch" data-theme="green" style="background:#10b981" aria-label="グリーン"></button>
+            <button type="button" class="theme-swatch" data-theme="purple" style="background:#8b5cf6" aria-label="パープル"></button>
+            <button type="button" class="theme-swatch" data-theme="pink" style="background:#ec4899" aria-label="ピンク"></button>
+            <button type="button" class="theme-swatch" data-theme="orange" style="background:#f97316" aria-label="オレンジ"></button>
+            <button type="button" class="theme-swatch" data-theme="red" style="background:#ef4444" aria-label="レッド"></button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
