@@ -140,6 +140,7 @@ body {
   background: var(--md-surface);
   color: var(--md-on-surface);
   transition: background-color .3s var(--md-motion-standard);
+  overflow-anchor: none;
 }
 
 ::-webkit-scrollbar { width: 12px; }
