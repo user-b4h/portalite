@@ -54,12 +54,12 @@
   --md-motion-emphasized: cubic-bezier(0.3, 0, 0, 1);
 }
 
-[data-theme="blue"]   { --md-hue: 228; --md-tertiary-hue: 288; }
-[data-theme="green"]  { --md-hue: 152; --md-tertiary-hue: 210; }
-[data-theme="purple"] { --md-hue: 262; --md-tertiary-hue: 322; }
-[data-theme="pink"]   { --md-hue: 336; --md-tertiary-hue: 20;  }
-[data-theme="orange"] { --md-hue: 28;  --md-tertiary-hue: 340; }
-[data-theme="red"]    { --md-hue: 6;   --md-tertiary-hue: 40;  }
+[data-theme="blue"]   { --md-hue: 217; --md-tertiary-hue: 277; }
+[data-theme="green"]  { --md-hue: 160; --md-tertiary-hue: 220; }
+[data-theme="purple"] { --md-hue: 258; --md-tertiary-hue: 318; }
+[data-theme="pink"]   { --md-hue: 330; --md-tertiary-hue: 30;  }
+[data-theme="orange"] { --md-hue: 25;  --md-tertiary-hue: 85;  }
+[data-theme="red"]    { --md-hue: 0;   --md-tertiary-hue: 60;  }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-color-mode="light"]) {
