@@ -63,6 +63,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-color-mode="light"]) {
+    --md-primary: hsl(var(--md-hue) 68% 80%);
     --md-on-primary: hsl(var(--md-hue) 68% 22%);
     --md-primary-container: hsl(var(--md-hue) 50% 30%);
     --md-on-primary-container: hsl(var(--md-hue) 68% 92%);
@@ -95,6 +96,7 @@
 }
 
 :root[data-color-mode="dark"] {
+  --md-primary: hsl(var(--md-hue) 68% 80%);
   --md-on-primary: hsl(var(--md-hue) 68% 22%);
   --md-primary-container: hsl(var(--md-hue) 50% 30%);
   --md-on-primary-container: hsl(var(--md-hue) 68% 92%);
