@@ -277,7 +277,6 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 }
 .weather-current-icon { font-size: 3rem; color: var(--md-accent); margin-bottom: .5rem; }
 .weather-current-temp { font-size: 2.5rem; font-weight: 700; margin-top: 1.25rem; }
-.weather-current-label { font-size: 1rem; color: var(--md-on-surface-variant); margin-top: .75rem; }
 
 .weather-hourly-scroll {
   display: flex;
@@ -306,7 +305,7 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 }
 .weather-daily-item {
   display: grid;
-  grid-template-columns: minmax(3.5rem, auto) 1.75rem minmax(0, 1fr) auto;
+  grid-template-columns: minmax(3.5rem, auto) 1.75rem auto;
   align-items: center;
   gap: .5rem .75rem;
   padding: .75rem 1rem;
@@ -314,8 +313,7 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 .weather-daily-item:not(:last-child) { border-bottom: 1px solid var(--md-outline-variant); }
 .weather-daily-date { text-align: left; font-size: .95rem; white-space: nowrap; }
 .weather-daily-icon { color: var(--md-accent); text-align: center; }
-.weather-daily-label { min-width: 0; text-align: left; font-size: .9rem; color: var(--md-on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.weather-daily-temps { text-align: right; font-size: .95rem; white-space: nowrap; }
+.weather-daily-temps { text-align: right; font-size: .95rem; white-space: nowrap; justify-self: end; }
 
 
 .news-item {
