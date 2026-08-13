@@ -26,9 +26,6 @@ function initApp() {
   const currentYear = new Date().getFullYear();
   copyrightText.textContent = `© 2025 - ${currentYear} Portalite`;
   const THEME_KEY = 'portalite-theme';
-  const customizeButton = document.getElementById('customize-button');
-  const themeOverlay = document.getElementById('theme-overlay');
-  const themeCancelButton = document.getElementById('theme-cancel-button');
   const themeSwatches = document.querySelectorAll('.theme-swatch');
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
@@ -36,6 +33,16 @@ function initApp() {
     themeSwatches.forEach(sw => sw.classList.toggle('selected', sw.dataset.theme === theme));
   }
   applyTheme(localStorage.getItem(THEME_KEY) || 'blue');
+
+  const COLOR_MODE_KEY = 'portalite-color-mode';
+  const colorModeOptions = document.querySelectorAll('.color-mode-option');
+  function applyColorMode(mode) {
+    if (mode === 'light' || mode === 'dark') document.documentElement.setAttribute('data-color-mode', mode);
+    else document.documentElement.removeAttribute('data-color-mode');
+    localStorage.setItem(COLOR_MODE_KEY, mode);
+    colorModeOptions.forEach(opt => opt.classList.toggle('selected', opt.dataset.colorMode === mode));
+  }
+  applyColorMode(localStorage.getItem(COLOR_MODE_KEY) || 'system');
 
   function showLoading(container, message = '読み込み中...') {
     container.innerHTML = `<div class="flex flex-col items-center justify-center py-8"><div class="loading-spinner"></div><p class="mt-3 md-on-surface-variant">${message}</p></div>`;
@@ -768,21 +775,25 @@ function initApp() {
   kanjiClearButton.addEventListener('click', () => { kanjiTextarea.value = ''; kanjiTextarea.focus(); });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && kanjiOverlay.style.display === 'flex') closeKanjiOverlay();
-    if (e.key === 'Escape' && themeOverlay.style.display === 'flex') closeThemeOverlay();
+    if (e.key === 'Escape' && settingsOverlay.style.display === 'flex') closeSettingsOverlay();
   });
-  function openThemeOverlay() {
-    themeOverlay.style.display = 'flex';
-    themeOverlay.classList.remove('hidden');
+  const settingsOverlay = document.getElementById('settings-overlay');
+  const settingsCancelButton = document.getElementById('settings-cancel-button');
+  function openSettingsOverlay() {
+    settingsOverlay.style.display = 'flex';
+    settingsOverlay.classList.remove('hidden');
   }
-  function closeThemeOverlay() {
-    themeOverlay.style.display = 'none';
-    themeOverlay.classList.add('hidden');
+  function closeSettingsOverlay() {
+    settingsOverlay.style.display = 'none';
+    settingsOverlay.classList.add('hidden');
   }
-  customizeButton.addEventListener('click', openThemeOverlay);
-  themeCancelButton.addEventListener('click', closeThemeOverlay);
-  themeOverlay.addEventListener('click', (e) => { if (e.target === themeOverlay) closeThemeOverlay(); });
+  settingsCancelButton.addEventListener('click', closeSettingsOverlay);
+  settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) closeSettingsOverlay(); });
   themeSwatches.forEach(sw => {
-    sw.addEventListener('click', () => { applyTheme(sw.dataset.theme); closeThemeOverlay(); });
+    sw.addEventListener('click', () => { applyTheme(sw.dataset.theme); });
+  });
+  colorModeOptions.forEach(opt => {
+    opt.addEventListener('click', () => { applyColorMode(opt.dataset.colorMode); });
   });
   function handleSearchSubmit(event) {
     event.preventDefault();
@@ -800,9 +811,9 @@ function initApp() {
       const action = item.dataset.bottomAction;
       if (action === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
       else if (action === 'search') openMobileSearchOverlay();
-      else if (action === 'kanji') openKanjiOverlay();
       else if (action === 'weather') weatherContainer.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
       else if (action === 'news') newsContainer.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else if (action === 'settings') openSettingsOverlay();
     });
   });
 }
