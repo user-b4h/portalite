@@ -831,7 +831,9 @@ function initApp() {
     });
   });
 }
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 document.addEventListener('DOMContentLoaded', () => {
+  window.scrollTo(0, 0);
   initApp();
   const preloader = document.getElementById('preloader');
   const mainContent = document.getElementById('main-content');
@@ -841,6 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
       preloader.style.display = 'none';
       mainContent.classList.remove('hidden');
       mainContent.style.pointerEvents = 'auto';
+      window.scrollTo(0, 0);
     }, { once: true });
   }, 500);
 });
