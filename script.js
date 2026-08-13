@@ -203,7 +203,7 @@ function initApp() {
       const currentInfo = getWeatherInfo(current.weather_code, current.is_day === 1);
       const currentEl = document.createElement('div');
       currentEl.className = 'weather-current';
-      currentEl.innerHTML = `<i class="fas ${currentInfo.icon} weather-current-icon" style="color:${currentInfo.color}"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div><div class="weather-current-label">${currentInfo.label}</div>`;
+      currentEl.innerHTML = `<i class="fas ${currentInfo.icon} weather-current-icon" style="color:${currentInfo.color}"></i><div class="weather-current-temp">${Math.round(current.temperature_2m)}°C</div>`;
       weatherContainer.appendChild(currentEl);
 
       const now = new Date();
@@ -230,7 +230,7 @@ function initApp() {
         const dateLabel = i === 0 ? '今日' : `${dayDate.getDate()}日（${weekdays[dayDate.getDay()]}）`;
         const row = document.createElement('div');
         row.className = 'weather-daily-item';
-        row.innerHTML = `<span class="weather-daily-date">${dateLabel}</span><i class="fas ${dayInfo.icon} weather-daily-icon" style="color:${dayInfo.color}"></i><span class="weather-daily-label">${dayInfo.label}</span><span class="weather-daily-temps"><span class="md-tertiary-text">${Math.round(data.daily.temperature_2m_min[i])}°C</span> / <span class="md-error-text">${Math.round(data.daily.temperature_2m_max[i])}°C</span></span>`;
+        row.innerHTML = `<span class="weather-daily-date">${dateLabel}</span><i class="fas ${dayInfo.icon} weather-daily-icon" style="color:${dayInfo.color}"></i><span class="weather-daily-temps"><span class="md-tertiary-text">${Math.round(data.daily.temperature_2m_min[i])}°C</span> / <span class="md-error-text">${Math.round(data.daily.temperature_2m_max[i])}°C</span></span>`;
         dailyEl.appendChild(row);
       });
       weatherContainer.appendChild(dailyEl);
