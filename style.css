@@ -58,8 +58,8 @@
 [data-theme="green"]  { --md-hue: 152; --md-tertiary-hue: 210; }
 [data-theme="purple"] { --md-hue: 262; --md-tertiary-hue: 322; }
 [data-theme="pink"]   { --md-hue: 336; --md-tertiary-hue: 20;  }
-[data-theme="orange"] { --md-hue: 28;  --md-tertiary-hue: 340; }
-[data-theme="red"]    { --md-hue: 6;   --md-tertiary-hue: 40;  }
+[data-theme="orange"] { --md-hue: 28;  --md-tertiary-hue: 340; --md-sat: 90%; --md-primary: hsl(28 90% 36%); }
+[data-theme="red"]    { --md-hue: 6;   --md-tertiary-hue: 40;  --md-sat: 90%; --md-primary: hsl(6 90% 38%); }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-color-mode="light"]) {
